@@ -1,0 +1,24 @@
+START
+!go 10
+!ld pierwszy
+!addi 2 xd
+!addi 1 dc
+!addi 0 pierwszy
+!show
+Document: pierwszy
+pierwszy
+abc
+dc
+def
+xd
+ghi
+!reverse
+Document: pierwszy
+ghi
+xd
+def
+dc
+abc
+pierwszy
+!ha
+END OF EXECUTION

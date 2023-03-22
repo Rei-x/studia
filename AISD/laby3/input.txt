@@ -1,0 +1,11 @@
+go 10
+ld pierwszy
+link=abc link=def
+link=ghi
+eod
+addi 2 xd
+addi 1 dc
+addi 0 pierwszy
+show
+reverse
+ha
