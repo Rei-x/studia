@@ -114,7 +114,6 @@ public class TwoWayUnorderedListWithHeadAndTail<E> implements IList<E> {
 	}
 
 	public TwoWayUnorderedListWithHeadAndTail() {
-		// make a head and a tail
 		head = null;
 		tail = null;
 		size = 0;
@@ -282,18 +281,7 @@ public class TwoWayUnorderedListWithHeadAndTail<E> implements IList<E> {
 
 		while (pos != null) {
 			if (pos.object.equals(e)) {
-				if (pos.prev != null)
-					pos.prev.next = pos.next;
-				if (pos.next != null)
-					pos.next.prev = pos.prev;
-
-				if (pos == head)
-					head = pos.next;
-
-				if (pos == tail)
-					tail = pos.prev;
-
-				size--;
+				removeElementInPlace(pos);
 				return true;
 			}
 			pos = pos.next;
@@ -337,5 +325,34 @@ public class TwoWayUnorderedListWithHeadAndTail<E> implements IList<E> {
 		}
 
 		other.clear();
+	}
+
+	private void removeElementInPlace(Element pos) {
+		if (pos.prev != null)
+			pos.prev.next = pos.next;
+
+		if (pos.next != null)
+			pos.next.prev = pos.prev;
+
+		if (pos == head)
+			head = pos.next;
+
+		if (pos == tail)
+			tail = pos.prev;
+
+		size--;
+	}
+
+	public void removeEven() {
+		Element pos = head;
+		int rememberedSize = size;
+
+		for (int i = 0; i < rememberedSize; i++) {
+			if (i % 2 == 0) {
+				removeElementInPlace(pos);
+			}
+
+			pos = pos.next;
+		}
 	}
 }

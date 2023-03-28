@@ -41,6 +41,14 @@ public class Main {
 				halt = true;
 				continue;
 			}
+			if (word[0].equalsIgnoreCase("ree")) {
+				try {
+					doc[currentDocNo].link.removeEven();
+				} catch (NoSuchElementException e) {
+					System.out.println("error");
+				}
+				continue;
+			}
 			// clear
 			if (word[0].equalsIgnoreCase("clear") && word.length == 1) {
 				doc[currentDocNo].link.clear();
