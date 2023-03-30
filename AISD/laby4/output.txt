@@ -1,0 +1,52 @@
+START
+!go 10
+!ld zero
+!show
+Document: zero
+a(1) abc(1) cc(1) cos(30) cos(1) e(1) eeee(15) ggg(1) ggg(5) ggg(4)
+kkk(1) ok(123)
+!reverse
+Document: zero
+ok(123) kkk(1) ggg(4) ggg(5) ggg(1) eeee(15) e(1) cos(1) cos(30) cc(1)
+abc(1) a(1)
+!ch 1
+!ld first
+!show
+Document: first
+cos(15) cos(12) eee(1) eeee(14) zzz(1)
+!reverse
+Document: first
+zzz(1) eeee(14) eee(1) cos(12) cos(15)
+!addl 0
+!show
+Document: first
+a(1) abc(1) cc(1) cos(15) cos(12) cos(30) cos(1) e(1) eee(1) eeee(14)
+eeee(15) ggg(1) ggg(5) ggg(4) kkk(1) ok(123) zzz(1)
+!reverse
+Document: first
+zzz(1) ok(123) kkk(1) ggg(4) ggg(5) ggg(1) eeee(15) eeee(14) eee(1) e(1)
+cos(1) cos(30) cos(12) cos(15) cc(1) abc(1) a(1)
+!ch 0
+!show
+Document: zero
+!reverse
+Document: zero
+!ch 2
+!ld 3ddfg
+incorrect ID
+!ld ABC
+!show
+Document: abc
+abc(4)
+!ch 1
+!show
+Document: first
+a(1) abc(1) cc(1) cos(15) cos(12) cos(30) cos(1) e(1) eee(1) eeee(14)
+eeee(15) ggg(1) ggg(5) ggg(4) kkk(1) ok(123) zzz(1)
+!remall cos
+!show
+Document: first
+a(1) abc(1) cc(1) e(1) eee(1) eeee(14) eeee(15) ggg(1) ggg(5) ggg(4)
+kkk(1) ok(123) zzz(1)
+!ha
+END OF EXECUTION

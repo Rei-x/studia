@@ -1,0 +1,33 @@
+go 10
+ld zero
+text link=ggg and link=cc link=a link=e link=GGG(5) link=eeee(15)
+link=gGg(4)
+adsad link=abc link=cos(30) link=cos(1) link=wrong(-1) link=wrong(asdf)
+link=wrong(1.23) link=ok(123) link=kkk
+eod
+show
+reverse
+ch 1
+ld first
+correct link=cos(15) link=zzz link=cos(12) link=eee(1) link=eeee(14)
+this is link=wrong(12 o yeah.
+eod
+show
+reverse
+addl 0
+show
+reverse
+ch 0
+show
+reverse
+ch 2
+ld 3ddfg
+ld ABC
+and LiNk=Abc(4)
+eod
+show
+ch 1
+show
+remall cos
+show
+ha
