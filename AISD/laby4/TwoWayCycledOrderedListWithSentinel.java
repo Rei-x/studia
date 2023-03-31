@@ -260,14 +260,18 @@ public class TwoWayCycledOrderedListWithSentinel<E extends Comparable<E>> implem
       return;
     }
 
-    for (E e : other) {
-      while (current.next != sentinel && current.next.object.compareTo(e) <= 0) {
+    Element otherElement = other.sentinel.next;
+
+    for (int i = 0; i < other.size(); i++) {
+      while (current.next != sentinel && current.next.object.compareTo(otherElement.object) <= 0) {
         current = current.next;
       }
+      Element previousNext = otherElement.next;
 
-      Element elem = new Element(e);
+      current.addAfter(otherElement);
 
-      current.addAfter(elem);
+      current = current.next;
+      otherElement = previousNext;
       size++;
     }
     other.clear();
