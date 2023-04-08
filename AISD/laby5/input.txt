@@ -1,17 +1,14 @@
+#Test for Lab5
 go 10
-ld zero
-text link=ggg and link=cc link=a link=e link=GGG(5) link=eeee(15)
-link=gGg(4)
-adsad link=abc link=cos(30) link=cos(1) link=wrong(-1) link=wrong(asdf)
-link=wrong(1.23) link=ok(123) link=kkk
+ld doc1
+link=c(10) and link=b(7)
+write also link=z end finish link=a(20)
 eod
+add f(8)
+add g(4)
+add e(3)
 show
-reverse
-ch 1
-ld first
-eod
-show
-reverse
-addl 0
-show
+bubblesort
+insertsort
+selectsort
 ha
