@@ -132,10 +132,11 @@ public class Document {
 
     for (int i = 0; i < arr.length - 1; i++) {
       for (int j = arr.length - 1; j > i; j--) {
-        if (arr[j - 1] > arr[j]) {
-          int temp = arr[j];
-          arr[j] = arr[j - 1];
-          arr[j - 1] = temp;
+        int left = arr[j - 1];
+        int right = arr[j];
+
+        if (left > right) {
+          swap(arr, j, j - 1);
         }
       }
       showArray(arr);
@@ -144,27 +145,23 @@ public class Document {
 
   public void insertSort(int[] arr) {
     showArray(arr);
-    // sorts from highest index
-    for (int i = arr.length - 2; i > 0; i--) {
-      int j = i;
-      while (j < arr.length - 1 && arr[j] > arr[j + 1]) {
-        int temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
+
+    for (int i = arr.length - 2; i >= 0; i--) {
+      int previousElement = arr[i];
+      int j = i + 1;
+
+      while (j < arr.length && previousElement > arr[j]) {
+        swap(arr, j, j - 1);
         j++;
       }
       showArray(arr);
     }
+  }
 
-    int j = 0;
-    while (j < arr.length - 1 && arr[j] > arr[j + 1]) {
-      int temp = arr[j];
-      arr[j] = arr[j + 1];
-      arr[j + 1] = temp;
-      j++;
-    }
-
-    showArray(arr);
+  private void swap(int[] arr, int j, int i) {
+    int temp = arr[j];
+    arr[j] = arr[i];
+    arr[i] = temp;
   }
 
   public void selectSort(int[] arr) {
@@ -173,15 +170,15 @@ public class Document {
     for (int i = arr.length - 1; i > 0; i--) {
       int max = arr[i];
       int maxIndex = i;
-      for (int j = i - 1; j >= 0; j--) {
+
+      for (int j = i; j >= 0; j--) {
         if (arr[j] > max) {
           max = arr[j];
           maxIndex = j;
         }
       }
-      int temp = arr[i];
-      arr[i] = arr[maxIndex];
-      arr[maxIndex] = temp;
+      swap(arr, i, maxIndex);
+
       showArray(arr);
     }
   }
