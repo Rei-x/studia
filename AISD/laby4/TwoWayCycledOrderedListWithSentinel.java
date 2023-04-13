@@ -164,10 +164,7 @@ public class TwoWayCycledOrderedListWithSentinel<E extends Comparable<E>> implem
 
   @Override
   public void clear() {
-    sentinel.next = null;
-    sentinel.prev = null;
-    sentinel.next = sentinel;
-    sentinel.prev = sentinel;
+    sentinel = new Element(null);
     size = 0;
   }
 
