@@ -112,7 +112,6 @@ public class TwoWayCycledOrderedListWithSentinel<E extends Comparable<E>> implem
   }
 
   public TwoWayCycledOrderedListWithSentinel() {
-    sentinel = new Element(null);
     clear();
   }
 
@@ -253,8 +252,7 @@ public class TwoWayCycledOrderedListWithSentinel<E extends Comparable<E>> implem
     Element current = sentinel;
 
     if (current.next == sentinel) {
-      sentinel.prev = other.sentinel.prev;
-      sentinel.next = other.sentinel.next;
+      sentinel = other.sentinel;
       size = other.size;
       other.clear();
       return;

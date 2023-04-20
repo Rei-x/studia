@@ -1,0 +1,13 @@
+#Test for Lab6
+go 10
+ld doc1
+link=c(10) and link=b(7)
+write also link=z end finish link=a(20)
+eod
+add f(8)
+add g(4)
+add e(3)
+show
+mergesort
+radixsort
+ha
