@@ -6,7 +6,7 @@ public class Document {
 	public String name;
 	public TwoWayCycledOrderedListWithSentinel<Link> link;
 	final static String regex = "\\blink\\b=([a-z]{1}[a-z0-9_]*)(?:\\((\\d+)\\)|$|\\s)";
-
+	final static int NUMBER_OF_DIGITS = 10;
 	public Document(String name, Scanner scan) {
 		this.name = name.toLowerCase();
 		link = new TwoWayCycledOrderedListWithSentinel<Link>();
@@ -212,10 +212,11 @@ public class Document {
 	}
 
 	public static void merge(int arr[], int left, int mid, int right) {
-		int leftArrayLength = mid - left + 1;
-		int rightArrayLength = right - mid;
 
+		int leftArrayLength = mid - left + 1;
 		int leftArray[] = new int[leftArrayLength];
+
+		int rightArrayLength = right - mid;
 		int rightArray[] = new int[rightArrayLength];
 
 		copyArrayWithOffset(arr, leftArray, left);
@@ -258,7 +259,7 @@ public class Document {
 
 		int digitCount[] = countDigits(arr, digitPlace);
 
-		final int NUMBER_OF_DIGITS = 10;
+		
 
 		for (int i = 1; i < NUMBER_OF_DIGITS; i++) {
 			digitCount[i] += digitCount[i - 1];
@@ -270,12 +271,11 @@ public class Document {
 			digitCount[digit]--;
 		}
 
-
 		copyArray(tempOutput, arr);
 	}
 
 	private static int[] countDigits(int[] arr, int digitPlace) {
-		int count[] = new int[10];
+		int count[] = new int[NUMBER_OF_DIGITS];
 
 		for (int i = 0; i < arr.length; i++) {
 			int digit = getDigit(arr[i], digitPlace);
