@@ -246,27 +246,25 @@ public class Document {
 
 	public void radixSort(int[] arr) {
 		showArray(arr);
-		int max = 999;
+		final int MAX = 999;
 
-		for (int exp = 1; max / exp > 0; exp *= 10) {
+		for (int exp = 1; MAX / exp > 0; exp *= 10) {
 			countSort(arr, exp);
 			showArray(arr);
 		}
 	}
 
-	public static void countSort(int arr[], int digitPlace) {
+	public static void countSort(int arr[], int exp) {
 		int tempOutput[] = new int[arr.length];
 
-		int digitCount[] = countDigits(arr, digitPlace);
-
-		
+		int digitCount[] = countDigits(arr, exp);
 
 		for (int i = 1; i < NUMBER_OF_DIGITS; i++) {
 			digitCount[i] += digitCount[i - 1];
 		}
 
 		for (int i = arr.length - 1; i >= 0; i--) {
-			int digit = getDigit(arr[i], digitPlace);
+			int digit = getDigit(arr[i], exp);
 			tempOutput[digitCount[digit] - 1] = arr[i];
 			digitCount[digit]--;
 		}
@@ -285,7 +283,7 @@ public class Document {
 		return count;
 	}
 
-	public static int getDigit(int number, int digitPlace) {
-		return (number / digitPlace) % 10;
+	public static int getDigit(int number, int exp) {
+		return (number / exp) % 10;
 	}
 }
