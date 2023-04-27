@@ -1,24 +1,64 @@
 START
-!go 10
-!ld doc1
-!add f(8)
-true
-!add g(4)
-true
-!add e(3)
+!show
+no current document
+!ld first
+!add b(11)
 true
 !show
-Document: doc1
-a(20) b(7) c(10) e(3) f(8) g(4) z(1)
-!mergesort
-20 7 10 3 8 4 1
-7 20 3 10 4 8 1
-3 7 10 20 1 4 8
-1 3 4 7 8 10 20
-!radixsort
-20 7 10 3 8 4 1
-20 10 1 3 4 7 8
-1 3 4 7 8 10 20
-1 3 4 7 8 10 20
+Document: first
+a(10) b(11)
+!ld second
+!add d(7)
+true
+!show
+Document: second
+c(3) d(7)
+!getdoc first
+!show
+Document: first
+a(10) b(11)
+!reverse
+Document: first
+b(11) a(10)
+!getdoc second
+!show
+Document: second
+c(3) d(7)
+!reverse
+Document: second
+d(7) c(3)
+!getdoc xxx
+!show
+no current document
+!ld xxx
+!ld qqq
+!ld asd
+!ht
+0: xxx
+1: qqq
+2: second, asd
+3:
+4:
+5:
+6: first
+7:
+!ld zx
+!ht
+0:
+1:
+2: second, asd
+3:
+4:
+5:
+6:
+7:
+8: xxx
+9: qqq
+10:
+11:
+12:
+13:
+14: first, zx
+15:
 !ha
 END OF EXECUTION

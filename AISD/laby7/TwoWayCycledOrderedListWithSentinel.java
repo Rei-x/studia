@@ -1,141 +1,187 @@
-package dsaa.lab07;
 
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 
-public class TwoWayCycledOrderedListWithSentinel<E> implements IList<E>{
+public class TwoWayCycledOrderedListWithSentinel<E extends Comparable<E>> implements IList<E> {
 
-	private class Element{
+	private class Element {
 		public Element(E e) {
-			//TODO
+			object = e;
 		}
-		public Element(E e, Element next, Element prev) {
-			//TODO
-		}
-		// add element e after this
-		public void addAfter(Element elem) {
-			//TODO
-		}
-		// assert it is NOT a sentinel
-		public void remove() {
-			//TODO
-		}
-		E object;
-		Element next=null;
-		Element prev=null;
-	}
 
+		public void addAfter(Element newNext) {
+			Element previousNext = next;
+			next = newNext;
+			newNext.prev = this;
+			newNext.next = previousNext;
+			previousNext.prev = newNext;
+		}
+
+		public void remove() {
+			if (this == sentinel)
+				throw new NoSuchElementException();
+
+			size--;
+			prev.next = next;
+			next.prev = prev;
+		}
+
+		E object;
+		Element next = null;
+		Element prev = null;
+	}
 
 	Element sentinel;
 	int size;
 
-	private class InnerIterator implements Iterator<E>{
-		//TODO
+	private class InnerIterator implements Iterator<E> {
+		Element current;
+
 		public InnerIterator() {
-			//TODO
+			current = sentinel;
 		}
+
 		@Override
 		public boolean hasNext() {
-			//TODO
-			return false;
+			return current.next != sentinel;
 		}
 
 		@Override
 		public E next() {
-			//TODO
-			return null;
+			current = current.next;
+			return current.object;
 		}
 	}
 
-	private class InnerListIterator implements ListIterator<E>{
-		//TODO
+	private class InnerListIterator implements ListIterator<E> {
+		Element current;
+
 		public InnerListIterator() {
-			//TODO
+			current = sentinel;
 		}
+
 		@Override
 		public boolean hasNext() {
-			//TODO
-			return false;
+			return current.next != sentinel;
 		}
 
 		@Override
 		public E next() {
-			//TODO
-			return null;
+			current = current.next;
+			return current.object;
 		}
+
 		@Override
 		public void add(E arg0) {
 			throw new UnsupportedOperationException();
 		}
+
 		@Override
 		public boolean hasPrevious() {
-			//TODO
-			return false;
+			return current != sentinel;
 		}
+
 		@Override
 		public int nextIndex() {
 			throw new UnsupportedOperationException();
 		}
+
 		@Override
 		public E previous() {
-			//TODO
-			return null;
+			E result = current.object;
+			current = current.prev;
+
+			return result;
 		}
+
 		@Override
 		public int previousIndex() {
 			throw new UnsupportedOperationException();
 		}
+
 		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
+
 		@Override
 		public void set(E arg0) {
 			throw new UnsupportedOperationException();
 		}
 	}
+
 	public TwoWayCycledOrderedListWithSentinel() {
-		//TODO
+		clear();
 	}
 
-	//@SuppressWarnings("unchecked")
 	@Override
 	public boolean add(E e) {
-		//TODO
-		return false;
+		Element current = sentinel;
+
+		while (current.next != sentinel && current.next.object.compareTo(e) <= 0) {
+			current = current.next;
+		}
+
+		Element elem = new Element(e);
+		current.addAfter(elem);
+		size++;
+
+		return true;
 	}
 
 	private Element getElement(int index) {
-		//TODO
-		return null;
+		if (index < 0 || index >= size)
+			throw new NoSuchElementException();
+
+		Element current = sentinel.next;
+
+		for (int i = 0; i < index; i++) {
+			current = current.next;
+		}
+
+		return current;
 	}
 
 	private Element getElement(E obj) {
-		//TODO
-		return null;
+		Element current = sentinel.next;
+
+		while (current != sentinel && !current.object.equals(obj)) {
+			current = current.next;
+		}
+
+		if (current == sentinel)
+			throw new NoSuchElementException();
+
+		return current;
 	}
 
 	@Override
 	public void add(int index, E element) {
 		throw new UnsupportedOperationException();
-
 	}
 
 	@Override
 	public void clear() {
-		//TODO
+		this.sentinel = new Element(null);
+		this.sentinel.next = this.sentinel;
+		this.sentinel.prev = this.sentinel;
+		size = 0;
 	}
 
 	@Override
 	public boolean contains(E element) {
-		//TODO
-		return false;
+		try {
+			getElement(element);
+			return true;
+		} catch (NoSuchElementException e) {
+			return false;
+		}
 	}
 
 	@Override
 	public E get(int index) {
-		//TODO
-		return null;
+		return getElement(index).object;
 	}
 
 	@Override
@@ -145,14 +191,23 @@ public class TwoWayCycledOrderedListWithSentinel<E> implements IList<E>{
 
 	@Override
 	public int indexOf(E element) {
-		//TODO
-		return -1;
+		Element current = sentinel.next;
+		int index = 0;
+
+		while (current != sentinel && !current.object.equals(element)) {
+			current = current.next;
+			index++;
+		}
+
+		if (current == sentinel)
+			return -1;
+
+		return index;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		//TODO
-		return true;
+		return size == 0;
 	}
 
 	@Override
@@ -167,31 +222,84 @@ public class TwoWayCycledOrderedListWithSentinel<E> implements IList<E>{
 
 	@Override
 	public E remove(int index) {
-		//TODO
-		return null;
+		Element current = getElement(index);
+		E result = current.object;
+
+		current.remove();
+
+		return result;
 	}
 
 	@Override
 	public boolean remove(E e) {
-		//TODO
-		return false;
+		try {
+			Element current = getElement(e);
+			current.remove();
+			return true;
+		} catch (NoSuchElementException ex) {
+			return false;
+		}
 	}
 
 	@Override
 	public int size() {
-		//TODO
-		return -1;
+		return size;
 	}
 
-	//@SuppressWarnings("unchecked")
 	public void add(TwoWayCycledOrderedListWithSentinel<E> other) {
-		//TODO
+		if (other == null || other.size() == 0 || other == this) {
+			return;
+		}
+
+		Element current = sentinel;
+
+		if (current.next == sentinel) {
+			sentinel.prev = other.sentinel.prev;
+			sentinel.next = other.sentinel.next;
+			size = other.size;
+			other.clear();
+			return;
+		}
+
+		Element otherElement = other.sentinel.next;
+
+		for (int i = 0; i < other.size(); i++) {
+			while (current.next != sentinel && current.next.object.compareTo(otherElement.object) <= 0) {
+				current = current.next;
+			}
+			Element previousNext = otherElement.next;
+
+			current.addAfter(otherElement);
+
+			current = current.next;
+			otherElement = previousNext;
+			size++;
+		}
+		other.clear();
 	}
-	
-	//@SuppressWarnings({ "unchecked", "rawtypes" })
+
 	public void removeAll(E e) {
-		//TODO
+		Element current = sentinel;
+
+		while (current.next != sentinel) {
+			if (current.next.object.equals(e)) {
+				current.next.remove();
+			} else {
+				current = current.next;
+			}
+		}
+	}
+
+	public void removeEven() {
+		Element current = sentinel;
+
+		while (current.next != sentinel) {
+			if (current.next.object.hashCode() % 2 == 0) {
+				current.next.remove();
+			} else {
+				current = current.next;
+			}
+		}
 	}
 
 }
-
