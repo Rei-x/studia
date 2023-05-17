@@ -1,0 +1,23 @@
+#Test for Lab8
+show
+ld first
+link=g(10)
+eod
+add e(11)
+show
+add k(12)
+add a(10)
+add f(10)
+add i(10)
+add n(10)
+show
+preorder
+postorder
+rem q
+rem g
+show
+preorder
+postorder
+size
+count
+ha

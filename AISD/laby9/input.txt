@@ -1,0 +1,29 @@
+#Test for Lab9
+go 10
+ll 8
+findset 4
+union 1 2
+union 3 4
+union 0 1
+union 0 4
+union 5 7
+show
+findset 1
+findset 4
+findset 7
+union 2 3
+ch 1
+dsf 8
+findset 4
+union 1 2
+union 3 4
+union 0 1
+union 0 4
+union 5 7
+show
+findset 1
+findset 4
+findset 7
+show
+union 2 3
+ha
