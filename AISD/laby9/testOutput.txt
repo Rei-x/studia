@@ -14,23 +14,18 @@ true
 !union 5 7
 true
 !show
-0 -> 2
-1 -> 2
-2 -> 2
-3 -> 4
-4 -> 2
-5 -> 7
-6 -> 6
-7 -> 7
-
+Disjoint sets as linked list:
+1, 2, 0, 3, 4
+5, 7
+6
 !findset 1
-2
+1
 !findset 4
-2
+1
 !findset 7
-7
+5
 !union 2 3
-true
+false
 !ch 1
 !dsf 8
 !findset 4
@@ -46,31 +41,31 @@ true
 !union 5 7
 true
 !show
-0 -> 1
-1 -> 1
-2 -> 1
-3 -> 1
-4 -> 3
-5 -> 5
+Disjoint sets as forest:
+0 -> 2
+1 -> 2
+2 -> 4
+3 -> 4
+4 -> 4
+5 -> 7
 6 -> 6
-7 -> 5
-
+7 -> 7
 !findset 1
-1
+4
 !findset 4
-1
+4
 !findset 7
-5
+7
 !show
-0 -> 1
-1 -> 1
-2 -> 1
-3 -> 1
-4 -> 1
-5 -> 5
+Disjoint sets as forest:
+0 -> 2
+1 -> 4
+2 -> 4
+3 -> 4
+4 -> 4
+5 -> 7
 6 -> 6
-7 -> 5
-
+7 -> 7
 !union 2 3
 false
 !ha

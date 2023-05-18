@@ -32,26 +32,31 @@ public class DisjointSetForest implements DisjointSetDataStructure {
 
 	@Override
 	public boolean union(int itemA, int itemB) {
-		int rootA = findSet(itemA);
-		int rootB = findSet(itemB);
+		Element rootA = arr[findSet(itemA)];
+		Element rootB = arr[findSet(itemB)];
+
 		if (rootA == rootB)
 			return false;
-		if (arr[rootA].rank > arr[rootB].rank)
-			arr[rootB].parent = rootA;
-		else if (arr[rootA].rank < arr[rootB].rank)
-			arr[rootA].parent = rootB;
+
+		if (rootA.rank > rootB.rank)
+			rootB.parent = rootA.parent;
+		else if (rootA.rank < rootB.rank)
+			rootA.parent = rootB.parent;
 		else {
-			arr[rootB].parent = rootA;
-			arr[rootA].rank++;
+			rootA.parent = rootB.parent;
+			rootB.rank++;
 		}
+
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		String ret = "";
+		String ret = "Disjoint sets as forest:\n";
 		for (int i = 0; i < arr.length; i++)
 			ret += i + " -> " + arr[i].parent + "\n";
+
+		ret = ret.substring(0, ret.length() - 1);
 		return ret;
 	}
 }

@@ -39,27 +39,53 @@ public class DisjointSetLinkedList implements DisjointSetDataStructure {
 	public boolean union(int itemA, int itemB) {
 		int rootA = findSet(itemA);
 		int rootB = findSet(itemB);
+
 		if (rootA == rootB)
 			return false;
-		if (arr[rootA].length > arr[rootB].length) {
-			arr[rootA].length += arr[rootB].length;
-			arr[rootA].last = arr[rootB].last;
-			arr[rootB].representant = rootA;
-			arr[rootB].next = rootA;
+
+		if (arr[rootA].length >= arr[rootB].length) {
+			join(rootA, rootB);
 		} else {
-			arr[rootB].length += arr[rootA].length;
-			arr[rootB].last = arr[rootA].last;
-			arr[rootA].representant = rootB;
-			arr[rootA].next = rootB;
+			join(rootB, rootA);
 		}
+
 		return true;
+	}
+
+	private void join(int rootA, int rootB) {
+		arr[arr[rootA].last].next = rootB;
+		arr[rootA].last = arr[rootB].last;
+		arr[rootA].length += arr[rootB].length;
+
+		for (int i = rootB; i != NULL; i = arr[i].next)
+			arr[i].representant = rootA;
 	}
 
 	@Override
 	public String toString() {
-		String ret = "";
-		for (int i = 0; i < arr.length; i++)
-			ret += i + " -> " + arr[i].representant + "\n";
+		/**
+		 * Disjoint sets as linked list:
+		 * 1, 2, 0, 3, 4
+		 * 5, 7
+		 * 6
+		 */
+
+		String ret = "Disjoint sets as linked list:\n";
+
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i].representant == i) {
+				ret += i;
+				int next = arr[i].next;
+				while (next != NULL) {
+					ret += ", " + next;
+					next = arr[next].next;
+				}
+
+				if (i != arr.length - 2)
+					ret += "\n";
+			}
+		}
+
 		return ret;
 	}
 
