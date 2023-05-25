@@ -18,14 +18,14 @@ public class Graph {
 		this.name2Int = new HashMap<>();
 		this.int2Name = new HashMap<>();
 
-		int counter = 0;
-		for (String internetString : internet.keySet()) { // put keys from the Internet to the HashMaps
-			this.name2Int.put(internetString, counter); // string as a key
-			this.int2Name.put(counter, internetString); // counter as a key
-			counter++;
+		int i = 0;
+		for (String internetString : internet.keySet()) {
+			this.name2Int.put(internetString, i);
+			this.int2Name.put(i, internetString);
+			i++;
 		}
 
-		for (int i = 0; i < arr.length; i++) {
+		for (i = 0; i < arr.length; i++) {
 			for (int j = 0; j < arr.length; j++) {
 				Link l = internet.get(this.int2Name.get(i)).link.get(this.int2Name.get(j));
 
