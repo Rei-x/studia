@@ -2,7 +2,6 @@
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
@@ -10,105 +9,104 @@ import java.util.SortedMap;
 public class Graph {
 	int arr[][];
 	HashMap<String, Integer> name2Int;
-	Map.Entry<String, Document>[] arrDoc;
+	HashMap<Integer, String> int2Name;
 
-	@SuppressWarnings("unchecked")
 	public Graph(SortedMap<String, Document> internet) {
 		int size = internet.size();
-		arr = new int[size][size];
+		this.arr = new int[size][size];
 
-		name2Int = new HashMap<String, Integer>();
+		this.name2Int = new HashMap<>();
+		this.int2Name = new HashMap<>();
 
-		arrDoc = new Map.Entry[size];
-
-		int i = 0;
-		for (Map.Entry<String, Document> entry : internet.entrySet()) {
-			name2Int.put(entry.getKey(), i);
-			arrDoc[i] = entry;
-			i++;
+		int counter = 0;
+		for (String internetString : internet.keySet()) { // put keys from the Internet to the HashMaps
+			this.name2Int.put(internetString, counter); // string as a key
+			this.int2Name.put(counter, internetString); // counter as a key
+			counter++;
 		}
 
-		for (i = 0; i < arr.length; i++) {
-			for (int j = i; j < arr.length; j++) {
-				Link l = arrDoc[i].getValue().link.get(arrDoc[j].getKey());
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = 0; j < arr.length; j++) {
+				Link l = internet.get(this.int2Name.get(i)).link.get(this.int2Name.get(j));
 
 				if (l != null) {
 					arr[i][j] = l.weight;
-					arr[j][i] = l.weight;
 				} else if (i == j) {
 					arr[i][j] = 0;
 				} else {
-					arr[i][j] = Integer.MAX_VALUE;
-					arr[j][i] = Integer.MAX_VALUE;
+					arr[i][j] = -1;
 				}
 			}
 		}
 	}
 
-	/**
-	 * Breadth first search
-	 * 
-	 * @param start
-	 * @return
-	 */
 	public String bfs(String start) {
-		int index = name2Int.get(start);
-		Queue<Integer> queue = new LinkedList<Integer>();
-		Set<Integer> visited = new HashSet<Integer>();
-		queue.add(index);
-		visited.add(index);
-		String ret = arrDoc[index].getKey();
+		if (!this.name2Int.containsKey(start))
+			return null;
+
+		String ret = "";
+
+		Queue<Integer> queue = new LinkedList<>();
+		Set<Integer> wasVisited = new HashSet<>();
+
+		queue.add(this.name2Int.get(start));
+
 		while (!queue.isEmpty()) {
-			int i = queue.poll();
-			for (int j = 0; j < arr.length; j++) {
-				if (arr[i][j] != 0 && arr[i][j] != Integer.MAX_VALUE && !visited.contains(j)) {
-					queue.add(j);
-					visited.add(j);
-					ret += ", " + arrDoc[j].getKey();
+			int current = queue.poll();
+			if (!wasVisited.contains(current)) {
+				wasVisited.add(current);
+				ret += this.int2Name.get(current) + ", ";
+				for (int i = 0; i < this.arr.length; i++) {
+					if (this.arr[current][i] >= 0 && !wasVisited.contains(i)) {
+						queue.add(i);
+					}
 				}
 			}
 		}
-		return ret;
+
+		return ret.substring(0, ret.length() - 2);
 	}
 
-	/**
-	 * Depth first search using recursion
-	 * 
-	 * @param start
-	 * @return
-	 */
 	public String dfs(String start) {
-		int index = name2Int.get(start);
-		Set<Integer> visited = new HashSet<Integer>();
-		String ret = dfs(index, visited);
-		return ret;
+		if (!this.name2Int.containsKey(start))
+			return null;
+
+		Set<Integer> visited = new HashSet<>();
+		String result = dfs(this.name2Int.get(start), visited);
+		return result.substring(0, result.length() - 2);
 	}
 
-	private String dfs(int index, Set<Integer> visited) {
-		visited.add(index);
-		String ret = arrDoc[index].getKey();
-		for (int i = 0; i < arr.length; i++) {
-			if (arr[index][i] != 0 && arr[index][i] != Integer.MAX_VALUE && !visited.contains(i)) {
-				ret += ", " + dfs(i, visited);
+	private String dfs(int start, Set<Integer> visited) {
+		String result = "";
+
+		if (visited.contains(start)) {
+			return result;
+		}
+
+		visited.add(start);
+		result += this.int2Name.get(start) + ", ";
+		for (int i = 0; i < this.arr.length; i++) {
+			if (this.arr[start][i] >= 0 && !visited.contains(i)) {
+				result += dfs(i, visited);
 			}
 		}
-		return ret;
+		return result;
 	}
 
 	public int connectedComponents() {
 		DisjointSetForest dsf = new DisjointSetForest(arr.length);
+
 		for (int i = 0; i < arr.length; i++) {
 			dsf.makeSet(i);
 		}
 
 		for (int i = 0; i < arr.length; i++) {
-			for (int j = i; j < arr.length; j++) {
-				if (arr[i][j] != 0 && arr[i][j] != Integer.MAX_VALUE) {
+			for (int j = 0; j < arr[i].length; j++) {
+				if (arr[i][j] > 0) {
 					dsf.union(i, j);
 				}
 			}
 		}
-
 		return dsf.countSets();
 	}
 }
