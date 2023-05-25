@@ -57,7 +57,7 @@ public class Graph {
 				wasVisited.add(current);
 				ret += int2Name.get(current) + ", ";
 				for (int i = 0; i < arr.length; i++) {
-					if (arr[current][i] >= 0 && !wasVisited.contains(i)) {
+					if (arr[current][i] > 0 && !wasVisited.contains(i)) {
 						queue.add(i);
 					}
 				}
@@ -86,7 +86,7 @@ public class Graph {
 		visited.add(start);
 		result += int2Name.get(start) + ", ";
 		for (int i = 0; i < arr.length; i++) {
-			if (arr[start][i] >= 0 && !visited.contains(i)) {
+			if (arr[start][i] > 0 && !visited.contains(i)) {
 				result += dfs(i, visited);
 			}
 		}
