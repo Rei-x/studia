@@ -1,0 +1,35 @@
+START
+!ld a
+!ld b
+!ld c
+!ld g
+!ld e
+!ld f
+!ld x
+!ld y
+!getdoc a
+!add v(3)
+true
+!rem v
+v(3)
+!getdoc a
+!get b
+b(4)
+!size
+2
+!bfs a
+a, b, c, e, g, f
+!dfs a
+a, b, e, g, c, f
+!cc
+2
+!getdoc b
+!clear
+!bfs a
+a, b, c, f
+!dfs a
+a, b, c, f
+!cc
+4
+!ha
+END OF EXECUTION

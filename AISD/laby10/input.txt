@@ -1,0 +1,36 @@
+#Test for Lab10
+ld a
+link=c link=b(4)
+eod
+ld b
+link=g link=e
+eod
+ld c
+link=f
+eod
+ld g
+eod
+ld e
+eod
+ld f
+eod
+ld x
+link=y
+eod
+ld y
+eod
+getdoc a
+add v(3)
+rem v
+getdoc a
+get b
+size
+bfs a
+dfs a
+cc
+getdoc b
+clear
+bfs a
+dfs a
+cc
+ha
