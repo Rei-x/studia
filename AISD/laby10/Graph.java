@@ -13,21 +13,21 @@ public class Graph {
 
 	public Graph(SortedMap<String, Document> internet) {
 		int size = internet.size();
-		this.arr = new int[size][size];
+		arr = new int[size][size];
 
-		this.name2Int = new HashMap<>();
-		this.int2Name = new HashMap<>();
+		name2Int = new HashMap<>();
+		int2Name = new HashMap<>();
 
 		int i = 0;
 		for (String internetString : internet.keySet()) {
-			this.name2Int.put(internetString, i);
-			this.int2Name.put(i, internetString);
+			name2Int.put(internetString, i);
+			int2Name.put(i, internetString);
 			i++;
 		}
 
 		for (i = 0; i < arr.length; i++) {
 			for (int j = 0; j < arr.length; j++) {
-				Link l = internet.get(this.int2Name.get(i)).link.get(this.int2Name.get(j));
+				Link l = internet.get(int2Name.get(i)).link.get(int2Name.get(j));
 
 				if (l != null) {
 					arr[i][j] = l.weight;
@@ -41,7 +41,7 @@ public class Graph {
 	}
 
 	public String bfs(String start) {
-		if (!this.name2Int.containsKey(start))
+		if (!name2Int.containsKey(start))
 			return null;
 
 		String ret = "";
@@ -49,15 +49,15 @@ public class Graph {
 		Queue<Integer> queue = new LinkedList<>();
 		Set<Integer> wasVisited = new HashSet<>();
 
-		queue.add(this.name2Int.get(start));
+		queue.add(name2Int.get(start));
 
 		while (!queue.isEmpty()) {
 			int current = queue.poll();
 			if (!wasVisited.contains(current)) {
 				wasVisited.add(current);
-				ret += this.int2Name.get(current) + ", ";
-				for (int i = 0; i < this.arr.length; i++) {
-					if (this.arr[current][i] >= 0 && !wasVisited.contains(i)) {
+				ret += int2Name.get(current) + ", ";
+				for (int i = 0; i < arr.length; i++) {
+					if (arr[current][i] >= 0 && !wasVisited.contains(i)) {
 						queue.add(i);
 					}
 				}
@@ -68,11 +68,11 @@ public class Graph {
 	}
 
 	public String dfs(String start) {
-		if (!this.name2Int.containsKey(start))
+		if (!name2Int.containsKey(start))
 			return null;
 
 		Set<Integer> visited = new HashSet<>();
-		String result = dfs(this.name2Int.get(start), visited);
+		String result = dfs(name2Int.get(start), visited);
 		return result.substring(0, result.length() - 2);
 	}
 
@@ -84,9 +84,9 @@ public class Graph {
 		}
 
 		visited.add(start);
-		result += this.int2Name.get(start) + ", ";
-		for (int i = 0; i < this.arr.length; i++) {
-			if (this.arr[start][i] >= 0 && !visited.contains(i)) {
+		result += int2Name.get(start) + ", ";
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[start][i] >= 0 && !visited.contains(i)) {
 				result += dfs(i, visited);
 			}
 		}
