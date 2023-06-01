@@ -1,0 +1,45 @@
+#Test for Lab11
+ld x
+link=y(9)
+eod
+ld y
+eod
+ld a
+link=b(2)
+link=c(5)
+eod
+ld c
+link=d(5)
+link=f(6)
+eod
+ld b
+link=d(3)
+link=e(4)
+eod
+ld e
+link=d(3)
+link=f(4)
+link=h(2)
+link=g(8)
+eod
+ld d
+link=e(3)
+link=f(1)
+eod
+ld h
+link=e(2)
+link=g(1)
+eod
+ld g
+link=h(1)
+link=f(7)
+eod
+ld f
+link=d(1)
+link=e(4)
+link=g(7)
+eod
+sssp a
+sssp d
+sssp w
+ha

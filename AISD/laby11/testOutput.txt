@@ -1,0 +1,37 @@
+START
+!ld x
+!ld y
+!ld a
+!ld c
+!ld b
+!ld e
+!ld d
+!ld h
+!ld g
+!ld f
+!sssp a
+a=0
+a->b=2
+a->c=5
+a->b->d=5
+a->b->e=6
+a->b->d->f=6
+a->b->e->h->g=9
+a->b->e->h=8
+no path to x
+no path to y
+!sssp d
+no path to a
+no path to b
+no path to c
+d=0
+d->e=3
+d->f=1
+d->e->h->g=6
+d->e->h=5
+no path to x
+no path to y
+!sssp w
+error
+!ha
+END OF EXECUTION
