@@ -1,9 +1,7 @@
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
 import java.util.SortedMap;
 
 public class Graph {
@@ -47,18 +45,19 @@ public class Graph {
 		String ret = "";
 
 		Queue<Integer> queue = new LinkedList<>();
-		Set<Integer> wasVisited = new HashSet<>();
+		boolean[] visited = new boolean[arr.length];
 
 		queue.add(name2Int.get(start));
 
 		while (!queue.isEmpty()) {
 			int current = queue.poll();
-			if (!wasVisited.contains(current)) {
-				wasVisited.add(current);
+			if (!visited[current]) {
+				visited[current] = true;
 				ret += int2Name.get(current) + ", ";
 				for (int i = 0; i < arr.length; i++) {
-					if (arr[current][i] > 0 && !wasVisited.contains(i)) {
+					if (arr[current][i] > 0 && visited[i] == false) {
 						queue.add(i);
+						visited[i] = true;
 					}
 				}
 			}
@@ -71,22 +70,22 @@ public class Graph {
 		if (!name2Int.containsKey(start))
 			return null;
 
-		Set<Integer> visited = new HashSet<>();
+		boolean[] visited = new boolean[arr.length];
 		String result = dfs(name2Int.get(start), visited);
 		return result.substring(0, result.length() - 2);
 	}
 
-	private String dfs(int start, Set<Integer> visited) {
+	private String dfs(int start, boolean[] visited) {
 		String result = "";
 
-		if (visited.contains(start)) {
+		if (visited[start]) {
 			return result;
 		}
 
-		visited.add(start);
+		visited[start] = true;
 		result += int2Name.get(start) + ", ";
 		for (int i = 0; i < arr.length; i++) {
-			if (arr[start][i] > 0 && !visited.contains(i)) {
+			if (arr[start][i] > 0 && !visited[i]) {
 				result += dfs(i, visited);
 			}
 		}

@@ -63,14 +63,10 @@ public class DisjointSetForest implements DisjointSetDataStructure {
 
 	@Override
 	public int countSets() {
-		ArrayList<Integer> representants = new ArrayList<>();
 		int setsCounter = 0;
 		for (int i = 0; i < arr.length; i++) {
-			int representant = findSet(i);
-			if (!representants.contains(representant)) {
-				representants.add(representant);
-				setsCounter += 1;
-			}
+			if (arr[i].parent == i)
+				setsCounter++;
 		}
 		return setsCounter;
 	}
