@@ -1,0 +1,19 @@
+#Test for Lab12
+automaton 1 1
+ababac
+ababac
+kmp 2 3
+aba
+bac
+ggggab
+ab
+acaaaaaaaaa
+automaton 1 3
+abab
+abababababadsdsdsdsdsdsdsdsaba
+fffjjjabababababababab
+cccccccc
+kmp 1 1
+abcdef
+abcdeabcder
+ha

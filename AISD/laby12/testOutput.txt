@@ -1,0 +1,11 @@
+START
+!automaton 1 1
+[0]
+!kmp 2 3
+[4]
+!automaton 1 3
+[0, 6, 36, 42, 48]
+!kmp 1 1
+[]
+!ha
+END OF EXECUTION
