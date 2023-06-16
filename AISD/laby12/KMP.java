@@ -8,7 +8,7 @@ public class KMP implements IStringMatcher {
 		final int textLength = text.length();
 		LinkedList<Integer> shifts = new LinkedList<>();
 
-		int preSuffixArray[] = calculatePreSuffixArray(pattern);
+		int preSuffixArray[] = calculatePreSuffixArray(pattern, patternLength);
 
 		int patternIndex = 0;
 		int textIndex = 0;
@@ -35,9 +35,7 @@ public class KMP implements IStringMatcher {
 		return shifts;
 	}
 
-	public int[] calculatePreSuffixArray(String pattern) {
-		int patternLength = pattern.length();
-
+	public int[] calculatePreSuffixArray(String pattern, final int patternLength) {
 		int preSuffixArray[] = new int[patternLength];
 
 		int skipValue = 0;

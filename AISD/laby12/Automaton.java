@@ -24,21 +24,19 @@ public class Automaton implements IStringMatcher {
 		return shifts;
 	}
 
-	public int[][] calculateStateArray(String pattern, int patternLength) {
+	public int[][] calculateStateArray(String pattern, final int patternLength) {
 		int[][] stateArray = new int[patternLength + 1][LIMIT];
 
 		for (int i = 0; i <= patternLength; ++i) {
 			for (int j = 0; j < LIMIT; ++j) {
-				stateArray[i][j] = nextState(pattern, i, j);
+				stateArray[i][j] = nextState(pattern, i, j, patternLength);
 			}
 		}
 
 		return stateArray;
 	}
 
-	public int nextState(String pattern, int patternIndex, int character) {
-		int patternLength = pattern.length();
-
+	public int nextState(String pattern, int patternIndex, int character, final int patternLength) {
 		if (patternIndex < patternLength && character == pattern.charAt(patternIndex)) {
 			return patternIndex + 1;
 		}
