@@ -4,8 +4,8 @@ public class KMP implements IStringMatcher {
 
 	@Override
 	public LinkedList<Integer> validShifts(String pattern, String text) {
-		int patternLength = pattern.length();
-		int textLength = text.length();
+		final int patternLength = pattern.length();
+		final int textLength = text.length();
 		LinkedList<Integer> shifts = new LinkedList<>();
 
 		int preSuffixArray[] = calculatePreSuffixArray(pattern);
