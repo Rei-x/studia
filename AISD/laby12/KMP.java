@@ -6,7 +6,7 @@ public class KMP implements IStringMatcher {
 	public LinkedList<Integer> validShifts(String pattern, String text) {
 		int patternLength = pattern.length();
 		int textLength = text.length();
-		LinkedList<Integer> found = new LinkedList<>();
+		LinkedList<Integer> shifts = new LinkedList<>();
 
 		int preSuffixArray[] = calculatePreSuffixArray(pattern);
 
@@ -20,7 +20,7 @@ public class KMP implements IStringMatcher {
 			}
 
 			if (patternIndex == patternLength) {
-				found.add(textIndex - patternIndex);
+				shifts.add(textIndex - patternIndex);
 				patternIndex = preSuffixArray[patternIndex - 1];
 			} else if (textIndex < textLength &&
 					pattern.charAt(patternIndex) != text.charAt(textIndex)) {
@@ -32,7 +32,7 @@ public class KMP implements IStringMatcher {
 			}
 		}
 
-		return found;
+		return shifts;
 	}
 
 	public int[] calculatePreSuffixArray(String pattern) {

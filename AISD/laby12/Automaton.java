@@ -10,8 +10,21 @@ public class Automaton implements IStringMatcher {
 		int patternLength = pattern.length();
 		int textLength = text.length();
 
-		LinkedList<Integer> found = new LinkedList<>();
+		LinkedList<Integer> shifts = new LinkedList<>();
 
+		int[][] stateArray = calculateStateArray(pattern, patternLength);
+
+		int nextState = 0;
+		for (int i = 0; i < textLength; i++) {
+			nextState = stateArray[nextState][text.charAt(i)];
+			if (nextState == patternLength) {
+				shifts.add(i - patternLength + 1);
+			}
+		}
+		return shifts;
+	}
+
+	public int[][] calculateStateArray(String pattern, int patternLength) {
 		int[][] stateArray = new int[patternLength + 1][LIMIT];
 
 		for (int i = 0; i <= patternLength; ++i) {
@@ -20,14 +33,7 @@ public class Automaton implements IStringMatcher {
 			}
 		}
 
-		int nextState = 0;
-		for (int i = 0; i < textLength; i++) {
-			nextState = stateArray[nextState][text.charAt(i)];
-			if (nextState == patternLength) {
-				found.add(i - patternLength + 1);
-			}
-		}
-		return found;
+		return stateArray;
 	}
 
 	public int nextState(String pattern, int patternIndex, int character) {
