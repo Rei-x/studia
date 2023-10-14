@@ -52,5 +52,8 @@ jobs:
         uses: actions/checkout@v4
       - name: CD into Paradygmaty
         run: cd PP
+      - uses: coursier/cache-action@v6
       - uses: VirtusLab/scala-cli-setup@v0.1
+        with:
+          scala-cli-version: 1.0.4
       - run: scala-cli test .
