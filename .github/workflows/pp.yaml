@@ -6,6 +6,10 @@ on:
 
 permissions: read-all
 
+defaults:
+  run:
+    working-directory: PP
+
 jobs:
   test-ocaml:
     strategy:
@@ -23,8 +27,6 @@ jobs:
     steps:
       - name: Checkout tree
         uses: actions/checkout@v4
-      - name: CD into Paradygmaty
-        run: cd PP
 
       - name: Set-up OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
@@ -54,4 +56,4 @@ jobs:
       - uses: VirtusLab/scala-cli-setup@v0.1
         with:
           scala-cli-version: 1.0.4
-      - run: cd PP && scala-cli test .
+      - run: scala-cli test .
