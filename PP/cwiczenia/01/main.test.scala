@@ -10,7 +10,7 @@ class Tests extends munit.FunSuite {
     assert(
       flatten1(List(List("mario", "luigi"), List("luigi", "mario"))) == List(
         "mario",
-        "luigi2",
+        "luigi",
         "luigi",
         "mario"
       )
