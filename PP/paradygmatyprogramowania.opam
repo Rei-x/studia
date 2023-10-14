@@ -11,7 +11,7 @@ bug-reports: "https://github.com/Rei-x/studia/issues"
 depends: [
   "ocaml"
   "ounit2"
-  "dune" {>= "3.11"}
+  "dune"
   "odoc" {with-doc}
 ]
 build: [
