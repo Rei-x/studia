@@ -1,27 +1,22 @@
-(lang dune 3.11)
+(lang dune 3.5)
 
 (name paradygmatyprogramowania)
 
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github rei-x/studia))
 
-(authors "Author Name")
+(authors "Bartosz Gotowski")
 
-(maintainers "Maintainer Name")
+(maintainers "Bartosz Gotowski")
 
-(license LICENSE)
-
-(documentation https://url/to/documentation)
+(license MIT)
 
 (package
  (name paradygmatyprogramowania)
- (synopsis "A short synopsis")
- (description "A longer description")
- (depends ocaml dune)
- (allow_empty)
- (tags
-  (topics "to describe" your project)))
+ (synopsis "Zadania z paradygmatów programowania")
+ (depends ocaml dune ounit2 )
+ (allow_empty))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
