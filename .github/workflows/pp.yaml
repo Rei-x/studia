@@ -16,7 +16,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
         ocaml-compiler:
-          - "5.1"
+          - "4.08.1"
 
     runs-on: ${{ matrix.os }}
 
@@ -53,4 +53,4 @@ jobs:
       - name: CD into Paradygmaty
         run: cd PP
       - uses: VirtusLab/scala-cli-setup@v0.1
-      - run: scala-cli test
+      - run: scala-cli test .
