@@ -68,7 +68,7 @@ bool b_dealloc_table_2_dim(int **piTable, int iSizeX, int iSizeY)
 TEST_CASE("alloc table")
 {
   int **piTable = NULL;
-  CHECK(b_alloc_table_2_dim(&piTable, 5, 5) == false);
+  CHECK(b_alloc_table_2_dim(&piTable, 5, 5));
   CHECK(b_dealloc_table_2_dim(piTable, 5, 5));
 }
 // NOLINTEND
