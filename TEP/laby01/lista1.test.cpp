@@ -1,11 +1,7 @@
 #include <iostream>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "lista1.test.h"
 #include <doctest.h>
-
-enum
-{
-  INTEGER_TO_FILL = 34
-};
 
 void v_alloc_table_fill_34(int iSize)
 {
@@ -13,7 +9,7 @@ void v_alloc_table_fill_34(int iSize)
 
   for (int i = 0; i < iSize; i++)
   {
-    piTable[i] = INTEGER_TO_FILL;
+    piTable[i] = VALUE_TO_FILL_TABLE;
   }
 
   char cSeparator = ' ';
@@ -36,13 +32,13 @@ bool b_alloc_table_2_dim(int ***piTable, int iSizeX, int iSizeY)
   {
     return false;
   }
-  int **table = new int *[iSizeX];
+  int **piTablePlaceholder = new int *[iSizeX];
   for (int i = 0; i < iSizeX; i++)
   {
-    table[i] = new int[iSizeY];
+    piTablePlaceholder[i] = new int[iSizeY];
   }
 
-  *piTable = table;
+  *piTable = piTablePlaceholder;
   return true;
 }
 
@@ -70,5 +66,16 @@ TEST_CASE("alloc table")
   int **piTable = NULL;
   CHECK(b_alloc_table_2_dim(&piTable, 5, 5));
   CHECK(b_dealloc_table_2_dim(piTable, 5, 5));
+
+  CHECK(!b_alloc_table_2_dim(&piTable, 0, 0));
+  CHECK(!b_alloc_table_2_dim(&piTable, 0, 5));
+  CHECK(!b_alloc_table_2_dim(&piTable, 5, 0));
+
+  CHECK(!b_alloc_table_2_dim(NULL, 5, 5));
+  CHECK(!b_alloc_table_2_dim(&piTable, -5, 5));
+  CHECK(!b_alloc_table_2_dim(&piTable, 5, -5));
+
+  // test v_alloc
+  v_alloc_table_fill_34(5);
 }
 // NOLINTEND
