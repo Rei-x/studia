@@ -1,7 +1,7 @@
 ---
 Checks: "clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type"
 WarningsAsErrors: true
-HeaderFilterRegex: ""
+HeaderFilterRegex: "*.cpp"
 AnalyzeTemporaryDtors: false
 FormatStyle: google
 User: rei

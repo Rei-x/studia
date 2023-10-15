@@ -1,4 +1,6 @@
 #include <iostream>
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest.h>
 
 enum
 {
@@ -62,13 +64,11 @@ bool b_dealloc_table_2_dim(int **piTable, int iSizeX, int iSizeY)
   return true;
 }
 
-int main(int argc, char const *argv[])
+// NOLINTBEGIN
+TEST_CASE("alloc table")
 {
-  const int TABLE_SIZE = 10;
-  v_alloc_table_fill_34(TABLE_SIZE);
   int **piTable = NULL;
-  b_alloc_table_2_dim(&piTable, TABLE_SIZE, TABLE_SIZE);
-  b_dealloc_table_2_dim(piTable, TABLE_SIZE, TABLE_SIZE);
-
-  return 0;
+  CHECK(b_alloc_table_2_dim(&piTable, 5, 5) == false);
+  CHECK(b_dealloc_table_2_dim(piTable, 5, 5));
 }
+// NOLINTEND

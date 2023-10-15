@@ -1,0 +1,30 @@
+name: Techniki efektywnego programowania - tests
+
+on:
+  pull_request:
+  push:
+
+permissions: read-all
+
+defaults:
+  run:
+    working-directory: TEP
+
+jobs:
+  test-cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout tree
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: ./test.sh
