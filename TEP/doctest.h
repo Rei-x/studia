@@ -44,6 +44,19 @@
 // =================================================================================================
 // =================================================================================================
 
+/*******************/
+
+#if defined(_SC_SIGSTKSZ_SOURCE) || defined(_GNU_SOURCE)
+// on glibc > 2.33 this is no longer constant, see
+// https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS;h=85e84fe53699fe9e392edffa993612ce08b2954a;hb=HEAD
+static const std::size_t sigStackSize = 32768;
+#else
+static const std::size_t sigStackSize =
+32768 >= SIGSTKSZ ? 32768 : SIGSTKSZ;
+#endif
+
+/*******************/
+
 #ifndef DOCTEST_LIBRARY_INCLUDED
 #define DOCTEST_LIBRARY_INCLUDED
 
@@ -4403,7 +4416,7 @@ namespace detail
         static bool             isSet;
         static struct sigaction oldSigActions[DOCTEST_COUNTOF(signalDefs)];
         static stack_t          oldSigStack;
-        static char             altStackMem[4 * SIGSTKSZ];
+        static char             altStackMem[4 * sigStackSize];
 
         static void handleSignal(int sig) {
             std::string name = "<unknown signal>";

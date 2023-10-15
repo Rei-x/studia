@@ -27,4 +27,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Test
-        run: ./test.sh
+        run: cmake -Bbuild . && cmake --build build && cd build && ctest -V
