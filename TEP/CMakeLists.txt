@@ -12,8 +12,12 @@ if(BUILD_TESTING)
   foreach(filename ${files_to_test})
       string(REGEX MATCH "laby[0-9]+" laby ${filename})
       get_filename_component(filename_without_ext ${filename} NAME_WE)
-      add_executable(${laby}-${filename_without_ext} ${filename})
-      add_test(NAME ${laby}/${filename_without_ext} COMMAND ${laby}-${filename_without_ext})
+      file(GLOB all_files
+     "${CMAKE_CURRENT_SOURCE_DIR}/${laby}/*.h"
+     "${CMAKE_CURRENT_SOURCE_DIR}/${laby}/*.cpp")
+      set(exercise_name ${laby}-${filename_without_ext})
+      add_executable(exercise_name ${all_files})
+      add_test(NAME ${laby}/${filename_without_ext} COMMAND exercise_name)
   endforeach()
 endif()
 
