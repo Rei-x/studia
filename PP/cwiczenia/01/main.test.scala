@@ -1,6 +1,6 @@
 //> using test.dep org.scalameta::munit::0.7.29
 
-class Tests extends munit.FunSuite {
+class Cwiczenia01 extends munit.FunSuite {
   test("flatten1") {
     assert(
       flatten1(List(List(1, 2), List(3, 4), List(5, 6))) == List(1, 2, 3, 4, 5,

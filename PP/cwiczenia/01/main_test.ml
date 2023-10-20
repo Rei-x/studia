@@ -1,5 +1,5 @@
 open OUnit2
-open Main
+open Cwiczenia01.Main
 
 let tests =
   "cwiczenia 01 tests"
