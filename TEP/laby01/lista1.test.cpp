@@ -1,62 +1,70 @@
 #include <iostream>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "Table.h"
 #include "lista1.test.h"
 #include <doctest.h>
 
-void v_alloc_table_fill_34(int iSize)
+void allocTableAndFillWithVALUE(int size)
 {
-  int *piTable = new int[iSize];
+  int *tablePointer = new int[size];
 
-  for (int i = 0; i < iSize; i++)
+  for (int i = 0; i < size; i++)
   {
-    piTable[i] = VALUE_TO_FILL_TABLE;
+    tablePointer[i] = VALUE_TO_FILL_THE_TABLE;
   }
 
-  char cSeparator = ' ';
-
-  for (int i = 0; i < iSize; i++)
+  for (int i = 0; i < size; i++)
   {
-    std::cout << piTable[i] << cSeparator;
+    std::cout << tablePointer[i] << ' ';
   }
 
-  delete[] piTable;
+  std::cout << std::endl;
+
+  delete[] tablePointer;
 }
 
-bool b_alloc_table_2_dim(int ***piTable, int iSizeX, int iSizeY)
+bool allocTwoDimensionalTable(int ***table, int sizeX, int sizeY)
 {
-  if (iSizeX <= 0 || iSizeY < 0)
+  if (sizeX <= 0 || sizeY <= 0)
   {
     return false;
-  }
-  if (piTable == NULL)
-  {
-    return false;
-  }
-  int **piTablePlaceholder = new int *[iSizeX];
-  for (int i = 0; i < iSizeX; i++)
-  {
-    piTablePlaceholder[i] = new int[iSizeY];
   }
 
-  *piTable = piTablePlaceholder;
+  if (table == NULL)
+  {
+    return false;
+  }
+
+  int **tablePlaceholder = new int *[sizeX];
+
+  for (int i = 0; i < sizeX; i++)
+  {
+    tablePlaceholder[i] = new int[sizeY];
+  }
+
+  *table = tablePlaceholder;
+
   return true;
 }
 
-bool b_dealloc_table_2_dim(int **piTable, int iSizeX, int iSizeY)
+bool deallocTwoDimensionalTable(int **table, int sizeX, int sizeY)
 {
-  if (iSizeX <= 0)
+  if (sizeX <= 0 || sizeY <= 0)
   {
     return false;
   }
-  if (piTable == NULL)
+
+  if (table == NULL)
   {
     return false;
   }
-  for (int i = 0; i < iSizeX; i++)
+
+  for (int i = 0; i < sizeX; i++)
   {
-    delete[] piTable[i];
+    delete[] table[i];
   }
-  delete[] piTable;
+
+  delete[] table;
   return true;
 }
 
@@ -64,18 +72,34 @@ bool b_dealloc_table_2_dim(int **piTable, int iSizeX, int iSizeY)
 TEST_CASE("alloc table")
 {
   int **piTable = NULL;
-  CHECK(b_alloc_table_2_dim(&piTable, 5, 5));
-  CHECK(b_dealloc_table_2_dim(piTable, 5, 5));
+  CHECK(allocTwoDimensionalTable(&piTable, 5, 5));
+  CHECK(deallocTwoDimensionalTable(piTable, 5, 5));
 
-  CHECK(!b_alloc_table_2_dim(&piTable, 0, 0));
-  CHECK(!b_alloc_table_2_dim(&piTable, 0, 5));
-  CHECK(!b_alloc_table_2_dim(&piTable, 5, 0));
+  CHECK(!allocTwoDimensionalTable(&piTable, 0, 0));
+  CHECK(!allocTwoDimensionalTable(&piTable, 0, 5));
+  CHECK(!allocTwoDimensionalTable(&piTable, 5, 0));
 
-  CHECK(!b_alloc_table_2_dim(NULL, 5, 5));
-  CHECK(!b_alloc_table_2_dim(&piTable, -5, 5));
-  CHECK(!b_alloc_table_2_dim(&piTable, 5, -5));
+  CHECK(!allocTwoDimensionalTable(NULL, 5, 5));
+  CHECK(!allocTwoDimensionalTable(&piTable, -5, 5));
+  CHECK(!allocTwoDimensionalTable(&piTable, 5, -5));
 
-  // test v_alloc
-  v_alloc_table_fill_34(5);
+  Table *table = new Table;
+
+  CHECK_EQ(table->getName(), TABLE_DEFAULT_NAME);
+  table->setName("mario");
+
+  CHECK_EQ(table->getName(), "mario");
+  CHECK_EQ(table->getSize(), TABLE_DEFAULT_SIZE);
+
+  Table *tableCopy = new Table(*table);
+
+  CHECK_EQ(tableCopy->getName(), "mario_copy");
+  CHECK_EQ(tableCopy->getSize(), TABLE_DEFAULT_SIZE);
+
+  delete table;
+
+  CHECK_EQ(tableCopy->getName(), "mario_copy");
+
+  allocTableAndFillWithVALUE(10);
 }
 // NOLINTEND
