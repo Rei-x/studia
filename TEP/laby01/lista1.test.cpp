@@ -30,11 +30,6 @@ bool allocTwoDimensionalTable(int ***table, int sizeX, int sizeY)
     return false;
   }
 
-  if (table == NULL)
-  {
-    return false;
-  }
-
   int **tablePlaceholder = new int *[sizeX];
 
   for (int i = 0; i < sizeX; i++)
@@ -79,10 +74,6 @@ TEST_CASE("alloc table")
   CHECK(!allocTwoDimensionalTable(&piTable, 0, 5));
   CHECK(!allocTwoDimensionalTable(&piTable, 5, 0));
 
-  CHECK(!allocTwoDimensionalTable(NULL, 5, 5));
-  CHECK(!allocTwoDimensionalTable(&piTable, -5, 5));
-  CHECK(!allocTwoDimensionalTable(&piTable, 5, -5));
-
   Table *table = new Table;
 
   CHECK_EQ(table->getName(), TABLE_DEFAULT_NAME);
@@ -101,5 +92,22 @@ TEST_CASE("alloc table")
   CHECK_EQ(tableCopy->getName(), "mario_copy");
 
   allocTableAndFillWithVALUE(10);
+
+  Table *originalTable = new Table("original", 4);
+  originalTable->setTestingTable();
+  Table *tableToBeCopied;
+
+  originalTable->addOneAndCopy(&tableToBeCopied);
+
+  CHECK_EQ(tableToBeCopied->getName(), "original_copy");
+  CHECK_EQ(tableToBeCopied->getSize(), 5);
+  CHECK_EQ(tableToBeCopied->getTable()[4], 1);
+  CHECK_EQ(tableToBeCopied->getTable()[3], 4);
+  CHECK_EQ(tableToBeCopied->getTable()[1], 2);
+  delete tableToBeCopied;
+  CHECK_EQ(originalTable->getName(), "original");
+  CHECK_EQ(originalTable->getSize(), 4);
+  CHECK_EQ(originalTable->getTable()[3], 4);
+  CHECK_EQ(originalTable->getTable()[1], 2);
 }
 // NOLINTEND

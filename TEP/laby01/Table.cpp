@@ -5,7 +5,7 @@
 
 Table::Table() : table(new int[TABLE_DEFAULT_SIZE]), size(TABLE_DEFAULT_SIZE), name(TABLE_DEFAULT_NAME)
 {
-  std::cout << "bezp: " << name << std::endl;
+  printMessage("bezp");
 }
 
 Table::Table(std::string name, int size) : table(new int[size]), name(name), size(size)
@@ -42,6 +42,11 @@ int Table::getSize()
   return size;
 }
 
+int *Table::getTable()
+{
+  return table;
+}
+
 bool Table::setNewSize(int newSize)
 {
   if (newSize < 0)
@@ -69,4 +74,32 @@ Table *Table::pcClone()
 void Table::printMessage(std::string message)
 {
   std::cout << name << " -> " << message << std::endl;
+}
+
+// modyfikacja
+
+void Table::setTestingTable()
+{
+  delete[] table;
+  table = new int[4];
+
+  table[0] = 1;
+  table[1] = 2;
+  table[2] = 3;
+  table[3] = 4;
+}
+
+Table::Table(Table &otherTable, int sizeToCopy) : table(new int[sizeToCopy]), size(sizeToCopy)
+{
+  this->name = otherTable.name + TABLE_COPY_SUFFIX;
+  printMessage("kopiuj: " + otherTable.name);
+
+  std::copy(otherTable.table, otherTable.table + sizeToCopy, this->table);
+}
+
+void Table::addOneAndCopy(Table **tablePointerToBeCopied)
+{
+  *tablePointerToBeCopied = new Table(*this, size + TABLE_SIZE_INCREASE);
+  Table *tableCopy = *tablePointerToBeCopied;
+  tableCopy->table[size] = TABLE_VALUE_TO_ADD;
 }
