@@ -8,9 +8,8 @@ def count[A](x: A, xs: List[A]): Int = {
 }
 
 def replicate[A](x: A, n: Int): List[A] = {
-  if (n < 0) then throw new RuntimeException("n cannot be negative")
-  else if (n == 0) then List()
-  else x +: replicate(x, n - 1)
+  if (n <= 0) then Nil
+  else x :: replicate(x, n - 1)
 }
 
 val sqrList: List[Int] => List[Int] = (xs) => {

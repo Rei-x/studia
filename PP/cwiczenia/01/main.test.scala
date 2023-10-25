@@ -26,10 +26,8 @@ class Cwiczenia01 extends munit.FunSuite {
     assert(replicate(1, 2) == List(1, 1))
     assert(replicate(List(1), 3) == List(List(1), List(1), List(1)))
     assert(replicate('s', 0) == List())
+    assertEquals(replicate('a', -1), Nil);
 
-    intercept[RuntimeException] {
-      replicate('a', -1)
-    }
   }
 
   test("count") {
