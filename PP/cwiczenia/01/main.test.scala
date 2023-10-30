@@ -61,4 +61,5 @@ class Cwiczenia01 extends munit.FunSuite {
     assert(listLength(List(1, 2)) == 2)
     assert(listLength(List(List(1, 2), List(1, 2), List(1, 2))) == 3)
   }
+
 }

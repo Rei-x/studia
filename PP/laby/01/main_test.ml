@@ -16,6 +16,7 @@ let tests =
          ( "insert" >:: fun _ ->
            assert_equal (insert ([ 1; 3; 4; 5 ], 2, 1)) [ 1; 2; 3; 4; 5 ];
            assert_equal (insert ([ 1; 2; 3; 4 ], 5, 999)) [ 1; 2; 3; 4; 5 ] );
+         ("argMax" >:: fun _ -> assert_equal (argMax [ 1; 2; 3; 4 ]) [ 3 ]);
        ]
 
 let () = run_test_tt_main tests

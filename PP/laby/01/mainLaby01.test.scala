@@ -20,4 +20,14 @@ class Laby01 extends munit.FunSuite {
     assertEquals(insert(List(1, 2, 4, 5), 3, 2), List(1, 2, 3, 4, 5))
     assertEquals(insert(List(1, 2, 3, 4), 5, 999), List(1, 2, 3, 4, 5))
   }
+
+  test("argmax") {
+    assertEquals(argmax(List(1, 5, 3, 8, 2, 7, 8, 1)), List(3, 6))
+    assertEquals(
+      argmax(List(1, 1, 1, 1, 1, 1, 1, 1)),
+      List(0, 1, 2, 3, 4, 5, 6, 7)
+    )
+    assertEquals(argmax(List()), List())
+    assertEquals(argmax(List(7, 2, 1, 3, 7, 0)), List(0, 4))
+  }
 }

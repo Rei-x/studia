@@ -26,3 +26,20 @@ def insert[A](list: List[A], element: A, index: Int): List[A] = {
   else if (index == 0) then element :: list
   else list.head :: insert(list.tail, element, index - 1)
 }
+
+def argmax(xs: List[Int]): List[Int] = {
+  def findmax(
+      xs: List[Int],
+      currentMax: Int,
+      currentIndex: Int
+  ): (List[Int], Int) = {
+    if (xs == List()) then (List(), currentMax)
+    else {
+      val (indexes, max) = findmax(xs.tail, currentMax, currentIndex + 1)
+      if (xs.head > max) then (List(currentIndex), xs.head)
+      else if (xs.head == max) then (currentIndex :: indexes, max)
+      else (indexes, max)
+    }
+  }
+  if (xs == List()) then List() else findmax(xs, xs.head, 0)._1
+}

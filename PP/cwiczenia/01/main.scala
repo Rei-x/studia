@@ -13,9 +13,17 @@ def replicate[A](x: A, n: Int): List[A] = {
 }
 
 val sqrList: List[Int] => List[Int] = (xs) => {
-  if (xs.length) == 0 then List()
-  else scala.math.pow(xs.head, 2).toInt +: sqrList(xs.tail)
+  if (xs.length) == 0 then Nil
+  else (xs.head * xs.head) :: sqrList(xs.tail)
 }
+
+// w jedną strone -> szukamy maksa
+// wracając -> łączymy liste (lub zwracamy null)
+
+// returns List of indexes of max element
+
+
+// def sqrList(xs: List[Int]): List[Int] = {}
 
 def palindrome[A](xs: List[A]): Boolean = {
   if (xs.length == 0 || xs.length == 1) then true
