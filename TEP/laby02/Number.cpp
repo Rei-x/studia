@@ -57,12 +57,17 @@ void Number::reduceTableSize()
   {
     newNumbers[i] = this->numbers[i];
   }
-
-  // delete[] this->numbers;
+  delete[] this->numbers;
+  this->numbers = newNumbers;
 }
 
 Number &Number::operator=(const Number &newValue)
 {
+  if (this == &newValue)
+  {
+    return *this;
+  }
+
   this->isNegative = newValue.isNegative;
   this->length = newValue.length;
 
@@ -80,6 +85,8 @@ Number &Number::operator=(const Number &newValue)
 
 Number &Number::operator=(int newValue)
 {
+  delete[] this->numbers;
+
   this->isNegative = newValue < 0;
   int absoluteNewValue = abs(newValue);
   int temp = absoluteNewValue;
@@ -92,8 +99,8 @@ Number &Number::operator=(int newValue)
   }
 
   int i = 0;
-  this->numbers = new int[newLength];
   this->length = newLength == 0 ? 1 : newLength;
+  this->numbers = new int[this->length];
 
   for (int i = 0; i < length; i++)
   {
@@ -245,7 +252,7 @@ Number Number::operator+(Number &newValue)
   result[newLen] = carry;
 
   Number newNumber;
-
+  delete[] newNumber.numbers;
   newNumber.length = newLen + 1;
   newNumber.numbers = result;
 
@@ -303,6 +310,8 @@ Number Number::operator-(Number &newValue)
 
   Number newNumber;
 
+  delete[] newNumber.numbers;
+
   newNumber.length = newLen;
   newNumber.numbers = result;
 
@@ -336,6 +345,8 @@ Number Number::operator*(Number &newValue)
   }
 
   Number newNumber;
+
+  delete[] newNumber.numbers;
 
   newNumber.length = newLen;
   newNumber.numbers = result;
@@ -422,6 +433,8 @@ Number Number::operator/(Number &newValue)
     currentDividendIndex++;
   }
   Number newNumber;
+
+  delete[] newNumber.numbers;
   newNumber.length = insertIndex;
 
   int *realResult = new int[insertIndex];
@@ -453,7 +466,7 @@ Number Number::operator/(Number &newValue)
 Number Number::getFirstXNumbers(int n)
 {
   Number newNumber;
-
+  delete[] newNumber.numbers;
   newNumber.length = n;
   newNumber.numbers = new int[n];
 
@@ -468,7 +481,7 @@ Number Number::getFirstXNumbers(int n)
 Number Number::getLastXNumbers(int n)
 {
   Number newNumber;
-
+  delete[] newNumber.numbers;
   newNumber.length = n;
   newNumber.numbers = new int[n];
 
