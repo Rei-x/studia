@@ -1,4 +1,4 @@
-#define DEFAULT_NUMBER_LENGTH 0
+#define DEFAULT_NUMBER_LENGTH 1
 #include <string>
 class Number
 {
@@ -12,7 +12,15 @@ public:
   Number operator*(Number &newValue);
   Number operator-(Number &newValue);
   Number operator/(Number &newValue);
-  bool isLargerThan(Number *other);
+  Number getFirstXNumbers(int n);
+  Number getLastXNumbers(int n);
+  Number partial(int start, int end);
+  void append(int digit);
+  bool operator>(Number &newValue);
+  bool operator<(Number &newValue);
+  bool operator>=(Number &newValue);
+  bool operator<=(Number &newValue);
+  bool operator==(Number &newValue);
   std::string toString();
 
 private:
