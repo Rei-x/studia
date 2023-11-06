@@ -38,3 +38,31 @@ def split2Tail[A](a: List[A]): (List[A], List[A]) = {
   }
   split2Aux(a, (List(), List()))
 }
+
+// substituteIfIn([1;2;3;4;5]) ([2;4], 0) = [1;0;3;0;5]
+def substituteIfIn[A](a: List[A])(b: List[A], elementToReplace: A) = {
+
+  def includes(a: List[A], element: A): Boolean = {
+    a match {
+      case head :: next => {
+        if (head == element) true
+        else includes(next, element)
+      }
+      case _ => false
+    }
+  }
+
+  def substituteIfInAux(a: List[A], b: List[A]): List[A] = {
+    a match {
+      case head :: next => {
+        if (includes(b, head))
+          elementToReplace :: substituteIfInAux(next, b)
+        else head :: substituteIfInAux(next, b)
+      }
+      case _ => Nil
+    }
+  }
+
+  substituteIfInAux(a, b)
+
+}

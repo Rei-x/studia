@@ -37,4 +37,24 @@ class Laby02 extends munit.FunSuite {
     assertEquals(fourthSplit._1.length, fourthSplit._2.length)
   }
 
+  test("substitue") {
+
+    assertEquals(
+      substituteIfIn(List(1, 2, 3, 4, 5))(List(2, 4), 0),
+      List(1, 0, 3, 0, 5)
+    )
+
+    assertEquals(
+      substituteIfIn(List(1, 2, 3, 4, 5))(List(4, 5), 0),
+      List(1, 2, 3, 0, 0)
+    )
+
+    val substitueFrom2 = substituteIfIn(List("mario", "luigi", "pean"));
+    assertEquals(
+      substitueFrom2(List("luigi"), "bartek"),
+      List("mario", "bartek", "pean")
+    )
+
+  }
+
 }
