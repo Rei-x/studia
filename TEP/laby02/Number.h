@@ -1,4 +1,5 @@
 #define DEFAULT_NUMBER_LENGTH 1
+#define NUMBER_BASE 10
 #include <string>
 class Number
 {
@@ -12,10 +13,7 @@ public:
   Number operator*(Number &newValue);
   Number operator-(Number &newValue);
   Number operator/(Number &newValue);
-  Number getFirstXNumbers(int n);
-  Number getLastXNumbers(int n);
-  Number partial(int start, int end);
-  void append(int digit);
+
   bool operator>(Number &newValue);
   bool operator<(Number &newValue);
   bool operator>=(Number &newValue);
@@ -28,5 +26,9 @@ private:
   int length;
   bool isNegative;
 
+  Number getFirstXNumbers(int n);
+  Number getLastXNumbers(int n);
+  Number partial(int start, int end);
+  void append(int digit);
   void reduceTableSize();
 };

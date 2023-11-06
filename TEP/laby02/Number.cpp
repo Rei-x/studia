@@ -94,7 +94,7 @@ Number &Number::operator=(int newValue)
   int newLength = 0;
   while (temp > 0)
   {
-    temp /= 10;
+    temp /= NUMBER_BASE;
     newLength++;
   }
 
@@ -104,8 +104,8 @@ Number &Number::operator=(int newValue)
 
   for (int i = 0; i < length; i++)
   {
-    this->numbers[i] = absoluteNewValue % 10;
-    absoluteNewValue /= 10;
+    this->numbers[i] = absoluteNewValue % NUMBER_BASE;
+    absoluteNewValue /= NUMBER_BASE;
   }
 
   return *this;
@@ -139,6 +139,7 @@ bool Number::operator>(Number &newValue)
 
   for (int i = this->length - 1; i >= 0; i--)
   {
+    // NOLINTNEXTLINE
     if (this->numbers[i] > newValue.numbers[i])
     {
       return true;
@@ -238,9 +239,9 @@ Number Number::operator+(Number &newValue)
       result[i] = this->numbers[i] + newValue.numbers[i] + carry;
     }
 
-    if (result[i] >= 10)
+    if (result[i] >= NUMBER_BASE)
     {
-      result[i] -= 10;
+      result[i] -= NUMBER_BASE;
       carry = 1;
     }
     else
@@ -299,7 +300,7 @@ Number Number::operator-(Number &newValue)
 
     if (result[i] < 0)
     {
-      result[i] += 10;
+      result[i] += NUMBER_BASE;
       carry = 1;
     }
     else
@@ -334,14 +335,16 @@ Number Number::operator*(Number &newValue)
   {
     for (int j = 0; j < newValue.length; j++)
     {
+      // NOLINTNEXTLINE
       result[i + j] += this->numbers[i] * newValue.numbers[j];
     }
   }
 
   for (int i = 0; i < newLen - 1; i++)
   {
-    result[i + 1] += result[i] / 10;
-    result[i] %= 10;
+    // NOLINTNEXTLINE
+    result[i + 1] += result[i] / NUMBER_BASE;
+    result[i] %= NUMBER_BASE;
   }
 
   Number newNumber;
@@ -363,13 +366,13 @@ Number Number::operator*(Number &newValue)
 
 Number Number::operator/(Number &newValue)
 {
-  Number zeroNumber, tenNumber;
+  Number zeroNumber, baseNumber;
   zeroNumber = 0;
-  tenNumber = 10;
+  baseNumber = NUMBER_BASE;
 
   if (newValue == zeroNumber)
   {
-    throw std::string("Division by zero");
+    return zeroNumber;
   }
 
   Number currentNumber = *this;
