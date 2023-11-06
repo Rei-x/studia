@@ -380,6 +380,11 @@ Number Number::operator/(Number &newValue)
   Number divisor = newValue;
   divisor.isNegative = false;
 
+  if (currentNumber < divisor)
+  {
+    return zeroNumber;
+  }
+
   int newLen = currentNumber.length - divisor.length + 1;
   int *result = new int[newLen];
 

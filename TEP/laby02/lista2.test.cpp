@@ -63,6 +63,8 @@ TEST_CASE("numbeeers")
   CHECK_EQ((number40Minus * number2).toString(), "-80");
   CHECK_EQ((number40Minus * number40Minus).toString(), "1600");
   CHECK_EQ((number40Minus * number40Minus_v2).toString(), "1600");
+  CHECK_EQ((number0 * number2).toString(), "0");
+  CHECK_EQ((number2 * number0).toString(), "0");
   CHECK_EQ((number40Minus * number0).toString(), "0");
   CHECK_EQ((number0 * number40Minus_v2).toString(), "0");
   CHECK_EQ((number40Minus * number1).toString(), "-40");
@@ -79,9 +81,12 @@ TEST_CASE("numbeeers")
   CHECK_EQ((number10 / number1).toString(), "10");
   CHECK_EQ((number123 / number1).toString(), "123");
   CHECK_EQ((number10 / number2).toString(), "5");
+  CHECK_EQ((number10 / number0).toString(), "0");
+  CHECK_EQ((number0 / number10).toString(), "0");
   CHECK_EQ((number40Minus / number2).toString(), "-20");
   CHECK_EQ((number40Minus / number2).toString(), "-20");
   CHECK_EQ((number99999 / number1).toString(), "99999");
+  CHECK_EQ((number1 / number99999).toString(), "0");
   CHECK_EQ((number99999 / number99999).toString(), "1");
 }
 // NOLINTEND
