@@ -1,5 +1,3 @@
-//> using test.dep org.scalameta::munit::0.7.29
-
 class Cwiczenia01 extends munit.FunSuite {
   test("flatten1") {
     assert(
