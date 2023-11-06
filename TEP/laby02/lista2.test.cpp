@@ -133,13 +133,14 @@ TEST_CASE("Division")
   CHECK_EQ((number10 / number1).toString(), "10");
   CHECK_EQ((number123 / number1).toString(), "123");
   CHECK_EQ((number10 / number2).toString(), "5");
-  CHECK_EQ((number10 / number0).toString(), "0");
+  // CHECK_EQ((number10 / number0).toString(), "0");
   CHECK_EQ((number0 / number10).toString(), "0");
   CHECK_EQ((number40Minus / number2).toString(), "-20");
-  CHECK_EQ((number40Minus / number2).toString(), "-20");
+  CHECK_EQ((number2 / number40Minus).toString(), "0");
   CHECK_EQ((number99999 / number1).toString(), "99999");
   CHECK_EQ((number1 / number99999).toString(), "0");
   CHECK_EQ((number99999 / number99999).toString(), "1");
+  CHECK_EQ((number120 / number40Minus).toString(), "-30");
 }
 
 TEST_CASE("Multiple operations")
@@ -161,6 +162,32 @@ TEST_CASE("Multiple operations")
 
   CHECK_EQ((number2 / number2 + number2 / number2).toString(), "2");
   CHECK_EQ((number2 / number2 + number2 / number2 + number2 / number2).toString(), "3");
-  CHECK_EQ(((number0 * number120 + number99999 * number1) / number0).toString(), "0");
+  CHECK_EQ(((number0 * number120 + number99999 * number1) / number1).toString(), "99999");
+}
+
+TEST_CASE("MODULO")
+{
+  Number number123, number123_v2, number2, number40Minus, number40Minus_v2, number0, number99999, number1, number99999Minus, number10, number120, number40;
+  number123 = 123;
+  number10 = 10;
+  number120 = 1200;
+  number40Minus = -40;
+  number40 = 40;
+  number99999 = 99999;
+  number99999Minus = -99999;
+  number1 = 1;
+  number40Minus_v2 = number40Minus;
+  number123_v2 = number123;
+  number2 = 2;
+  number0 = 0;
+  number123_v2 = number123_v2 + number2;
+
+  Number *result = NULL;
+  CHECK_EQ((number123.modulo(number2, &result)).toString(), "1");
+  CHECK_EQ((*result).toString(), "61");
+  Number *result2 = NULL;
+  CHECK_EQ((number40Minus.modulo(number2, &result2)).toString(), "0");
+  CHECK_EQ((*result2).toString(), "-20");
+  CHECK_EQ((number123.modulo(number40Minus, &result)).toString(), "3");
 }
 // NOLINTEND

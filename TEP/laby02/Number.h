@@ -19,6 +19,7 @@ public:
   bool operator>=(const Number &newValue) const;
   bool operator<=(const Number &newValue) const;
   bool operator==(const Number &newValue) const;
+  Number modulo(const Number &other, Number **result) const;
   std::string toString() const;
 
 private:

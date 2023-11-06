@@ -372,7 +372,7 @@ Number Number::operator/(const Number &newValue) const
 
   if (newValue == zeroNumber)
   {
-    return zeroNumber;
+    throw std::invalid_argument("Division by zero");
   }
 
   Number currentNumber = *this;
@@ -396,9 +396,10 @@ Number Number::operator/(const Number &newValue) const
   int currentIndex = 1;
   int insertIndex = 0;
   int currentDividendIndex = 0;
+  Number temp;
   while (currentDividendIndex < this->length)
   {
-    Number temp;
+
     temp = currentNumber.getFirstXNumbers(currentIndex);
 
     while (temp < divisor && !((currentIndex - 1) == currentNumber.length))
@@ -550,4 +551,117 @@ bool Number::operator==(const Number &newValue) const
   }
 
   return true;
+}
+
+Number Number::modulo(const Number &newValue, Number **resultNumber) const
+{
+  Number zeroNumber, baseNumber;
+  zeroNumber = 0;
+  baseNumber = NUMBER_BASE;
+
+  if (newValue == zeroNumber)
+  {
+    return zeroNumber;
+  }
+
+  Number currentNumber = *this;
+  currentNumber.isNegative = false;
+  Number divisor = newValue;
+  divisor.isNegative = false;
+
+  if (currentNumber < divisor)
+  {
+    return zeroNumber;
+  }
+
+  int newLen = currentNumber.length - divisor.length + 1;
+  int *result = new int[newLen];
+
+  for (int i = 0; i < newLen; i++)
+  {
+    result[i] = 0;
+  }
+
+  int currentIndex = 1;
+  int insertIndex = 0;
+  int currentDividendIndex = 0;
+  Number temp;
+  while (currentDividendIndex < this->length)
+  {
+
+    temp = currentNumber.getFirstXNumbers(currentIndex);
+
+    while (temp < divisor && !((currentIndex - 1) == currentNumber.length))
+    {
+      currentIndex++;
+      currentDividendIndex++;
+      temp = currentNumber.getFirstXNumbers(currentIndex);
+    }
+
+    int digit = 0;
+
+    Number tempReduced = temp;
+    tempReduced.reduceTableSize();
+    while (temp >= divisor && !(tempReduced == zeroNumber))
+    {
+      temp = temp - divisor;
+      digit++;
+    }
+
+    result[insertIndex] = digit;
+    insertIndex++;
+
+    if ((currentNumber.length - currentIndex) > 0)
+    {
+      currentNumber = currentNumber.getLastXNumbers(currentNumber.length - currentIndex);
+    }
+    tempReduced = temp;
+    tempReduced.reduceTableSize();
+
+    if (!(tempReduced == zeroNumber))
+    {
+      for (int i = 0; i < temp.length; i++)
+      {
+
+        currentNumber.append(temp.numbers[i]);
+      }
+    }
+
+    currentIndex = 1;
+    currentDividendIndex++;
+  }
+
+  Number *newNumber = new Number();
+
+  delete[] newNumber->numbers;
+  newNumber->length = insertIndex;
+
+  int *realResult = new int[insertIndex];
+
+  for (int i = 0; i < insertIndex; i++)
+  {
+    realResult[i] = result[i];
+  }
+
+  delete[] result;
+
+  for (int i = 0; i < insertIndex / 2; i++)
+  {
+    int temp = realResult[i];
+    realResult[i] = realResult[insertIndex - 1 - i];
+    realResult[insertIndex - 1 - i] = temp;
+  }
+
+  newNumber->numbers = realResult;
+
+  if (this->isNegative != newValue.isNegative && !(newNumber->length == 1 && newNumber->numbers[0] == 0))
+  {
+    newNumber->isNegative = true;
+  }
+
+  *resultNumber = newNumber;
+
+  temp.reduceTableSize();
+
+  return temp;
 }
