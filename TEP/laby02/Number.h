@@ -9,17 +9,17 @@ public:
   ~Number();
   Number &operator=(const Number &newValue);
   Number &operator=(int newValue);
-  Number operator+(Number &newValue);
-  Number operator*(Number &newValue);
-  Number operator-(Number &newValue);
-  Number operator/(Number &newValue);
+  Number operator+(const Number &newValue) const;
+  Number operator*(const Number &newValue) const;
+  Number operator-(const Number &newValue) const;
+  Number operator/(const Number &newValue) const;
 
-  bool operator>(Number &newValue);
-  bool operator<(Number &newValue);
-  bool operator>=(Number &newValue);
-  bool operator<=(Number &newValue);
-  bool operator==(Number &newValue);
-  std::string toString();
+  bool operator>(const Number &newValue) const;
+  bool operator<(const Number &newValue) const;
+  bool operator>=(const Number &newValue) const;
+  bool operator<=(const Number &newValue) const;
+  bool operator==(const Number &newValue) const;
+  std::string toString() const;
 
 private:
   int *numbers;

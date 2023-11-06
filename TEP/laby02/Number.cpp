@@ -25,7 +25,7 @@ Number::~Number()
   delete[] numbers;
 }
 
-std::string Number::toString()
+std::string Number::toString() const
 {
   std::string result = "";
 
@@ -111,7 +111,7 @@ Number &Number::operator=(int newValue)
   return *this;
 }
 
-bool Number::operator>(Number &newValue)
+bool Number::operator>(const Number &newValue) const
 {
   if (this->isNegative && !newValue.isNegative)
   {
@@ -153,7 +153,7 @@ bool Number::operator>(Number &newValue)
   return false;
 }
 
-bool Number::operator<(Number &newValue)
+bool Number::operator<(const Number &newValue) const
 {
   if (this->isNegative && !newValue.isNegative)
   {
@@ -194,7 +194,7 @@ bool Number::operator<(Number &newValue)
   return false;
 }
 
-Number Number::operator+(Number &newValue)
+Number Number::operator+(const Number &newValue) const
 {
   if (this->isNegative && !newValue.isNegative)
   {
@@ -262,7 +262,7 @@ Number Number::operator+(Number &newValue)
   return newNumber;
 }
 
-Number Number::operator-(Number &newValue)
+Number Number::operator-(const Number &newValue) const
 {
   if (newValue.isNegative)
   {
@@ -321,7 +321,7 @@ Number Number::operator-(Number &newValue)
   return newNumber;
 }
 
-Number Number::operator*(Number &newValue)
+Number Number::operator*(const Number &newValue) const
 {
   int newLen = this->length + newValue.length;
   int *result = new int[newLen];
@@ -364,7 +364,7 @@ Number Number::operator*(Number &newValue)
   return newNumber;
 }
 
-Number Number::operator/(Number &newValue)
+Number Number::operator/(const Number &newValue) const
 {
   Number zeroNumber, baseNumber;
   zeroNumber = 0;
@@ -519,17 +519,17 @@ void Number::append(int digit)
   this->numbers = newNumbers;
 }
 
-bool Number::operator>=(Number &newValue)
+bool Number::operator>=(const Number &newValue) const
 {
   return *this > newValue || *this == newValue;
 }
 
-bool Number::operator<=(Number &newValue)
+bool Number::operator<=(const Number &newValue) const
 {
   return *this < newValue || *this == newValue;
 }
 
-bool Number::operator==(Number &newValue)
+bool Number::operator==(const Number &newValue) const
 {
   if (this->isNegative != newValue.isNegative)
   {
