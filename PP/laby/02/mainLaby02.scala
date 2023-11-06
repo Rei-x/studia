@@ -28,13 +28,13 @@ def split2Rec[A](a: List[A]): (List[A], List[A]) = {
 
 def split2Tail[A](a: List[A]): (List[A], List[A]) = {
   @tailrec
-  def split2Helper(a: List[A], acc: (List[A], List[A])): (List[A], List[A]) = {
+  def split2Aux(a: List[A], acc: (List[A], List[A])): (List[A], List[A]) = {
     a match {
       case head :: head2 :: next => {
-        split2Helper(next, (head :: acc._1, head2 :: acc._2))
+        split2Aux(next, (head :: acc._1, head2 :: acc._2))
       }
       case _ => acc
     }
   }
-  split2Helper(a, (List(), List()))
+  split2Aux(a, (List(), List()))
 }
