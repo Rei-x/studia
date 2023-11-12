@@ -1,7 +1,9 @@
 import scala.compiletime.ops.boolean
+
 def fib(n: Int): Int = {
-  if (n == 0 || n == 1) then n
-  else fib(n - 1) + fib(n - 2)
+  n match
+    case 0 | 1 => n
+    case _     => fib(n - 1) + fib(n - 2)
 }
 
 def fibTail(n: Int): Int = {

@@ -1,0 +1,5 @@
+(library
+  (name laby03)
+  (modules main))
+
+(test (name main_test) (modules main_test) (libraries ounit2 laby03))

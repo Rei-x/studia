@@ -22,7 +22,6 @@ val sqrList: List[Int] => List[Int] = (xs) => {
 
 // returns List of indexes of max element
 
-
 // def sqrList(xs: List[Int]): List[Int] = {}
 
 def palindrome[A](xs: List[A]): Boolean = {
@@ -31,5 +30,5 @@ def palindrome[A](xs: List[A]): Boolean = {
 }
 
 def listLength[A](xs: List[A]): Int = {
-  if (xs.isEmpty) then 0 else 1 + listLength(xs.tail)
+  if (xs == List()) then 0 else 1 + listLength(xs.tail)
 }

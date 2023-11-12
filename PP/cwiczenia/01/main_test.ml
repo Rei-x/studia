@@ -13,7 +13,8 @@ let tests =
          ( "sqrList" >:: fun _ ->
            assert_equal [ 1; 4; 9; 16 ] (sqrList [ 1; 2; 3; 4 ]) );
          ( "palindrom" >:: fun _ ->
-           assert_equal true (palindrome [ 1; 2; 3; 2; 1 ]) );
+           assert_equal true (palindrome [ 1; 2; 3; 2; 1 ]);
+           assert_equal true (palindrome []) );
          ("listLength" >:: fun _ -> assert_equal 3 (listLength [ 1; 2; 3 ]));
        ]
 
