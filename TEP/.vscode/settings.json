@@ -7,7 +7,9 @@
   "C_Cpp.inlayHints.parameterNames.enabled": true,
   "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
     "cppcoreguidelines-pro-bounds-pointer-arithmetic",
-    "modernize-use-nullptr"
+    "modernize-use-nullptr",
+    "cppcoreguidelines-special-member-functions",
+    "modernize-use-auto"
   ],
   "files.watcherExclude": {
     "**/target": true
@@ -68,5 +70,6 @@
     "ctime": "cpp",
     "set": "cpp",
     "iomanip": "cpp"
-  }
+  },
+  "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
 }
