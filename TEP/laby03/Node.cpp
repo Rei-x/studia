@@ -9,6 +9,7 @@ Node::Node() : numberOfNodes(0), nodes(new Node[0]), type(UNINITIALIZED)
 
 Node::~Node()
 {
+  delete[] nodes;
 }
 
 std::string Node::toString() const

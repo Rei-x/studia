@@ -9,7 +9,8 @@
     "cppcoreguidelines-pro-bounds-pointer-arithmetic",
     "modernize-use-nullptr",
     "cppcoreguidelines-special-member-functions",
-    "modernize-use-auto"
+    "modernize-use-auto",
+    "modernize-loop-convert"
   ],
   "files.watcherExclude": {
     "**/target": true
@@ -69,7 +70,9 @@
     "cstring": "cpp",
     "ctime": "cpp",
     "set": "cpp",
-    "iomanip": "cpp"
+    "iomanip": "cpp",
+    "map": "cpp",
+    "valarray": "cpp"
   },
   "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
 }

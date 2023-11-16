@@ -8,9 +8,10 @@ TEST_CASE("Nodes")
 {
   Tree firstTree;
 
-  firstTree.parseFormula("- + 2 + * 20 4 4 *");
+  firstTree.parseFormula("+ a b");
 
-  CHECK_EQ(firstTree.toString(), "- + 2 + * 20 4 4 * ");
-  CHECK_EQ(firstTree.comp(), 82);
+  CHECK_EQ(firstTree.toString(), "+ a b");
+  std::cout << firstTree.getArgumentsList() << std::endl;
+  CHECK_EQ(firstTree.comp("2 3"), 5);
 }
 // NOLINTEND
