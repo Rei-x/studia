@@ -38,6 +38,9 @@ void Tree::parseFormula(std::string formule)
 
   bool wasError = false;
 
+  argsMap.clear();
+  argsVector.clear();
+
   int start = parseNodes(root, formule, 0, &wasError);
 
   if (formule.length() > start)
@@ -66,8 +69,6 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
     value += formule[start];
     start++;
   }
-
-  // std::cout << "Current value: \"" << value << "\"" << std::endl;
 
   value.erase(value.find_last_not_of(' ') + 1);
 
@@ -113,18 +114,56 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
   }
 
   currentNode->setValue(value);
-  // std::cout << "Current number: " << value << std::endl;
 
   return start;
 }
 
-Tree::Tree() : root(NULL)
+Tree::Tree() : root(NULL), argsMap(), argsVector()
 {
 }
 
 Tree::~Tree()
 {
-  delete root;
+  if (root != NULL)
+  {
+    delete root;
+  }
+}
+
+Tree::Tree(const Tree &other) : root(NULL)
+{
+  if (other.root != NULL)
+  {
+    root = new Node(*other.root);
+  }
+
+  argsMap = other.argsMap;
+  argsVector = other.argsVector;
+}
+
+Tree &Tree::operator=(const Tree &newValue)
+{
+  if (this == &newValue)
+  {
+    return *this;
+  }
+
+  if (root != NULL)
+  {
+    delete root;
+  }
+
+  if (newValue.root != NULL)
+  {
+    root = new Node(*newValue.root);
+  }
+
+  for (int i = 0; i < newValue.argsVector.size(); i++)
+  {
+    setArgumentValue(newValue.argsVector[i], -1);
+  }
+
+  return *this;
 }
 
 std::string Tree::toString() const
@@ -158,6 +197,14 @@ int Tree::comp(std::string args)
     {
       setArgumentValueByIndex(i, stringToNumber(argsArray[i]));
     }
+    else
+    {
+      std::cout << "Error: Invalid argument: " << argsArray[i] << std::endl;
+
+      delete[] argsArray;
+
+      return -1;
+    }
   }
 
   if (root == NULL)
@@ -176,31 +223,73 @@ int Tree::comp(std::string args)
   return result;
 }
 
-// output "a b c" without trailing whitespace
 std::string Tree::getArgumentsList() const
 {
   std::string result = "";
 
   for (int i = 0; i < argsVector.size(); i++)
   {
-    result += argsVector[i];
+    result += argsVector[i] + " ";
+  }
 
-    if (i != argsVector.size() - 1)
-    {
-      result += " ";
-    }
+  if (result.length() > 0)
+  {
+    result = result.substr(0, result.length() - 1);
   }
 
   return result;
 }
-// Split string by whitespace
-// "Mario and   luigi" -> ["Mario", "and", "luigi"]
+
+Tree Tree::operator+(const Tree &newValue) const
+{
+  Tree result = *this;
+
+  if (result.root == NULL)
+  {
+    result.root = new Node(*newValue.root);
+  }
+
+  Node *currentNode = result.root;
+  Node *parent = NULL;
+
+  while (currentNode->getNumberOfNodes() > 0)
+  {
+    parent = currentNode;
+    currentNode = currentNode->getNode(currentNode->getNumberOfNodes() - 1);
+  }
+
+  Node *newNode = new Node(*newValue.root);
+
+  if (currentNode->getNodeType() == ARGUMENT)
+  {
+    result.removeArgument(currentNode->getValue());
+  }
+
+  if (parent != NULL)
+  {
+    parent->setNode(parent->getNumberOfNodes() - 1, *newNode);
+  }
+  else
+  {
+    result.root = newNode;
+  }
+
+  for (int i = 0; i < newValue.argsVector.size(); i++)
+  {
+    result.setArgumentValue(newValue.argsVector[i], -1);
+  }
+
+  return result;
+}
 
 void Tree::printNodes() const
 {
-  for (int i = 0; i < root->getNumberOfNodes(); i++)
+  if (root != NULL)
   {
-    std::cout << root->getNode(i)->toString() << std::endl;
+    for (int i = 0; i < root->getNumberOfNodes(); i++)
+    {
+      std::cout << root->getNode(i)->toString() << std::endl;
+    }
   }
 }
 
@@ -258,16 +347,12 @@ int Tree::comp(Node *currentNode) const
       return -1;
     }
 
-    std::cout << "Argument: " << currentNode->getValue() << " = " << argsIterator->second << std::endl;
-
     return argsIterator->second;
   }
 
   return -1;
 }
-// Consist of letters (both uppercase and lowercase) and digits (if there is any prohibited value in the character string, such as "$," it can be ignored, and the user should be informed about it.)
-// There can be any number of letters and digits.
-// There must be at least one letter in the variable name.
+
 bool Tree::isValidArgument(std::string value)
 {
   if (value.empty())
@@ -301,6 +386,25 @@ void Tree::setArgumentValue(std::string arg, int value)
   }
 
   argsMap[arg] = value;
+}
+
+void Tree::removeArgument(std::string arg)
+{
+  std::map<std::string, int>::const_iterator argsIterator = argsMap.find(arg);
+
+  if (argsIterator != argsMap.end())
+  {
+    argsMap.erase(arg);
+  }
+
+  for (int i = 0; i < argsVector.size(); i++)
+  {
+    if (argsVector[i] == arg)
+    {
+      argsVector.erase(argsVector.begin() + i);
+      break;
+    }
+  }
 }
 
 void Tree::setArgumentValueByIndex(int index, int value)

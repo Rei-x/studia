@@ -13,6 +13,7 @@ class Node
 {
 public:
   Node();
+  Node(const Node &otherNode);
   ~Node();
   std::string toString() const;
   Node *getNodes() const;
@@ -20,9 +21,11 @@ public:
   std::string getValue() const;
   int getNumberOfNodes() const;
   NodeType getNodeType() const;
+  Node &operator=(const Node &newValue);
   void setNumberOfNodes(int numberOfNodes);
   void setNodeType(NodeType type);
   void setValue(std::string value);
+  void setNode(int index, Node &node);
 
 private:
   NodeType type;

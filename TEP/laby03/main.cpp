@@ -35,15 +35,7 @@ int main()
         continue;
       }
 
-      std::string formula = "";
-
-      for (int i = 1; i < size; i++)
-      {
-        formula += args[i] + " ";
-      }
-
-      formula = formula.substr(0, formula.length() - 1);
-
+      std::string formula = join(args + 1, size - 1);
       startingTree.parseFormula(formula);
     }
     else if (args[0] == "vars")
@@ -56,23 +48,28 @@ int main()
     }
     else if (args[0] == "comp")
     {
-      std::string formula = "";
+      std::string formula = join(args + 1, size - 1);
+      int result = startingTree.comp(formula);
 
-      for (int i = 1; i < size; i++)
+      if (result != -1)
       {
-        formula += args[i] + " ";
+        std::cout << "Wynik: " << result << std::endl;
       }
-
-      if (size > 1)
-      {
-        formula = formula.substr(0, formula.length() - 1);
-      }
-
-      std::cout << startingTree.comp(formula) << std::endl;
     }
     else if (args[0] == "join")
     {
-      std::cout << "Join" << std::endl;
+      if (size < 2)
+      {
+        std::cout << "Invalid command, use: " << args[0] << " <tree>" << std::endl;
+        continue;
+      }
+
+      std::string formula = join(args + 1, size - 1);
+
+      Tree tree;
+      tree.parseFormula(formula);
+
+      startingTree = startingTree + tree;
     }
     else if (args[0] == "help")
     {

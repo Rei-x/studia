@@ -35,3 +35,20 @@ std::string *splitStringByWhitespace(std::string str, int *size)
 
   return result;
 }
+
+std::string join(std::string *strings, int size)
+{
+  std::string result = "";
+
+  for (int i = 0; i < size; i++)
+  {
+    result += strings[i] + " ";
+  }
+
+  if (size > 0)
+  {
+    result = result.substr(0, result.length() - 1);
+  }
+
+  return result;
+}
