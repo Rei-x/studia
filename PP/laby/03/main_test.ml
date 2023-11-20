@@ -22,6 +22,20 @@ let tests =
              ~printer:list_to_string;
            assert_equal [] (((fun x -> x + 2) >> 0) 2) ~printer:list_to_string
          );
+         ( "multipleee 2" >:: fun _ ->
+           let multiply_by_two x = x * 2 in
+
+           assert_equal [ 10; 6; 4; 2 ]
+             ((multiply_by_two >>> 3) 3)
+             ~printer:list_to_string;
+           assert_equal []
+             (((fun x -> x + 2) >>> -1) 100)
+             ~printer:list_to_string;
+           assert_equal []
+             (((fun x -> x + 2) >>> -1) 100)
+             ~printer:list_to_string;
+           assert_equal [] (((fun x -> x + 2) >> 0) 2) ~printer:list_to_string
+         );
        ]
 
 let () = run_test_tt_main tests
