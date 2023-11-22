@@ -1,3 +1,5 @@
+#ifndef NODE
+#define NODE
 #include <string>
 #include <vector>
 
@@ -33,3 +35,5 @@ private:
   Node *nodes;
   int numberOfNodes;
 };
+
+#endif

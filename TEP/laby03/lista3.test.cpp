@@ -49,5 +49,14 @@ TEST_CASE("Nodes")
   CHECK_EQ(thirdTree.toString(), "+ a * 2 1");
   CHECK_EQ(thirdTree.getArgumentsList(), "a");
   CHECK_EQ(secondTree.toString(), "* 2 1");
+
+  Tree hashtagTree;
+
+  hashtagTree.parseFormula("# 1000 3");
+
+  CHECK_EQ(hashtagTree.comp(""), 1);
+
+  hashtagTree.parseFormula("# r + 7 8");
+  CHECK_EQ(hashtagTree.comp("2"), 6);
 }
 // NOLINTEND

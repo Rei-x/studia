@@ -4,7 +4,7 @@
 #include <sstream>
 #include <valarray>
 
-int stringToNumber(std::string str)
+int Tree::stringToNumber(std::string str)
 {
   int i = 0;
 
@@ -23,6 +23,7 @@ std::map<std::string, int> createFunctionMap()
   m["-"] = 2;
   m["*"] = 2;
   m["/"] = 2;
+  m["#"] = 2;
 
   return m;
 }
@@ -45,13 +46,13 @@ void Tree::parseFormula(std::string formule)
 
   if (formule.length() > start)
   {
-    std::cout << "Error: Too many arguments" << std::endl;
+    errorStream << "Error: Too many arguments" << std::endl;
     wasError = true;
   }
 
   if (wasError)
   {
-    std::cout << "Corrected formula: " << this->toString() << std::endl;
+    errorStream << "Corrected formula: " << this->toString() << std::endl;
   }
 }
 
@@ -74,6 +75,8 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
 
   std::map<std::string, int>::const_iterator numberOfArgsIterator = Tree::funMap.find(value);
 
+  currentNode->setValue(value);
+
   if (numberOfArgsIterator != Tree::funMap.end())
   {
     currentNode->setNumberOfNodes(numberOfArgsIterator->second);
@@ -83,7 +86,7 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
     {
       if (formule.length() <= start)
       {
-        std::cout << "Error: Not enough arguments for operator: " << value << ", substituting 1" << std::endl;
+        errorStream << "Error: Not enough arguments for operator: " << value << ", substituting 1" << std::endl;
         currentNode->getNode(i)->setNumberOfNodes(0);
         currentNode->getNode(i)->setNodeType(NUMBER);
         currentNode->getNode(i)->setValue("1");
@@ -95,8 +98,20 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
         start = parseNodes(currentNode->getNode(i), formule, start, wasError);
       }
     }
+
+    if (value == "#")
+    {
+      if (currentNode->getNode(0)->getNodeType() != ARGUMENT || currentNode->getNode(1)->getNodeType() != OPERATOR)
+      {
+        errorStream << "Error: Invalid arguments for #, required: ARGUMENT and OPERATOR, substituting 1" << std::endl;
+
+        currentNode->setNumberOfNodes(0);
+        currentNode->setNodeType(NUMBER);
+        currentNode->setValue("1");
+      }
+    }
   }
-  else if (value.find_first_not_of("0123456789") == std::string::npos)
+  else if (value.find_first_not_of(LIST_OF_NUMBERS) == std::string::npos)
   {
     currentNode->setNumberOfNodes(0);
     currentNode->setNodeType(NUMBER);
@@ -110,10 +125,8 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
   }
   else
   {
-    std::cout << "Error: Unknown operator: " << value << std::endl;
+    errorStream << "Error: Unknown operator: " << value << std::endl;
   }
-
-  currentNode->setValue(value);
 
   return start;
 }
@@ -184,7 +197,7 @@ int Tree::comp(std::string args)
 
   if (size != argsMap.size())
   {
-    std::cout << "Error: Wrong number of arguments, expected: " << argsMap.size() << ", got: " << size << std::endl;
+    errorStream << "Error: Wrong number of arguments, expected: " << argsMap.size() << ", got: " << size << std::endl;
 
     delete[] argsArray;
 
@@ -193,13 +206,13 @@ int Tree::comp(std::string args)
 
   for (int i = 0; i < size; i++)
   {
-    if (argsArray[i].find_first_not_of("0123456789") == std::string::npos)
+    if (argsArray[i].find_first_not_of(LIST_OF_NUMBERS) == std::string::npos)
     {
       setArgumentValueByIndex(i, stringToNumber(argsArray[i]));
     }
     else
     {
-      std::cout << "Error: Invalid argument: " << argsArray[i] << std::endl;
+      errorStream << "Error: Invalid argument: " << argsArray[i] << std::endl;
 
       delete[] argsArray;
 
@@ -209,7 +222,7 @@ int Tree::comp(std::string args)
 
   if (root == NULL)
   {
-    std::cout << "Error: No formula" << std::endl;
+    errorStream << "Error: No formula" << std::endl;
 
     delete[] argsArray;
 
@@ -282,6 +295,15 @@ Tree Tree::operator+(const Tree &newValue) const
   return result;
 }
 
+std::string Tree::getErrorAndClear()
+{
+  std::string error = this->errorStream.str();
+
+  errorStream.clear();
+
+  return error;
+}
+
 void Tree::printNodes() const
 {
   if (root != NULL)
@@ -293,7 +315,7 @@ void Tree::printNodes() const
   }
 }
 
-int Tree::comp(Node *currentNode) const
+int Tree::comp(Node *currentNode)
 {
   if (currentNode->getNodeType() == NUMBER)
   {
@@ -316,6 +338,10 @@ int Tree::comp(Node *currentNode) const
     else if (currentNode->getValue() == "*")
     {
       return comp(currentNode->getNode(0)) * comp(currentNode->getNode(1));
+    }
+    else if (currentNode->getValue() == "#")
+    {
+      return comp(currentNode->getNode(0)) + comp(currentNode->getNode(1));
     }
     else if (currentNode->getValue() == "/")
     {
@@ -343,7 +369,7 @@ int Tree::comp(Node *currentNode) const
 
     if (argsIterator == argsMap.end())
     {
-      std::cout << "Error: Unknown argument: " << currentNode->getValue() << std::endl;
+      errorStream << "Error: Unknown argument: " << currentNode->getValue() << std::endl;
       return -1;
     }
 
@@ -369,7 +395,7 @@ bool Tree::isValidArgument(std::string value)
     }
     else if (!isdigit(value[i]))
     {
-      std::cerr << "Invalid character ignored: " << value[i] << std::endl;
+      errorStream << "Invalid character ignored: " << value[i] << std::endl;
     }
   }
 
@@ -411,7 +437,6 @@ void Tree::setArgumentValueByIndex(int index, int value)
 {
   if (index >= argsVector.size())
   {
-    std::cout << "Error: Index out of bounds: " << index << std::endl;
     return;
   }
 
