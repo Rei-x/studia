@@ -45,11 +45,13 @@ class Laby04 extends munit.FunSuite {
           List(
             File("c.txt", "c"),
             File("d.txt", "d"),
+            File("kopia.txt", "kopia1"),
             Dir(
               "dir2",
               List(
                 File("e.txt", "e"),
                 File("f.txt", "f"),
+                File("kopia.txt", "kopia2"),
                 Dir(
                   "dir3",
                   List(
@@ -139,6 +141,8 @@ class Laby04 extends munit.FunSuite {
     assertEquals(path(disk, "g.txt"), Some("C:\\dir1\\dir2\\dir3\\g.txt"))
 
     assertEquals(path(disk, "does not exist.php"), None)
+
+    assertEquals(path(disk, "kopia.txt"), Some("C:\\dir1\\kopia.txt"))
   }
 
 }
