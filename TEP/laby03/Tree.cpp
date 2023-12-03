@@ -88,7 +88,7 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
       {
         errorStream << "Error: Not enough arguments for operator: " << value << ", substituting 1" << std::endl;
         currentNode->getNode(i)->setNumberOfNodes(0);
-        currentNode->getNode(i)->setNodeType(NUMBER);
+        currentNode->getNode(i)->setNodeType(VALUE);
         currentNode->getNode(i)->setValue("1");
 
         *wasError = true;
@@ -106,7 +106,7 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
         errorStream << "Error: Invalid arguments for #, required: ARGUMENT and OPERATOR, substituting 1" << std::endl;
 
         currentNode->setNumberOfNodes(0);
-        currentNode->setNodeType(NUMBER);
+        currentNode->setNodeType(VALUE);
         currentNode->setValue("1");
       }
     }
@@ -114,7 +114,7 @@ int Tree::parseNodes(Node *currentNode, std::string formule, int start, bool *wa
   else if (value.find_first_not_of(LIST_OF_NUMBERS) == std::string::npos)
   {
     currentNode->setNumberOfNodes(0);
-    currentNode->setNodeType(NUMBER);
+    currentNode->setNodeType(VALUE);
   }
   else if (isValidArgument(value))
   {
@@ -317,7 +317,7 @@ void Tree::printNodes() const
 
 int Tree::comp(Node *currentNode)
 {
-  if (currentNode->getNodeType() == NUMBER)
+  if (currentNode->getNodeType() == VALUE)
   {
     int i = 0;
 

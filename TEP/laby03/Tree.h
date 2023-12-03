@@ -1,5 +1,5 @@
-#ifndef TREE
-#define TREE
+#ifndef TREE2
+#define TREE2
 
 #include "Node.h"
 #include <map>

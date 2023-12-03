@@ -72,7 +72,8 @@
     "set": "cpp",
     "iomanip": "cpp",
     "map": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "cinttypes": "cpp"
   },
   "C_Cpp.codeAnalysis.clangTidy.useBuildPath": true
 }
