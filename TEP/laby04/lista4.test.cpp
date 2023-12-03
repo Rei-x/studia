@@ -133,5 +133,29 @@ TEST_CASE("Nodes string")
 
   CHECK_EQ(firstTree.toString(), "- \"alaxalaxala\" \"ala\"");
   CHECK_EQ(firstTree.comp(""), "alaxalax");
+
+  firstTree.parseFormula("* \"alaxalaxala\" \"xABC\"");
+  CHECK_EQ(firstTree.toString(), "* \"alaxalaxala\" \"xABC\"");
+  CHECK_EQ(firstTree.comp(""), "alaxABCalaxABCala");
+
+  firstTree.parseFormula("* \"alaxalaxala\" \"RDG\"");
+  CHECK_EQ(firstTree.toString(), "* \"alaxalaxala\" \"RDG\"");
+  CHECK_EQ(firstTree.comp(""), "alaxalaxala");
+
+  firstTree.parseFormula("* \"alaxalaxala\" \"\"");
+  CHECK_EQ(firstTree.toString(), "* \"alaxalaxala\" \"\"");
+  CHECK_EQ(firstTree.comp(""), "alaxalaxala");
+
+  firstTree.parseFormula("/ \"alaxABCalaxABCala\" \"xABC\"");
+  CHECK_EQ(firstTree.toString(), "/ \"alaxABCalaxABCala\" \"xABC\"");
+  CHECK_EQ(firstTree.comp(""), "alaxalaxala");
+
+  firstTree.parseFormula("/ \"alaxABCalaxABCala\" \"ZZZ\"");
+  CHECK_EQ(firstTree.toString(), "/ \"alaxABCalaxABCala\" \"ZZZ\"");
+  CHECK_EQ(firstTree.comp(""), "alaxABCalaxABCala");
+
+  firstTree.parseFormula("/ \"alaxABCalaxABCala\" \"\"");
+  CHECK_EQ(firstTree.toString(), "/ \"alaxABCalaxABCala\" \"\"");
+  CHECK_EQ(firstTree.comp(""), "alaxABCalaxABCala");
 }
 // NOLINTEND

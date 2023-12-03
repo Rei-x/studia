@@ -505,8 +505,6 @@ inline std::string Tree<std::string>::comp(Node *currentNode)
     }
     else if (currentNode->getValue() == "-")
     {
-      // find last substring and remove it
-
       std::string firstNodeValue = comp(currentNode->getNode(0));
 
       int pos = firstNodeValue.rfind(comp(currentNode->getNode(1)));
@@ -518,16 +516,56 @@ inline std::string Tree<std::string>::comp(Node *currentNode)
 
       return firstNodeValue;
     }
-    // else if (currentNode->getValue() == "*")
-    // {
-    //   return comp(currentNode->getNode(0)) * comp(currentNode->getNode(1));
-    // }
-    // else if (currentNode->getValue() == "/")
-    // {
-    //   std::string secondNodeValue = comp(currentNode->getNode(1));
+    else if (currentNode->getValue() == "*")
+    {
 
-    //   return comp(currentNode->getNode(0)) / secondNodeValue;
-    // }
+      std::string secondValue = comp(currentNode->getNode(1));
+      std::string firstValue = comp(currentNode->getNode(0));
+
+      if (secondValue.length() < 1)
+      {
+        return firstValue;
+      }
+
+      std::string newString = "";
+
+      std::string stringToCopy = secondValue.substr(1);
+
+      for (int i = 0; i < firstValue.length(); i++)
+      {
+        newString += firstValue[i];
+        if (firstValue[i] == secondValue[0])
+        {
+          newString += stringToCopy;
+        }
+      }
+
+      return newString;
+    }
+    else if (currentNode->getValue() == "/")
+    {
+      std::string secondValue = comp(currentNode->getNode(1));
+      std::string firstValue = comp(currentNode->getNode(0));
+
+      if (secondValue.length() < 1)
+      {
+        return firstValue;
+      }
+
+      std::string newString = "";
+
+      for (int i = 0; i < firstValue.length(); i++)
+      {
+        newString += firstValue[i];
+
+        if (firstValue.substr(i, secondValue.length()) == secondValue)
+        {
+          i += secondValue.length() - 1;
+        }
+      }
+
+      return newString;
+    }
   }
   else if (currentNode->getNodeType() == ARGUMENT)
   {
