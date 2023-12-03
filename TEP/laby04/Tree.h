@@ -35,6 +35,7 @@ public:
   std::string getErrorAndClear();
   void printNodes() const;
   std::string getKnownType();
+  static T getDefaultNoop();
 
 private:
   Node *root;
@@ -42,7 +43,6 @@ private:
   T comp(Node *currentNode);
   bool isValidValue(std::string value);
   static std::string getDefaultValue();
-  static T getDefaultNoop();
   static const std::map<std::string, int> funMap;
   typename std::map<std::string, T> argsMap;
   std::vector<std::string> argsVector;
@@ -381,7 +381,7 @@ Tree<T> Tree<T>::operator+(const Tree<T> &newValue) const
 
   for (int i = 0; i < newValue.argsVector.size(); i++)
   {
-    result.setArgumentValue(newValue.argsVector[i], -1);
+    result.setArgumentValue(newValue.argsVector[i], getDefaultNoop());
   }
 
   return result;
@@ -392,7 +392,7 @@ std::string Tree<T>::getErrorAndClear()
 {
   std::string error = this->errorStream.str();
 
-  errorStream.clear();
+  errorStream.str("");
 
   return error;
 }
