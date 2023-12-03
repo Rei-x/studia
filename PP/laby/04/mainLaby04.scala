@@ -15,39 +15,38 @@ def map3[A, B](tree: tree3[A])(f: A => B): tree3[B] = tree match {
     Node(f(element), map3(leftTree)(f), map3(middleTree)(f), map3(rightTree)(f))
 }
 
-sealed trait FileOrDir[+FileSystem];
+sealed trait FileSystemEntity[+FileData];
 
-case class File[+FileSystem](name: String, data: FileSystem)
-    extends FileOrDir[FileSystem]
-case class Dir[+FileSystem](name: String, files: List[FileOrDir[FileSystem]])
-    extends FileOrDir[FileSystem]
+case class File[+FileData](name: String, data: FileData)
+    extends FileSystemEntity[FileData]
+case class Dir[+FileData](name: String, files: List[FileSystemEntity[FileData]])
+    extends FileSystemEntity[FileData]
 
-case class Disk[+FileSystem](
+case class Disk[+FileData](
     name: String,
-    files: List[FileOrDir[FileSystem]]
+    files: List[FileSystemEntity[FileData]]
 )
 
-def path[FileSystem](
-    disk: Disk[FileSystem],
-    fileOrDir: String
+def path[FileData](
+    disk: Disk[FileData],
+    fileSystemEntityName: String
 ): Option[String] = {
   def pathAux(
-      filesOrDirs: List[FileOrDir[FileSystem]],
-      fileOrDir: String,
+      fileSystemEntities: List[FileSystemEntity[FileData]],
       currentPath: String
-  ): Option[String] = filesOrDirs match {
+  ): Option[String] = fileSystemEntities match {
     case List() => None
     case head :: tail =>
       head match {
-        case File(name, _) if (name == fileOrDir) =>
+        case File(name, _) if (name == fileSystemEntityName) =>
           Some(currentPath + "\\" + name)
-        case Dir(name, _) if (name == fileOrDir) =>
+        case Dir(name, _) if (name == fileSystemEntityName) =>
           Some(currentPath + "\\" + name)
         case Dir(name, files) =>
-          pathAux(files, fileOrDir, currentPath + "\\" + name)
-        case _ => pathAux(tail, fileOrDir, currentPath)
+          pathAux(files, currentPath + "\\" + name)
+        case _ => pathAux(tail, currentPath)
       }
   }
 
-  pathAux(disk.files, fileOrDir, disk.name + ":")
+  pathAux(disk.files, disk.name + ":")
 }
