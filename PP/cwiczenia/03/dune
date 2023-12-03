@@ -1,0 +1,5 @@
+(library
+  (name cwiczenia03)
+  (modules main))
+
+(test (name main_test) (modules main_test) (libraries ounit2 cwiczenia03))
