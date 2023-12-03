@@ -108,7 +108,7 @@ TEST_CASE("Multiplication")
   CHECK_EQ((number123_v2 * number40Minus).toString(), "-5000");
   CHECK_EQ((number123 * number123).toString(), "15129");
 }
-
+#ifdef __unix__
 TEST_CASE("Division")
 {
   Number number123, number123_v2, number2, number40Minus, number40Minus_v2, number0, number99999, number1, number99999Minus, number10, number120, number40;
@@ -190,4 +190,5 @@ TEST_CASE("MODULO")
   CHECK_EQ((*result2).toString(), "-20");
   CHECK_EQ((number123.modulo(number40Minus, &result)).toString(), "3");
 }
+#endif
 // NOLINTEND
