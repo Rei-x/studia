@@ -16,7 +16,7 @@ Wymagania by odpalić:
 
 ```bash
 pip install -r requirements.txt
-./run.py
+./run
 ```
 
 Wybierasz sobie co chcesz i klikasz enter.
