@@ -3,5 +3,5 @@
 
 int main()
 {
-  UIInterface<std::string>::startUI();
+  UIInterface<bool>::startUI();
 }

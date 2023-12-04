@@ -2,6 +2,14 @@
 #include "stringUtils.h"
 #include <iostream>
 
+#define EXIT_COMMAND "exit"
+#define ENTER_COMMAND "enter"
+#define VARS_COMMAND "vars"
+#define PRINT_COMMAND "print"
+#define COMP_COMMAND "comp"
+#define JOIN_COMMAND "join"
+#define HELP_COMMAND "help"
+
 template <typename T>
 class UIInterface
 {
@@ -23,14 +31,12 @@ void UIInterface<T>::startUI()
 
     if (size == 0)
     {
-      continue;
     }
-
-    if (args[0] == "exit")
+    else if (args[0] == EXIT_COMMAND)
     {
-      break;
+      return;
     }
-    else if (args[0] == "enter")
+    else if (args[0] == ENTER_COMMAND)
     {
       if (size < 2)
       {
@@ -43,21 +49,27 @@ void UIInterface<T>::startUI()
         std::cout << startingTree.getErrorAndClear() << std::endl;
       }
     }
-    else if (args[0] == "vars")
+    else if (args[0] == VARS_COMMAND)
     {
       std::cout << startingTree.getArgumentsList() << std::endl;
     }
-    else if (args[0] == "print")
+    else if (args[0] == PRINT_COMMAND)
     {
       std::cout << startingTree.toString() << std::endl;
     }
-    else if (args[0] == "comp")
+    else if (args[0] == COMP_COMMAND)
     {
       std::string formula = join(args + 1, size - 1);
+
       T result = startingTree.comp(formula);
 
-      if (result != startingTree.getDefaultNoop())
+      if (startingTree.getKnownType() == BOOL_NAME && !startingTree.isError())
       {
+        std::cout << "Wynik: " << (result ? "true" : "false") << std::endl;
+      }
+      else if (startingTree.getKnownType() != BOOL_NAME && !startingTree.isError())
+      {
+
         std::cout << "Wynik: " << result << std::endl;
       }
       else
@@ -65,7 +77,7 @@ void UIInterface<T>::startUI()
         std::cout << startingTree.getErrorAndClear() << std::endl;
       }
     }
-    else if (args[0] == "join")
+    else if (args[0] == JOIN_COMMAND)
     {
       if (size < 2)
       {
@@ -82,15 +94,15 @@ void UIInterface<T>::startUI()
 
       startingTree = startingTree + tree;
     }
-    else if (args[0] == "help")
+    else if (args[0] == HELP_COMMAND)
     {
       std::cout << "Commands:" << std::endl;
-      std::cout << "enter <formula>" << std::endl;
-      std::cout << "vars" << std::endl;
-      std::cout << "print" << std::endl;
-      std::cout << "comp <arg0> <arg1> <arg2> ..." << std::endl;
-      std::cout << "join <tree>" << std::endl;
-      std::cout << "exit" << std::endl;
+      std::cout << ENTER_COMMAND << " <formula>" << std::endl;
+      std::cout << VARS_COMMAND << std::endl;
+      std::cout << PRINT_COMMAND << std::endl;
+      std::cout << COMP_COMMAND << " <arg0> <arg1> <arg2> ..." << std::endl;
+      std::cout << JOIN_COMMAND << " <tree>" << std::endl;
+      std::cout << EXIT_COMMAND << std::endl;
     }
     else
     {

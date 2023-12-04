@@ -13,9 +13,12 @@
 #define DEFAULT_STRING_NODE_VALUE "\"KOTEK\""
 #define DEFAULT_NODE_VALUE "1"
 
+#define DEFAULT_STRING_ERROR_VALUE "COULDN'T CALCULATE"
 #define DEFAULT_ERROR_VALUE -1
 
-const std::string DEFAULT_STRING_ERROR_VALUE = "COULDN'T CALCULATE";
+#define BOOL_NAME "BOOL"
+
+// const std::string DEFAULT_STRING_ERROR_VALUE = "COULDN'T CALCULATE";
 const std::string LIST_OF_NUMBERS = "0123456789";
 
 template <typename T>
@@ -34,6 +37,7 @@ public:
   Tree operator+(const Tree &newValue) const;
   std::string getErrorAndClear();
   void printNodes() const;
+  bool isError();
   std::string getKnownType();
   static T getDefaultNoop();
 
@@ -75,7 +79,7 @@ inline double Tree<double>::getDefaultNoop()
 template <>
 inline std::string Tree<std::string>::getDefaultNoop()
 {
-  return "mario";
+  return DEFAULT_STRING_ERROR_VALUE;
 }
 
 template <typename T>
@@ -140,7 +144,7 @@ void Tree<T>::parseFormula(std::string formule)
 
   int start = parseNodes(root, formule, 0, &wasError);
 
-  if (formule.length() > start)
+  if (start != -1 && formule.length() > start)
   {
     errorStream << "Error: Too many arguments" << std::endl;
     wasError = true;
@@ -176,6 +180,12 @@ int Tree<T>::parseNodes(Node *currentNode, std::string formule, int start, bool 
 
   if (numberOfArgsIterator != Tree::funMap.end())
   {
+    if (numberOfArgsIterator->second == 1 && getKnownType() == BOOL_NAME)
+    {
+      errorStream << "YOU SHALL NOT PASS" << std::endl;
+      return -1;
+    }
+
     currentNode->setNumberOfNodes(numberOfArgsIterator->second);
     currentNode->setNodeType(OPERATOR);
 
@@ -433,6 +443,12 @@ inline std::string Tree<std::string>::getKnownType()
   return "STRING";
 }
 
+template <>
+inline std::string Tree<bool>::getKnownType()
+{
+  return "BOOL";
+}
+
 template <typename T>
 inline T Tree<T>::comp(Node *currentNode)
 {
@@ -454,8 +470,14 @@ inline T Tree<T>::comp(Node *currentNode)
     {
       return comp(currentNode->getNode(0)) * comp(currentNode->getNode(1));
     }
+
     else if (currentNode->getValue() == "/")
     {
+      if (getKnownType() == "BOOL")
+      {
+        return !(comp(currentNode->getNode(0)) * comp(currentNode->getNode(1)));
+      }
+
       T secondNodeValue = comp(currentNode->getNode(1));
 
       if (secondNodeValue == 0)
@@ -465,6 +487,7 @@ inline T Tree<T>::comp(Node *currentNode)
 
       return comp(currentNode->getNode(0)) / secondNodeValue;
     }
+
     else if (currentNode->getValue() == "sin")
     {
       return static_cast<int>(std::sin(comp(currentNode->getNode(0))));
@@ -488,6 +511,12 @@ inline T Tree<T>::comp(Node *currentNode)
   }
 
   return getDefaultNoop();
+}
+
+template <typename T>
+inline bool Tree<T>::isError()
+{
+  return errorStream.str().length() > 0;
 }
 
 template <>
@@ -628,6 +657,12 @@ template <>
 inline std::string Tree<std::string>::getDefaultValue()
 {
   return DEFAULT_STRING_NODE_VALUE;
+}
+
+template <>
+inline std::string Tree<bool>::getDefaultValue()
+{
+  return DEFAULT_NODE_VALUE;
 }
 
 template <typename T>

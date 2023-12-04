@@ -158,4 +158,29 @@ TEST_CASE("Nodes string")
   CHECK_EQ(firstTree.toString(), "/ \"alaxABCalaxABCala\" \"\"");
   CHECK_EQ(firstTree.comp(""), "alaxABCalaxABCala");
 }
+
+TEST_CASE("Nodes bool")
+{
+  Tree<bool> firstTree;
+
+  firstTree.parseFormula("+ + 1 0 1");
+
+  CHECK_EQ(firstTree.toString(), "+ + 1 0 1");
+  CHECK_EQ(firstTree.comp(""), true);
+
+  firstTree.parseFormula("- - 1 1 1");
+
+  CHECK_EQ(firstTree.toString(), "- - 1 1 1");
+  CHECK_EQ(firstTree.comp(""), false);
+
+  firstTree.parseFormula("* 0 1");
+
+  CHECK_EQ(firstTree.toString(), "* 0 1");
+  CHECK_EQ(firstTree.comp(""), false);
+
+  firstTree.parseFormula("/ 0 1");
+
+  CHECK_EQ(firstTree.toString(), "/ 0 1");
+  CHECK_EQ(firstTree.comp(""), false);
+}
 // NOLINTEND
