@@ -54,8 +54,7 @@ def path[FileData](
               currentBestResult match {
                 case Some((_, currentDepth)) =>
                   val newResult =
-                    if (currentDepth <= depth)
-                      None
+                    if (currentDepth <= depth) None
                     else
                       fileSystemEntity match {
                         case Dir(name, fileSystemEntities) =>

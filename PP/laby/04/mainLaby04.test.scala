@@ -251,14 +251,14 @@ class Laby04 extends munit.FunSuite {
       )
     )
 
-    assertEquals(path(disk5, "a.txt"), Some("mario:\\dir1\\dir2\\dir3\\a.txt"))
+    assertEquals(path(disk5, "a.txt"), Some("C:\\dir1\\dir2\\dir3\\a.txt"))
     assertEquals(
       path(disk4, "b.txt"),
-      Some("mario:\\dir1\\dir2\\dir3\\dir4\\b.txt")
+      Some("C:\\dir1\\dir2\\dir3\\dir4\\b.txt")
     )
     assertEquals(
       path(disk5, "mojdir"),
-      Some("mario:\\dir1\\dir2\\dir3\\dir4\\mojdir")
+      Some("C:\\dir1\\dir2\\dir3\\dir4\\mojdir")
     )
 
   }
