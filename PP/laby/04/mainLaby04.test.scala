@@ -36,7 +36,7 @@ class Laby04 extends munit.FunSuite {
 
   test("Disk") {
     val disk = Disk(
-      "C",
+      'C',
       List(
         File("a.txt", "a"),
         File("b.txt", "b"),
@@ -143,6 +143,147 @@ class Laby04 extends munit.FunSuite {
     assertEquals(path(disk, "does not exist.php"), None)
 
     assertEquals(path(disk, "kopia.txt"), Some("C:\\dir1\\kopia.txt"))
+  }
+
+  test("Disk insert") {
+    val disk = Disk('C', List());
+
+    val file = File("a.txt", "a")
+
+    val disk2 = insert(disk, file, "dir1\\dir2\\dir3")
+
+    assertEquals(
+      disk2,
+      Disk(
+        'C',
+        List(
+          Dir(
+            "dir1",
+            List(Dir("dir2", List(Dir("dir3", List(File("a.txt", "a"))))))
+          )
+        )
+      )
+    );
+
+    val disk3 = insert(disk2, File("b.txt", "b"), "dir1\\dir2\\dir3")
+
+    assertEquals(
+      disk3,
+      Disk(
+        'C',
+        List(
+          Dir(
+            "dir1",
+            List(
+              Dir(
+                "dir2",
+                List(
+                  Dir(
+                    "dir3",
+                    List(File("b.txt", "b"), File("a.txt", "a"))
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+
+    val disk4 = insert(disk2, File("b.txt", "b"), "dir1\\dir2\\dir3\\dir4")
+
+    assertEquals(
+      disk4,
+      Disk(
+        'C',
+        List(
+          Dir(
+            "dir1",
+            List(
+              Dir(
+                "dir2",
+                List(
+                  Dir(
+                    "dir3",
+                    List(
+                      File("a.txt", "a"),
+                      Dir("dir4", List(File("b.txt", "b")))
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+
+    val disk5 = insert(disk2, Dir("mojdir", List()), "dir1\\dir2\\dir3\\dir4")
+
+    assertEquals(
+      disk5,
+      Disk(
+        'C',
+        List(
+          Dir(
+            "dir1",
+            List(
+              Dir(
+                "dir2",
+                List(
+                  Dir(
+                    "dir3",
+                    List(
+                      File("a.txt", "a"),
+                      Dir(
+                        "dir4",
+                        List(
+                          Dir("mojdir", List())
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+
+    assertEquals(path(disk5, "a.txt"), Some("mario:\\dir1\\dir2\\dir3\\a.txt"))
+    assertEquals(
+      path(disk4, "b.txt"),
+      Some("mario:\\dir1\\dir2\\dir3\\dir4\\b.txt")
+    )
+    assertEquals(
+      path(disk5, "mojdir"),
+      Some("mario:\\dir1\\dir2\\dir3\\dir4\\mojdir")
+    )
+
+  }
+
+  test("Disk BFS") {
+    val disk =
+      Disk(
+        'C',
+        List(
+          Dir(
+            "dir1",
+            List(
+              Dir(
+                "dir2",
+                List(
+                  Dir("dir3", List(File("a.txt", "fail"))),
+                  File("a.txt", "correct")
+                )
+              )
+            )
+          )
+        )
+      )
+
+    assertEquals(path(disk, "a.txt"), Some("C:\\dir1\\dir2\\a.txt"))
   }
 
 }
