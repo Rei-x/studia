@@ -1,15 +1,15 @@
-sealed trait tree3[+A];
+sealed trait Tree3[+A];
 
-case object Empty extends tree3[Nothing]
+case object Empty extends Tree3[Nothing]
 
 case class Node[+A](
     element: A,
-    leftTree: tree3[A],
-    middleTree: tree3[A],
-    rightTree: tree3[A]
-) extends tree3[A]
+    leftTree: Tree3[A],
+    middleTree: Tree3[A],
+    rightTree: Tree3[A]
+) extends Tree3[A]
 
-def map3[A, B](tree: tree3[A])(f: A => B): tree3[B] = tree match {
+def map3[A, B](tree: Tree3[A])(f: A => B): Tree3[B] = tree match {
   case Empty => Empty
   case Node(element, leftTree, middleTree, rightTree) =>
     Node(f(element), map3(leftTree)(f), map3(middleTree)(f), map3(rightTree)(f))
