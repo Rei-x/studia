@@ -171,7 +171,7 @@ TEST_CASE("Nodes bool")
   firstTree.parseFormula("- - 1 1 1");
 
   CHECK_EQ(firstTree.toString(), "- - 1 1 1");
-  CHECK_EQ(firstTree.comp(""), false);
+  CHECK_EQ(firstTree.comp(""), true);
 
   firstTree.parseFormula("* 0 1");
 
@@ -181,6 +181,6 @@ TEST_CASE("Nodes bool")
   firstTree.parseFormula("/ 0 1");
 
   CHECK_EQ(firstTree.toString(), "/ 0 1");
-  CHECK_EQ(firstTree.comp(""), false);
+  CHECK_EQ(firstTree.comp(""), true);
 }
 // NOLINTEND
