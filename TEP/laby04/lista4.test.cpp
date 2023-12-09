@@ -61,6 +61,7 @@ TEST_CASE("Nodes")
   // CHECK_EQ(hashtagTree.comp("2"), 6);
 }
 
+#ifndef __APPLE__
 TEST_CASE("Nodes double")
 {
   Tree<double> firstTree;
@@ -119,6 +120,7 @@ TEST_CASE("Nodes double")
   // hashtagTree.parseFormula("# r + 7 8");
   // CHECK_EQ(hashtagTree.comp("2"), 6);
 }
+#endif
 
 TEST_CASE("Nodes string")
 {
