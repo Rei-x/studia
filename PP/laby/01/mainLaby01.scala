@@ -21,10 +21,10 @@ def isPerfect(n: Int) = {
   else sumDivisors(n, n / 2 + 1) == n
 }
 
-def insert[A](list: List[A], element: A, index: Int): List[A] = {
+def insertPlease[A](list: List[A], element: A, index: Int): List[A] = {
   if (list == Nil) then List(element)
   else if (index == 0) then element :: list
-  else list.head :: insert(list.tail, element, index - 1)
+  else list.head :: insertPlease(list.tail, element, index - 1)
 }
 
 def argmax(xs: List[Int]): List[Int] = {

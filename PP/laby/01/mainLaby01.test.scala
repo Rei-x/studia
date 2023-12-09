@@ -16,9 +16,9 @@ class Laby01 extends munit.FunSuite {
   }
 
   test("insert") {
-    assertEquals(insert(List(1, 3, 4, 5), 2, 1), List(1, 2, 3, 4, 5))
-    assertEquals(insert(List(1, 2, 4, 5), 3, 2), List(1, 2, 3, 4, 5))
-    assertEquals(insert(List(1, 2, 3, 4), 5, 999), List(1, 2, 3, 4, 5))
+    assertEquals(insertPlease(List(1, 3, 4, 5), 2, 1), List(1, 2, 3, 4, 5))
+    assertEquals(insertPlease(List(1, 2, 4, 5), 3, 2), List(1, 2, 3, 4, 5))
+    assertEquals(insertPlease(List(1, 2, 3, 4), 5, 999), List(1, 2, 3, 4, 5))
   }
 
   test("argmax") {
