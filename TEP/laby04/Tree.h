@@ -59,31 +59,31 @@ private:
 };
 
 template <typename T>
-inline T Tree<T>::getDefaultNoop()
+T Tree<T>::getDefaultNoop()
 {
   return T();
 }
 
 template <>
-inline int Tree<int>::getDefaultNoop()
+int Tree<int>::getDefaultNoop()
 {
   return DEFAULT_ERROR_VALUE;
 }
 
 template <>
-inline double Tree<double>::getDefaultNoop()
+double Tree<double>::getDefaultNoop()
 {
   return DEFAULT_ERROR_VALUE;
 }
 
 template <>
-inline std::string Tree<std::string>::getDefaultNoop()
+std::string Tree<std::string>::getDefaultNoop()
 {
   return DEFAULT_STRING_ERROR_VALUE;
 }
 
 template <typename T>
-inline T Tree<T>::stringToValue(std::string str)
+T Tree<T>::stringToValue(std::string str)
 {
   T i = 0;
 
@@ -92,13 +92,13 @@ inline T Tree<T>::stringToValue(std::string str)
 }
 
 template <>
-inline std::string Tree<std::string>::stringToValue(std::string str)
+std::string Tree<std::string>::stringToValue(std::string str)
 {
   return str.substr(1, str.length() - 2);
 }
 
 template <typename T>
-inline std::map<std::string, int> Tree<T>::createArgumentsMap()
+std::map<std::string, int> Tree<T>::createArgumentsMap()
 {
   std::map<std::string, int> m;
 
@@ -114,7 +114,7 @@ inline std::map<std::string, int> Tree<T>::createArgumentsMap()
 }
 
 template <>
-inline std::map<std::string, int> Tree<std::string>::createArgumentsMap()
+std::map<std::string, int> Tree<std::string>::createArgumentsMap()
 {
   std::map<std::string, int> m;
 
@@ -289,7 +289,7 @@ std::string Tree<T>::toString() const
 }
 
 template <typename T>
-inline T Tree<T>::comp(std::string args)
+T Tree<T>::comp(std::string args)
 {
   int size = 0;
 
@@ -420,37 +420,37 @@ void Tree<T>::printNodes() const
 }
 
 template <typename T>
-inline std::string Tree<T>::getKnownType()
+std::string Tree<T>::getKnownType()
 {
   return "UNKNOWN";
 }
 
 template <>
-inline std::string Tree<int>::getKnownType()
+std::string Tree<int>::getKnownType()
 {
   return "INT";
 }
 
 template <>
-inline std::string Tree<double>::getKnownType()
+std::string Tree<double>::getKnownType()
 {
   return "DOUBLE";
 }
 
 template <>
-inline std::string Tree<std::string>::getKnownType()
+std::string Tree<std::string>::getKnownType()
 {
   return "STRING";
 }
 
 template <>
-inline std::string Tree<bool>::getKnownType()
+std::string Tree<bool>::getKnownType()
 {
   return "BOOL";
 }
 
 template <typename T>
-inline T Tree<T>::comp(Node *currentNode)
+T Tree<T>::comp(Node *currentNode)
 {
   if (currentNode->getNodeType() == VALUE)
   {
@@ -514,13 +514,13 @@ inline T Tree<T>::comp(Node *currentNode)
 }
 
 template <typename T>
-inline bool Tree<T>::isError()
+bool Tree<T>::isError()
 {
   return errorStream.str().length() > 0;
 }
 
 template <>
-inline std::string Tree<std::string>::comp(Node *currentNode)
+std::string Tree<std::string>::comp(Node *currentNode)
 {
   if (currentNode->getNodeType() == VALUE)
   {
@@ -613,26 +613,26 @@ inline std::string Tree<std::string>::comp(Node *currentNode)
 }
 
 template <typename T>
-inline bool Tree<T>::isValidValue(std::string value)
+bool Tree<T>::isValidValue(std::string value)
 {
   return true;
 }
 
 template <>
-inline bool Tree<int>::isValidValue(std::string value)
+bool Tree<int>::isValidValue(std::string value)
 {
   return value.find_first_not_of(LIST_OF_NUMBERS) == std::string::npos;
 }
 
 template <>
-inline bool Tree<double>::isValidValue(std::string value)
+bool Tree<double>::isValidValue(std::string value)
 {
   double ld = 0;
   return ((std::istringstream(value) >> ld >> std::ws).eof());
 }
 
 template <>
-inline bool Tree<std::string>::isValidValue(std::string value)
+bool Tree<std::string>::isValidValue(std::string value)
 {
   if (value.length() < 3)
   {
@@ -648,19 +648,19 @@ inline bool Tree<std::string>::isValidValue(std::string value)
 }
 
 template <typename T>
-inline std::string Tree<T>::getDefaultValue()
+std::string Tree<T>::getDefaultValue()
 {
   return DEFAULT_NODE_VALUE;
 }
 
 template <>
-inline std::string Tree<std::string>::getDefaultValue()
+std::string Tree<std::string>::getDefaultValue()
 {
   return DEFAULT_STRING_NODE_VALUE;
 }
 
 template <>
-inline std::string Tree<bool>::getDefaultValue()
+std::string Tree<bool>::getDefaultValue()
 {
   return DEFAULT_NODE_VALUE;
 }
