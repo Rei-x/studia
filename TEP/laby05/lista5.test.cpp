@@ -18,10 +18,11 @@ TEST_CASE("Nodes")
   CHECK_EQ(firstTree.toString(), "+ a b");
   CHECK_EQ(secondTree.toString(), "* 2 1");
   CHECK_EQ(firstTree.getArgumentsList(), "a b");
+  std::cout << "ASSIGNMENT" << std::endl;
   secondTree = std::move(firstTree);
 
   CHECK_EQ(secondTree.toString(), "+ a b");
-
+  std::cout << "END OF ASSIGNMENT" << std::endl;
   thirdTree.parseFormula("* 2 4");
   std::cout << "PLUS AND ASSIGNMENT" << std::endl;
   firstTree = std::move(secondTree + std::move(thirdTree));
@@ -33,10 +34,11 @@ TEST_CASE("Nodes")
   CHECK_EQ(firstTree.toString(), "+ a b");
   CHECK_EQ(secondTree.toString(), "* 2 1");
   CHECK_EQ(firstTree.getArgumentsList(), "a b");
+  std::cout << "ASSIGNMENT" << std::endl;
   secondTree = firstTree;
 
   CHECK_EQ(secondTree.toString(), "+ a b");
-
+  std::cout << "END OF ASSIGNMENT" << std::endl;
   thirdTree.parseFormula("* 2 4");
   std::cout << "PLUS AND ASSIGNMENT" << std::endl;
   firstTree = secondTree + thirdTree;
