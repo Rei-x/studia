@@ -1,25 +1,36 @@
-type 'a llist = LNil | LCons of 'a * (unit -> 'a llist)
-
-let rec lfrom k = LCons (k, function () -> lfrom (k + 1))
-
-let rec toLazyList xs =
-  match xs with [] -> LNil | h :: t -> LCons (h, function () -> toLazyList t)
-
-type price = Price of string | HiddenPrice of (unit -> string)
+type 'a price = Prize of 'a | Ticket of (unit -> 'a price)
 
 let rec buyTicket prices n =
   match prices with
   | [] -> []
-  | HiddenPrice p :: t ->
-      if n = 0 then Price (p ()) :: t else HiddenPrice p :: buyTicket t (n - 1)
-  | Price p :: t -> Price p :: buyTicket t (n - 1)
+  | Ticket p :: t -> if n = 1 then p () :: t else Ticket p :: buyTicket t (n - 1)
+  | Prize p :: t -> Prize p :: buyTicket t (n - 1)
 ;;
 
 let prices =
   [
-    HiddenPrice (fun () -> "Komputer");
-    HiddenPrice (fun () -> "Klocki lego");
-    HiddenPrice (fun () -> "Sanki Zawiszy");
+    Ticket (fun () -> Prize "Komputer");
+    Ticket (fun () -> Prize "Klocki lego");
+    Ticket (fun () -> Prize "Sanki Zawiszy");
   ]
 in
 buyTicket prices 2
+
+type 'a lazyPrice = Price of 'a | Ticket of 'a lazyPrice Lazy.t
+
+let rec buyTicketLazy prices n =
+  match prices with
+  | [] -> []
+  | Ticket p :: t ->
+      if n = 1 then Lazy.force p :: t else Ticket p :: buyTicketLazy t (n - 1)
+  | p :: t -> p :: buyTicketLazy t (n - 1)
+
+let lazyPrices =
+  [
+    Ticket (lazy (Price "Komputer"));
+    Ticket (lazy (Ticket (lazy (Price "Klocki lego"))));
+    Ticket (lazy (Price "Sanki Zawiszy"));
+  ]
+;;
+
+buyTicketLazy lazyPrices 3
