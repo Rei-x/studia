@@ -3,14 +3,16 @@
   "C_Cpp.default.cStandard": "c99",
   "C_Cpp.codeAnalysis.clangTidy.enabled": true,
   "C_Cpp.clang_format_sortIncludes": true,
-  "C_Cpp.default.cppStandard": "c++98",
+  "C_Cpp.default.cppStandard": "c++11",
   "C_Cpp.inlayHints.parameterNames.enabled": true,
   "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
     "cppcoreguidelines-pro-bounds-pointer-arithmetic",
     "modernize-use-nullptr",
     "cppcoreguidelines-special-member-functions",
     "modernize-use-auto",
-    "modernize-loop-convert"
+    "modernize-loop-convert",
+    "cppcoreguidelines-owning-memory",
+    "cppcoreguidelines-macro-usage"
   ],
   "files.watcherExclude": {
     "**/target": true
