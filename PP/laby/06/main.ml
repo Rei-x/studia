@@ -1,33 +1,3 @@
-(* def fibonacciImperative(n: Int): Int = {
-     var firstFib = 1
-     var secondFib = 1
-     var i = 2
-     while (i < n) {
-       val newFib = firstFib + secondFib
-       firstFib = secondFib
-       secondFib = newFib
-       i += 1
-     }
-     return secondFib
-   }
-
-   def imperacci(n: Int, m: Int): Array[Int] = {
-     var result = Array.ofDim[Int](m);
-
-     var helperIndex = 0
-
-     var currentResultIndex = 0
-     while (currentResultIndex < m) {
-       if (helperIndex % 2 == 1) {
-         result(currentResultIndex) = fibonacciImperative(helperIndex + n - 1);
-         currentResultIndex += 1
-       }
-       helperIndex += 1
-     }
-
-     result
-   } *)
-
 let fibonacciImperative n =
   let firstFib = ref 1 in
   let secondFib = ref 1 in
@@ -51,3 +21,29 @@ let imperacci n m =
     helperIndex := !helperIndex + 1
   done;
   result
+
+let composites n =
+  let numberOfComposites = ref 0 in
+  let primes = Array.make (n + 1) true in
+  primes.(0) <- false;
+  primes.(1) <- false;
+  for p = 2 to int_of_float (sqrt (float_of_int n)) do
+    if primes.(p) then
+      for i = 2 to n / p do
+        primes.(i * p) <- false
+      done
+  done;
+  for i = 2 to n do
+    if not primes.(i) then numberOfComposites := !numberOfComposites + 1
+  done;
+  let result = Array.make !numberOfComposites 0 in
+  let resultIndex = ref 0 in
+  for i = 2 to n do
+    if not primes.(i) then (
+      result.(!resultIndex) <- i;
+      resultIndex := !resultIndex + 1)
+  done;
+  result
+;;
+
+composites 10

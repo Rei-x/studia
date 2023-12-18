@@ -29,14 +29,48 @@ def imperacci(n: Int, m: Int): Array[Int] = {
   var result = Array.ofDim[Int](m);
 
   var helperIndex = 0
-
   var currentResultIndex = 0
+
   while (currentResultIndex < m) {
     if (helperIndex % 2 == 1) {
       result(currentResultIndex) = fibonacciImperative(helperIndex + n - 1);
       currentResultIndex += 1
     }
     helperIndex += 1
+  }
+
+  return result
+}
+
+def imperacci2(n: Int, m: Int): Array[Int] = {
+  var result = Array.ofDim[Int](m);
+
+  var helperIndex = 0
+  var currentResultIndex = 0
+
+  var firstFib = 1
+  var secondFib = 1
+  var i = 2
+
+  if (n == 1) {
+    result(currentResultIndex) = 1
+    currentResultIndex += 1
+  }
+
+  if (n == 2) {
+    result(currentResultIndex) = 1
+    currentResultIndex += 1
+  }
+
+  while (currentResultIndex < m) {
+    val newFib = firstFib + secondFib
+    firstFib = secondFib
+    secondFib = newFib
+    if (i % 2 == m % 2 && i >= n - 1) {
+      result(currentResultIndex) = secondFib
+      currentResultIndex += 1
+    }
+    i += 1
   }
 
   result
