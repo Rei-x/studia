@@ -71,5 +71,13 @@ TEST_CASE("MyPointer")
   CHECK_EQ(*secondPointer, 10);
   CHECK_EQ(firstPointer.getCounter(), 2);
   CHECK_EQ(secondPointer.getCounter(), 2);
+
+  MyPointer<int> thirdPointer(new int(15));
+
+  MyPointer<int> fourhPointer;
+
+  fourhPointer = thirdPointer.duplicate();
+
+  CHECK_EQ(*fourhPointer, 15);
 }
 // NOLINTEND

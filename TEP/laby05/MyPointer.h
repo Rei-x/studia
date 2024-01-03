@@ -7,9 +7,11 @@ class MyPointer
 {
 public:
   MyPointer(T *pcPointer);
+  MyPointer();
   MyPointer(const MyPointer &pcOther);
   ~MyPointer();
   MyPointer &operator=(const MyPointer &pcOther);
+  MyPointer<T> duplicate();
 
   T &operator*();
   T *operator->();
@@ -25,6 +27,13 @@ template <typename T>
 MyPointer<T>::MyPointer(T *pcPointer) : pc_counter(new RefCounter()), pc_pointer(pcPointer)
 {
   pc_counter->add();
+}
+
+template <typename T>
+inline MyPointer<T>::MyPointer()
+{
+  pc_counter = new RefCounter();
+  pc_pointer = nullptr;
 }
 
 template <typename T>
@@ -55,6 +64,12 @@ MyPointer<T> &MyPointer<T>::operator=(const MyPointer &pcOther)
   pc_pointer = pcOther.pc_pointer;
   pc_counter->add();
   return *this;
+}
+
+template <typename T>
+inline MyPointer<T> MyPointer<T>::duplicate()
+{
+  return MyPointer<T>(*this);
 }
 
 template <typename T>
