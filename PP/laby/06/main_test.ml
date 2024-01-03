@@ -9,7 +9,7 @@ let tests =
              [| 1; 3; 8; 21; 55; 144; 377; 987; 2584; 6765 |];
            assert_equal (imperacci 1 10)
              [| 1; 2; 5; 13; 34; 89; 233; 610; 1597; 4181 |];
-           assert_equal (composites 1) [| 4; 6; 8; 9 |] );
+           assert_equal (composites 10) [| 4; 6; 8; 9; 10 |] );
        ]
 
 let () = run_test_tt_main tests
