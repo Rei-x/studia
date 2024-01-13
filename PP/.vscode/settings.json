@@ -1,5 +1,6 @@
 {
   "files.watcherExclude": {
     "**/target": true
-  }
+  },
+  "java.project.sourcePaths": [".", "laby/08"]
 }
