@@ -1,61 +1,75 @@
 #include "GeneticAlgorithm.h"
 
-GeneticAlgorithm::GeneticAlgorithm(int populationSize, float crossProbability, float mutationProbability, IEvaluator* evaluator) :
-	crossProbability(crossProbability),
-	mutationProbability(mutationProbability),
-	evaluator(evaluator)
+GeneticAlgorithm::GeneticAlgorithm(int populationSize, float crossProbability, float mutationProbability, IEvaluator& evaluator)
+	: evaluator(evaluator), crossProbability(crossProbability), mutationProbability(mutationProbability)
 {
 	initializePopulation(populationSize);
-	bestIndividual = population.at(0);
+	bestIndividual = new Individual(*population.at(0));
 }
 
+GeneticAlgorithm::~GeneticAlgorithm()
+{
+	if (bestIndividual != NULL) {
+		delete bestIndividual;
+	}
 
+	for (int i = 0; i < population.size(); i++) {
+		delete population.at(i);
+	}
+}
 
 void GeneticAlgorithm::runOneIteration()
 {
-	vector<Individual> newPopulation;
-
-	while (newPopulation.size() < population.size())
+	vector<Individual*> newPopulation;
+	while (false)
 	{
-		vector<Individual> parents;
+		Individual* candidate1 = population[dRand() * population.size()];
+		Individual* candidate2 = population[dRand() * population.size()];
 
-		for (int i = 1; i <= 2; i++)
-		{
-			Individual firstCandidate = population.at(dRand() * population.size());
-			Individual secondCandidate = population.at(dRand() * population.size());
+		Individual* parent1 = candidate1->getFitness() > candidate2->getFitness() ? new Individual(*candidate1) : new Individual(*candidate2);
 
-			Individual parent;
-			if (firstCandidate.getFitness() > secondCandidate.getFitness())
-			{
-				parent = firstCandidate;
-			}
-			else
-			{
-				parent = secondCandidate;
-			}
+		Individual* candidate3 = population[dRand() * population.size()];
+		Individual* candidate4 = population[dRand() * population.size()];
 
-			// std::cout << "better parent fitness: " << parent.getFitness() << std::endl;
-			parents.push_back(parent);
-		}
+		Individual* parent2 = candidate3->getFitness() > candidate4->getFitness() ? new Individual(*candidate3) : new Individual(*candidate4);
 
 		if (dRand() < crossProbability)
 		{
-			vector<Individual> children = parents.at(0).cross(parents.at(1));
-			newPopulation.push_back(children.at(0));
-			// std::cout << "children1: " << children.at(0).getFitness() << std::endl;
-			newPopulation.push_back(children.at(1));
-			// std::cout << "children1: " << children.at(1).getFitness() << std::endl;
+			std::pair<Individual*, Individual*> childrens = parent1->cross(parent2);
+			newPopulation.push_back(childrens.first);
+			newPopulation.push_back(childrens.second);
+
+			delete parent1, parent2;
 		}
 		else
 		{
-			newPopulation.push_back(parents.at(0));
-			newPopulation.push_back(parents.at(1));
+			newPopulation.push_back(parent1);
+			newPopulation.push_back(parent2);
 		}
+	}
+	while (newPopulation.size() < population.size()) {
+		Individual* candidat = population[dRand() * population.size()];
+
+		vector<Individual*> newIndividuals = std::move(candidat->mutate());
+
+		for (int i = 0; i < newIndividuals.size(); i++) {
+
+			newPopulation.push_back(newIndividuals.at(i));
+		}
+	}
+
+	while (newPopulation.size() > population.size()) {
+		delete newPopulation.back();
+		newPopulation.pop_back();
 	}
 
 	for (int i = 0; i < newPopulation.size(); i++)
 	{
-		newPopulation.at(i).mutate(mutationProbability);
+		newPopulation.at(i)->mutate(mutationProbability);
+	}
+
+	for (int i = 0; i < population.size(); i++) {
+		delete population[i];
 	}
 
 	population = newPopulation;
@@ -63,15 +77,16 @@ void GeneticAlgorithm::runOneIteration()
 
 void GeneticAlgorithm::runIterations(int numberOfIterations)
 {
+
 	for (int i = 0; i < numberOfIterations; i++) {
 		runOneIteration();
 		evaluatePopulation();
-		cout << this->getBestCandidat().getFitness() << endl;
+		cout << getBestCandidat()->getFitness() << endl;
 	}
 
 }
 
-Individual GeneticAlgorithm::getBestCandidat()
+Individual* GeneticAlgorithm::getBestCandidat()
 {
 	return bestIndividual;
 }
@@ -80,27 +95,29 @@ void GeneticAlgorithm::initializePopulation(int populationSize)
 {
 	for (int i = 0; i < populationSize; i++)
 	{
-		std::vector<int> genotype = std::vector<int>();
-		size_t genotypeSize = (size_t)evaluator->iGetNumberOfBits();
+		std::vector<int> genotype;
+		size_t genotypeSize = (size_t)evaluator.iGetNumberOfBits();
 
 		for (size_t j = 0; j < genotypeSize; j++)
 		{
-			genotype.push_back(lRand(evaluator->iGetNumberOfValues(j)));
+			genotype.push_back(lRand(evaluator.iGetNumberOfValues(j)));
 		}
-		Individual mario(genotype, evaluator);
 
-		population.push_back(mario);
+		population.push_back(new Individual(std::move(genotype), evaluator));
 	}
+
 }
 
 void GeneticAlgorithm::evaluatePopulation()
 {
-	bestIndividual = population.at(0);
+	Individual* oldBest = bestIndividual;
+
 	for (int i = 0; i < population.size(); i++)
 	{
-		if (population.at(i).getFitness() > bestIndividual.getFitness()) {
-			bestIndividual = population.at(i);
+		if (population.at(i)->getFitness() > oldBest->getFitness()) {
+			oldBest = population.at(i);
 		}
-
 	}
+
+	bestIndividual = new Individual(*oldBest);
 }

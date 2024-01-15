@@ -10,16 +10,20 @@ using namespace TimeCounters;
 
 using namespace std;
 
-#define dMAX_TIME 1 * 60
+#define POPULATION_SIZE 10
+#define CROSS_PROBABILITY 0.90
+#define MUTATION_PROBABILITY 0.001
+#define NUMBER_OF_ITERATIONS 10
+// RESULT at 10000 iterations: 0.000163465
 
 void vRunExperiment(CLFLnetEvaluator& cConfiguredEvaluator)
 {
 	try
 	{
-		GeneticAlgorithm c_optimizer(100, 0.90, 0.001, &cConfiguredEvaluator);
+		GeneticAlgorithm c_optimizer(POPULATION_SIZE, CROSS_PROBABILITY, MUTATION_PROBABILITY, cConfiguredEvaluator);
 
-		c_optimizer.runIterations(10000000000);
-		cout << c_optimizer.getBestCandidat().getFitness() << endl;
+		c_optimizer.runIterations(NUMBER_OF_ITERATIONS);
+		cout << "BEST CANDIDAT: " << c_optimizer.getBestCandidat()->getFitness() << endl;
 	}//try
 	catch (exception& c_exception)
 	{
@@ -41,11 +45,6 @@ void  vRunLFLExperiment(CString  sNetName)
 
 void main(int iArgCount, char** ppcArgValues)
 {
-	random_device c_mask_seed_generator;
-	int i_mask_seed = (int)c_mask_seed_generator();
-
-
-	CString  s_test;
 	vRunLFLExperiment("104b00");
 
 	/*vRunIsingSpinGlassExperiment(81, 0, i_mask_seed);
