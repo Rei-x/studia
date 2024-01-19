@@ -3,5 +3,6 @@ package Niepolimorficzne;
 public enum BoxType {
   Cuboid,
   Cylinder,
-  Sphere
+  Sphere,
+  Cone,
 }

@@ -11,13 +11,11 @@ public class CylinderBox extends Box {
 
   @Override
   public double getExternalVolume() {
-    // Objętość prostopadłościanu opisującego walca
     return (radius * 2) * (radius * 2) * height;
   }
 
   @Override
   public double getInternalVolume() {
-    // Objętość największego prostopadłościanu wpisanego w walec
     return Math.pow(radius * Math.sqrt(2), 2) * height;
   }
 

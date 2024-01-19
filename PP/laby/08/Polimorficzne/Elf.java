@@ -13,14 +13,6 @@ public class Elf {
     System.err.println(boxes);
     System.out.println("The biggest one: " + boxes.get(0));
     for (Box currentBox : boxes) {
-      // Collections.sort(boxesStacks, (stack1, stack2) -> {
-      // double stack1InternalVolume = stack1.get(stack1.size() -
-      // 1).getInternalVolume();
-      // double stack2InternalVolume = stack2.get(stack2.size() -
-      // 1).getInternalVolume();
-      // return Double.compare(stack2InternalVolume, stack1InternalVolume);
-      // });
-
       boolean isPlaced = false;
 
       for (List<Box> stack : boxesStacks) {

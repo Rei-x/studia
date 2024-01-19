@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import Niepolimorficzne.BoxType;
+import Polimorficzne.ConeBox;
 import Polimorficzne.CuboidBox;
 import Polimorficzne.CylinderBox;
 import Polimorficzne.SphereBox;
@@ -19,6 +20,7 @@ public class Main {
         new CuboidBox(10, 5, 2),
         new CuboidBox(10, 5, 2),
         new CylinderBox(2, 10),
+        new ConeBox(2, 4),
         new SphereBox(6),
         new CuboidBox(4, 4, 12));
 
@@ -42,6 +44,7 @@ public class Main {
         new Niepolimorficzne.Box(BoxType.Cuboid, new Double[] { 10.0, 5.0, 2.0 }),
         new Niepolimorficzne.Box(BoxType.Cuboid, new Double[] { 10.0, 5.0, 2.0 }),
         new Niepolimorficzne.Box(BoxType.Cylinder, new Double[] { 2.0, 10.0 }),
+        new Niepolimorficzne.Box(BoxType.Cone, new Double[] { 2.0, 4.0 }),
         new Niepolimorficzne.Box(BoxType.Sphere, new Double[] { 6.0 }),
         new Niepolimorficzne.Box(BoxType.Cuboid, new Double[] { 4.0, 4.0, 12.0 }));
 

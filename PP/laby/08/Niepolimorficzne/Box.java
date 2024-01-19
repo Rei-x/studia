@@ -1,6 +1,5 @@
 package Niepolimorficzne;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,17 +10,19 @@ public class Box implements Comparable<Box> {
 
   public Box(BoxType type, Double[] dimensions) {
     this.type = type;
-    this.dimensions = new ArrayList<Double>(Arrays.asList(dimensions));
+    this.dimensions = Arrays.asList(dimensions);
   }
 
   public double getExternalVolume() {
     switch (type) {
       case Cuboid:
-        return dimensions.get(0) * dimensions.get(1) * dimensions.get(2);
+        return getInternalVolume();
       case Cylinder:
         return Math.pow(dimensions.get(0) * 2, 2) * dimensions.get(1);
       case Sphere:
         return Math.pow(dimensions.get(0) * 2, 3);
+      case Cone:
+        return dimensions.get(0) * Math.pow(2 * dimensions.get(1), 2);
       default:
         throw new IllegalArgumentException("Unknown box type");
     }
@@ -35,6 +36,8 @@ public class Box implements Comparable<Box> {
         return Math.pow(dimensions.get(0) * Math.sqrt(2), 2) * dimensions.get(1);
       case Sphere:
         return Math.pow(dimensions.get(0) * Math.sqrt(3), 3);
+      case Cone:
+        return (8.0 / 27.0) * dimensions.get(0) * Math.pow(dimensions.get(1), 2);
       default:
         throw new IllegalArgumentException("Unknown box type");
     }
