@@ -64,4 +64,37 @@ class Laby09 extends munit.FunSuite {
     }
     assertEquals(largeOut.toString, "Large figures:\n16.0\n")
   }
+
+  test("Fine splitter") {
+    val s = new FineSplitter(10.0, 20.0);
+
+    val smallRectangle = new Rectangle(2, 3)
+    val mediumRectangle = new Rectangle(4, 4)
+    val largeRectangle = new Rectangle(5, 5)
+
+    s(smallRectangle)
+    s(mediumRectangle)
+    s(largeRectangle)
+
+    val smallOut = new java.io.ByteArrayOutputStream
+    Console.withOut(smallOut) {
+      s.printSmallFigures()
+    }
+
+    assertEquals(smallOut.toString, "Small figures:\n6.0\n")
+
+    val mediumOut = new java.io.ByteArrayOutputStream
+    Console.withOut(mediumOut) {
+      s.printMediumFigures()
+    }
+
+    assertEquals(mediumOut.toString, "Medium figures:\n16.0\n")
+
+    val largeOut = new java.io.ByteArrayOutputStream
+    Console.withOut(largeOut) {
+      s.printLargeFigures()
+    }
+
+    assertEquals(largeOut.toString, "Large figures:\n25.0\n16.0\n")
+  }
 }

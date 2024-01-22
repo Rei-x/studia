@@ -23,14 +23,14 @@ class Rectangle(private var _width: Double, private var _height: Double)
 
 }
 
-class Splitter(threshold: Double) {
-  require(threshold >= 0, "Threshold must be a non-negative value")
+class Splitter(val minThreshold: Double) {
+  require(minThreshold >= 0, "Lower threshold must be a non-negative value")
 
-  private var smallFigures: List[Figure] = Nil
-  private var largeFigures: List[Figure] = Nil
+  protected var smallFigures: List[Figure] = Nil
+  protected var largeFigures: List[Figure] = Nil
 
   def apply(figure: Figure): Unit = {
-    if (figure.area <= threshold) {
+    if (figure.area <= minThreshold) {
       smallFigures = figure :: smallFigures
     } else {
       largeFigures = figure :: largeFigures
@@ -45,5 +45,28 @@ class Splitter(threshold: Double) {
   def printLargeFigures(): Unit = {
     println("Large figures:")
     largeFigures.foreach(f => println(f.area))
+  }
+}
+
+class FineSplitter(minThreshold: Double, maxThreshold: Double)
+    extends Splitter(minThreshold) {
+  require(maxThreshold >= 0, "Upper threshold must be a non-negative value")
+  require(
+    minThreshold <= maxThreshold,
+    "Lower threshold must be less than or equal to upper threshold"
+  )
+
+  private var mediumFigures: List[Figure] = Nil
+
+  override def apply(figure: Figure): Unit = {
+    if (figure.area < maxThreshold && figure.area > minThreshold) {
+      mediumFigures = figure :: mediumFigures
+    }
+    super.apply(figure)
+  }
+
+  def printMediumFigures(): Unit = {
+    println("Medium figures:")
+    mediumFigures.foreach(f => println(f.area))
   }
 }
