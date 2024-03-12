@@ -119,7 +119,7 @@ def boot():
                 question_prompt = PromptTemplate.from_template(
                     (
                         "Połącz historię rozmowy z pytaniem, aby uzyskać odpowiedź na "
-                        "zadane pytanie. Twoja odpowiedź zostanie wysłana do bazy wektorowej. Historia czatu: {chat_history} \n"
+                        "zadane pytanie. Twoja odpowiedź zostanie wysłana do bazy wektorowej. Historia czatu: {chat_history} \n"  # noqa: E501
                         "Pytanie: {question}"
                     )
                 )
@@ -132,7 +132,7 @@ Question: {question}
 
 Context: {context} 
 
-Answer:"""
+Answer:"""  # noqa: E501
                 )
                 stream_handler = StreamHandler(message)
                 qa_chain = ConversationalRetrievalChain.from_llm(

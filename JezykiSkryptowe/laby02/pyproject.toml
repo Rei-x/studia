@@ -1,19 +1,13 @@
 [tool.poetry]
-name = "rag"
+name = "laby02"
 version = "0.1.0"
 description = ""
 authors = ["Bartosz Gotowski <bartoszgotowski03@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-langchain = "^0.1.11"
-streamlit = "^1.32.0"
-openai = "^1.13.3"
-chromadb = "^0.4.24"
-langchain-community = "^0.0.27"
-pypdf = "^4.1.0"
-langchain-openai = "^0.0.8"
+python = "^3.8"
+pydantic = "^2.6.4"
 
 
 [tool.poetry.group.dev.dependencies]
