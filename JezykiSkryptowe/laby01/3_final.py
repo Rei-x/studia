@@ -2,7 +2,6 @@ import tempfile
 from typing import List
 from langchain.callbacks import StdOutCallbackHandler
 from pathlib import Path
-import os
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_openai.chat_models import ChatOpenAI as OpenAIChat
@@ -24,17 +23,15 @@ LOCAL_VECTOR_STORE_DIR = (
 
 vector_db = Chroma(
     persist_directory=LOCAL_VECTOR_STORE_DIR.as_posix(),
-    embedding_function=OpenAIEmbeddings(api_key=st.secrets.openai_api_key),
+    embedding_function=OpenAIEmbeddings(),
 )
 
 st.set_page_config(page_title="RAG")
 st.title("Retrieval Augmented Generation Engine")
 
 
-if not st.secrets.openai_api_key:
+if not st.secrets.OPENAI_API_KEY:
     st.warning("Please add your OpenAI API key to the secrets.toml file.")
-
-os.environ["OPENAI_API_KEY"] = st.secrets.openai_api_key
 
 
 def load_documents():
@@ -56,8 +53,8 @@ def add_embeddings(texts: List[Document]):
 
 def input_fields():
     with st.sidebar:
-        if "openai_api_key" in st.secrets:
-            st.session_state.openai_api_key = st.secrets.openai_api_key
+        if "OPENAI_API_KEY" in st.secrets:
+            st.session_state.openai_api_key = st.secrets.OPENAI_API_KEY
         else:
             st.session_state.openai_api_key = st.text_input(
                 "OpenAI API key", type="password"
@@ -103,7 +100,7 @@ def boot():
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
-
+    st.sidebar.title("Pliki")
     st.chat_message("assistant").write("Witaj w RAG!")
     for msg in st.session_state.messages:
         st.chat_message("user").write(msg[0])
@@ -137,7 +134,6 @@ Answer:"""  # noqa: E501
                 stream_handler = StreamHandler(message)
                 qa_chain = ConversationalRetrievalChain.from_llm(
                     llm=OpenAIChat(
-                        api_key=st.session_state.openai_api_key,
                         streaming=True,
                         callbacks=[stream_handler],
                         model="gpt-4-turbo-preview",
@@ -148,9 +144,7 @@ Answer:"""  # noqa: E501
                     combine_docs_chain_kwargs={
                         "prompt": answer_prompt,
                     },
-                    condense_question_llm=OpenAIChat(
-                        api_key=st.session_state.openai_api_key,
-                    ),
+                    condense_question_llm=OpenAIChat(),
                     retriever=retriever,
                     return_source_documents=True,
                 )
@@ -161,11 +155,11 @@ Answer:"""  # noqa: E501
 
                 docs: List[Document] = response["source_documents"]
 
+                message.markdown(response["answer"])
                 for idx, doc in enumerate(docs):
-                    with st.expander(f"Source nr {str(idx + 1)}"):
+                    with st.sidebar.expander(f"Source nr {str(idx + 1)}"):
                         st.write(doc.page_content)
                 st.session_state.messages.append((query, response["answer"]))
-                message.markdown(response["answer"])
 
 
 if __name__ == "__main__":

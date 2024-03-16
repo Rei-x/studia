@@ -3,7 +3,7 @@ from log_parser import ApacheLog
 
 
 def only_night_assets(log: ApacheLog):
-    return log.timestamp.hour >= 22 and log.timestamp.hour <= 6
+    return log.timestamp.hour >= 22 or log.timestamp.hour <= 6
 
 
 if __name__ == "__main__":
