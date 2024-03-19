@@ -5,13 +5,7 @@ from log_parser import ApacheLog
 
 
 def group_status_codes(status_code: int, logs: Iterable[ApacheLog]):
-    number_of_occurrences = 0
-
-    for log in logs:
-        if log.http_code == status_code:
-            number_of_occurrences += 1
-
-    return number_of_occurrences
+    return sum(1 for log in logs if log.http_code == status_code)
 
 
 if __name__ == "__main__":

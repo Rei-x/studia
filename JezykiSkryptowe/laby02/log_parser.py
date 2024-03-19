@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 import re
 
@@ -15,6 +16,7 @@ parts = [
 pattern = re.compile(r"\s+".join(parts) + r"\s*\Z")
 
 
+@dataclass(frozen=True)
 class ApacheLog(BaseModel):
     host_address: str = Field(min_length=1, max_length=255)
     timestamp: datetime
@@ -31,14 +33,8 @@ class ApacheLog(BaseModel):
     def __str__(self):
         return self.original_log
 
-    class Config:
-        frozen = True
-
     @classmethod
     def from_log(cls, log_line: str):
-        if not isinstance(log_line, str):
-            raise ValueError(f"Expected a string, got {type(log_line)}")
-
         match = pattern.match(log_line)
 
         if not match:

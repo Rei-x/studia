@@ -21,6 +21,8 @@ ipykernel = "^6.29.3"
 python-dotenv = "^1.0.1"
 beautifulsoup4 = "^4.12.3"
 faiss-cpu = "^1.8.0"
+playwright = "^1.42.0"
+lxml = "^5.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
