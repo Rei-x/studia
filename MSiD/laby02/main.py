@@ -1,7 +1,6 @@
 """Homework for lab_2."""
 
 from typing import List
-
 import pytest
 
 
@@ -13,24 +12,26 @@ def is_matrix_square(mat: List[List[int]]) -> bool:
 
     :return: true if matrix is square one, otherwise false
     """
+    col_size = len(mat)
     for row in mat:
-        if len(row) != len(mat):
+        if len(row) != col_size:
             return False
     return True
 
 
-def get_minor_matrix(mat: List[List[int]], i: int, j: int) -> List[List[int]]:
+def get_minor_matrix(mat: List[List[int]], row: int, column: int) -> List[List[int]]:
     """
-    Generate a minor matrix of M for row 'i' and column 'j'.
+    Generate a minor matrix of M for row 'row' and column 'column'.
 
-    :param mat: matrix to obtain a minor one by crossing out the row 'i' and
-        the column 'j'
-    :param i: index of row
-    :param j: index of column
+    :param mat: matrix to obtain a minor one by crossing out the row 'row' and
+        the column 'column'
+    :param row: index of row
+    :param column: index of column
 
     :return: minor matrix
     """
-    return [row[:j] + row[j + 1 :] for row in (mat[:i] + mat[i + 1 :])]
+
+    return [row[:column] + row[column + 1 :] for row in (mat[:row] + mat[row + 1 :])]
 
 
 def matrix_determinant(mat: List[List[int]]) -> int:
@@ -51,8 +52,13 @@ def matrix_determinant(mat: List[List[int]]) -> int:
         return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
 
     det = 0
-    for c in range(len(mat)):
-        det += ((-1) ** c) * mat[0][c] * matrix_determinant(get_minor_matrix(mat, 0, c))
+    for colIdx in range(len(mat)):
+        det += (
+            ((-1) ** colIdx)
+            * mat[0][colIdx]
+            * matrix_determinant(get_minor_matrix(mat, 0, colIdx))
+        )
+
     return det
 
 
