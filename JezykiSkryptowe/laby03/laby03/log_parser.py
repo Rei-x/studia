@@ -1,7 +1,9 @@
+from collections import namedtuple
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
 import re
+from typing import NamedTuple
 
 from pydantic import BaseModel, Field
 
@@ -16,7 +18,27 @@ parts = [
 ]
 pattern = re.compile(r"\s+".join(parts) + r"\s*\Z")
 
-ApacheLogTuple = tuple[str, datetime, str | None, int, str | None, int | None]
+
+class ApacheLogTuple(NamedTuple):
+    host_address: str
+    timestamp: datetime
+    http_method: str | None
+    http_code: int
+    url: str | None
+    number_of_bytes: int | None
+
+
+ApacheLogNamedTuple = namedtuple(
+    "ApacheLogNamedTuple",
+    [
+        "host_address",
+        "timestamp",
+        "http_method",
+        "http_code",
+        "url",
+        "number_of_bytes",
+    ],
+)
 
 
 @dataclass(frozen=True)
@@ -38,13 +60,13 @@ class ApacheLog(BaseModel):
 
     @cached_property
     def as_tuple(self) -> ApacheLogTuple:
-        return (
-            self.host_address,
-            self.timestamp,
-            self.http_method,
-            self.http_code,
-            self.url,
-            self.number_of_bytes,
+        return ApacheLogTuple(
+            host_address=self.host_address,
+            timestamp=self.timestamp,
+            http_method=self.http_method,
+            http_code=self.http_code,
+            url=self.url,
+            number_of_bytes=self.number_of_bytes,
         )
 
     @classmethod

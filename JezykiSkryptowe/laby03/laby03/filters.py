@@ -16,11 +16,11 @@ from log_parser import ApacheLogTuple
 
 
 def get_entries_by_addr(logs: list[ApacheLogTuple], addr: str):
-    return [log for log in logs if log[0] == addr]
+    return [log for log in logs if log.host_address == addr]
 
 
 def get_entries_by_code(logs: list[ApacheLogTuple], code: int):
-    return [log for log in logs if log[3] == code]
+    return [log for log in logs if log.http_code == code]
 
 
 @overload
@@ -52,4 +52,4 @@ def get_failed_reads(logs: list[ApacheLogTuple], combined: bool = False):
 
 
 def get_entires_by_extension(logs: list[ApacheLogTuple], extension: str):
-    return filter(lambda log: log[4] is not None and log[4].endswith(extension), logs)
+    return filter(lambda log: log.url is not None and log.url.endswith(extension), logs)

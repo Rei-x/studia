@@ -1,19 +1,17 @@
 [tool.poetry]
-name = "laby03"
-package-mode = false
+name = "laby04"
 version = "0.1.0"
 description = ""
 authors = ["Bartosz Gotowski <bartoszgotowski03@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pydantic = "^2.6.4"
+python = "^3.11"
+watchdog = "^4.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.3.2"
-ipykernel = "^6.29.3"
+ruff = "^0.3.5"
 
 [build-system]
 requires = ["poetry-core"]

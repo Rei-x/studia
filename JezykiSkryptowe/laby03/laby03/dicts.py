@@ -14,12 +14,12 @@ class LogEntryDict(TypedDict):
 
 def entry_to_dict(log_tuple: ApacheLogTuple) -> LogEntryDict:
     return {
-        "host_address": log_tuple[0],
-        "timestamp": log_tuple[1],
-        "http_method": log_tuple[2],
-        "http_code": log_tuple[3],
-        "url": log_tuple[4],
-        "number_of_bytes": log_tuple[5],
+        "host_address": log_tuple.host_address,
+        "timestamp": log_tuple.timestamp,
+        "http_method": log_tuple.http_method,
+        "http_code": log_tuple.http_code,
+        "url": log_tuple.url,
+        "number_of_bytes": log_tuple.number_of_bytes,
     }
 
 
@@ -27,7 +27,7 @@ def log_to_dict(logs: list[ApacheLogTuple]):
     host_dictionary: dict[str, list[LogEntryDict]] = {}
 
     for log in logs:
-        host = log[0]
+        host = log.host_address
         if host not in host_dictionary:
             host_dictionary[host] = []
         host_dictionary[host].append(entry_to_dict(log))
@@ -36,7 +36,7 @@ def log_to_dict(logs: list[ApacheLogTuple]):
 
 
 def get_addrs(logs: dict[str, list[LogEntryDict]]):
-    return list(logs.keys())
+    return [*logs]
 
 
 def print_dict_entry_dates(logs: dict[str, list[LogEntryDict]]):

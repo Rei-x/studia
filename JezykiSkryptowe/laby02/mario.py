@@ -1,0 +1,1 @@
+import only_night_assets

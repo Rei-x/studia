@@ -1,5 +1,7 @@
 from log_parser import ApacheLog
 import sys
+
+
 # slow one
 # def parse_stdio():
 #     logs = []
