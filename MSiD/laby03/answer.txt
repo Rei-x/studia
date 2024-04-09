@@ -1,0 +1,1 @@
+Nie, ponieważ im bardziej wzrasta skomplikowanie modelu, tym bardziej wzrasta ryzyko przeuczenia - co widać już przy 7 stopniu wielomianu, błąd jest mniejszy, ale sama predykcja "na zdrowy rozum" jest gorsza (czemu szczęście przy 305 GDP miałoby być aż o 5 większe niż te przy 320 GDP).
