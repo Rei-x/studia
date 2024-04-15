@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "laby05"
+version = "0.1.0"
+description = ""
+authors = ["Bartosz Gotowski <bartoszgotowski03@gmail.com>"]
+readme = "README.md"
+packages = [{include = "laby05"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+structlog = "^24.1.0"
+rich = "^13.7.1"
+loguru = "^0.7.2"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.3.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
