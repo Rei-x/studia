@@ -1,12 +1,12 @@
 #!/bin/bash
 
 echo "Czy jest wieczór? (tak/nie)"
-read odpowiedz
+read answer
 
-if [ "$odpowiedz" == "tak" ]; then
+if [ "$answer" == "tak" ]; then
     echo "Dobry wieczór"
-elif [ "$odpowiedz" == "nie" ]; then
+elif [ "$answer" == "nie" ]; then
     echo "Dzień dobry"
 else
-    echo "Nie rozpoznana odpowiedź: $odpowiedz"
+    echo "Nie rozpoznana odpowiedź: $answer"
 fi

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-folder=$1
+directory=$1
 
-for file in "$folder"/*; do
+for file in "$directory"/*; do
     if [[ $file =~ \.(html|htm|php|css|gif|jpg)$ ]]; then
         echo $(basename "$file")
     fi

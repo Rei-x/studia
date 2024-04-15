@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "Czy jest wieczór? (tak/nie)"
-read odpowiedz
+read answer
 
-case "$odpowiedz" in
+case "$answer" in
     "tak")
         echo "Dobry wieczór"
         ;;
@@ -11,6 +11,6 @@ case "$odpowiedz" in
         echo "Dzień dobry"
         ;;
     *)
-        echo "Nie rozpoznana odpowiedź: $odpowiedz"
+        echo "Nie rozpoznana odpowiedź: $answer"
         ;;
 esac

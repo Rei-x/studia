@@ -1,7 +1,8 @@
 #!/bin/bash
 
 echo "Wprowadź pierwszą liczbę:"
-read liczba1
+read first_number
+second_number=$1
 
 echo "Suma została obliczona."
-echo "$((liczba1 + $1))"
+echo "$((first_number + second_number))"

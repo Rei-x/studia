@@ -1,12 +1,12 @@
 #!/bin/bash
 
 echo "Wprowadź pierwszą liczbę:"
-read liczba1
+read first_number
 echo "Wprowadź drugą liczbę:"
-read liczba2
+read second_number
 
-if [ $liczba1 -eq $liczba2 ]; then
-    echo "Liczba $liczba1 i liczba $liczba2 są równe"
+if [ $first_number -eq $second_number ]; then
+    echo "Liczba $first_number i liczba $second_number są równe"
 else
-    echo "Liczba $liczba1 i liczba $liczba2 są różne"
+    echo "Liczba $first_number i liczba $second_number są różne"
 fi
