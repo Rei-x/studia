@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Wprowadź pierwszą liczbę:"
-read first_number
+read -r first_number
 second_number=$1
 
 echo "Suma została obliczona."

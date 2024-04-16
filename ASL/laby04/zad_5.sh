@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Czy jest wieczór? (tak/nie)"
-read answer
+read -r answer
 
 if [ "$answer" == "tak" ]; then
     echo "Dobry wieczór"
