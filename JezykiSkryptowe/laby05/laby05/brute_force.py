@@ -18,7 +18,7 @@ def detect_brute_force_attacks(
     single_user: bool = True,
 ) -> List[AttackDetail]:
     attempts: dict[tuple[str, str | None], list[datetime]] = {}
-
+    attacks = []
     for log in logs:
         if log.type in {
             MessageType.FAILED_LOGIN,
@@ -42,17 +42,13 @@ def detect_brute_force_attacks(
 
                 attempts[key].append(timestamp)
 
-    attacks = []
-    for (ip, user), timestamps in attempts.items():
-        if len(timestamps) > 3:
-            attacks.append(
-                {
-                    "ip": ip,
-                    "user": user,
-                    "count": len(timestamps),
-                    "first_attempt": min(timestamps),
-                    "last_attempt": max(timestamps),
-                }
-            )
+                if len(attempts[key]) > 5:
+                    attacks.append(
+                        {
+                            "ip": ip,
+                            "user": user,
+                            "count": len(attempts[key]),
+                        }
+                    )
 
     return attacks
