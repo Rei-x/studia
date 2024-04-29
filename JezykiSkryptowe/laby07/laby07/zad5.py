@@ -15,13 +15,8 @@ def make_generator(f: Callable[[int], R]):
 
 
 def make_generator_mem(f: Callable[[int], R]):
-    saved_fun = f
-
     @cache
     def memoized_f(n):
-        print("dict", f.__dict__)
-        return saved_fun(n)
-
-    f.__code__ = memoized_f.__call__.__code__
+        return f(n)
 
     return make_generator(memoized_f)
