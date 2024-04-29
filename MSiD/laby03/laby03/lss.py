@@ -75,7 +75,8 @@ def least_squares_solution(
     poly = get_polynomial_form(polynomial_degree)
 
     X_poly = np.array([X**degree for degree in poly]).T
-
+    print("X_poly")
+    print(X_poly)
     _T = np.linalg.inv(X_poly.T @ X_poly) @ X_poly.T @ Y
     return _T.reshape(-1, 1)
 
@@ -113,6 +114,10 @@ def visualise_LSS_method(X: np.ndarray, Y: np.ndarray, T: np.ndarray):
 if __name__ == "__main__":
     # here is a playground for your tests!
     X, Y = read_data_vectors()
-    T = least_squares_solution(X, Y, 7)
+    print("X")
+    print(X)
+    print("Y")
+    print(Y)
+    T = least_squares_solution(X, Y, 1)
     print(print_polynomial(T))
     visualise_LSS_method(X, Y, T)

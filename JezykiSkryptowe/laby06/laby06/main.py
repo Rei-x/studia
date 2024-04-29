@@ -59,6 +59,7 @@ log_entries = journal.get_logs_by_type(MessageType.INVALID_PASSWORD)
 
 two_lists = users + log_entries
 
+
 for item in two_lists:
     print(item)
     if not item.validate():

@@ -1,3 +1,5 @@
+import datetime
+from ipaddress import IPv4Address
 from laby06.SSHLogEntry import (
     MessageType,
     OtherSSHLogEntry,
@@ -10,6 +12,32 @@ from laby06.SSHLogEntry import (
 
 class SSHLogJournal:
     _ssh_log_entries: list[SSHLogEntry]
+
+    def __getitem__(self, key: int | slice | datetime.datetime | IPv4Address):
+        if isinstance(key, slice):
+            return self._ssh_log_entries[key.start : key.stop : key.step]
+        elif isinstance(key, int):
+            return self._ssh_log_entries[key]
+        elif isinstance(key, datetime.datetime):
+            return next(
+                (
+                    log
+                    for log in self._ssh_log_entries
+                    if log.timestamp_with_current_year == key
+                ),
+                None,
+            )
+        elif isinstance(key, IPv4Address):
+            return next(
+                (
+                    log
+                    for log in self._ssh_log_entries
+                    if log.has_ipv4 and log.ipv4() == key
+                ),
+                None,
+            )
+        else:
+            raise TypeError("Invalid key type")
 
     def __init__(self):
         self._ssh_log_entries = []

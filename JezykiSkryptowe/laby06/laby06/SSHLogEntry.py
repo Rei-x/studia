@@ -29,6 +29,8 @@ class SSHLogEntry(ABC):
         r"(?P<timestamp>\w{3}\s\d{1,2}\s\d{2}:\d{2}:\d{2})\s(?P<hostname>\w+)\s(?P<app_component>\w+)\[(?P<pid>\d+)\]:\s(?P<event_description>.+)"
     )
 
+  
+
     def __init__(
         self,
         log_line: str,
