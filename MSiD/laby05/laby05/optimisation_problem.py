@@ -12,32 +12,7 @@ from scipy import optimize
 # Implement functions below so that tests are able to pass.
 # ############################################################
 
-# W zakładzie produkcji mięsa są wytwarzane dwa typy tuszek z
-# kurczaka (tradycyjna i budżetowa). Produkty sprzedawane są
-# po odpowiednio 25 zl
-# kg i 13 zl
-# kg . Do ich wytworzenia potrzebne są
-# trzy rodzaje składników (mięso, wypełniacz oraz sól). 1kg tuszki
-# budżetowej powstaje z 1/
-# 2 kg mięsa, 1/
-# 3 kg wypełniaczy i 1/
-# 6 kg soli.
-# Do powstania 1kg tuszki tradycyjnej potrzeba natomiast 9/
-# 10 kg
-# mięsa i 1/
-# 10 kg soli. Miesięcznie zakład zaopatruje się w 1000kg
-# mięsa, 500kg wypełniaczy oraz 250kg soli. Celem zakładu jest
-# zmaksymalizowanie miesięcznego zysku poprzez ustalenie
-# odpowiedniej wielkości produkcji tuszek przy posiadanych
-# zasobach.
 
-
-# W skryptach przyjęto następujące nazewnictwo:
-# • x_1 - tuszka budżetowa,
-# • x_2 - tuszka tradycyjna,
-# • flesh - mięso (półprodukt),
-# • filler - wypełniacz (półprodukt),
-# • salt - sól (półprodukt).
 def income(x_1: float, x_2: float) -> float:
     """Income from production of flesh."""
     return x_1 * 13 + x_2 * 25
@@ -46,7 +21,7 @@ def income(x_1: float, x_2: float) -> float:
 def objective(decision_vars: Tuple[float, float]) -> float:
     """Objective function (i.e. adapted income to optimisation jargon)."""
     x_1, x_2 = decision_vars
-    return -1 * income(x_1, x_2)
+    return -income(x_1, x_2)
 
 
 def constr_flesh(decision_vars: Tuple[float, float]) -> float:

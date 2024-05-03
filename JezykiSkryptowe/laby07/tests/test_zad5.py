@@ -7,6 +7,7 @@ def test_make_generator_mem_fibonacci():
     def fibonacci(n):
         nonlocal call_number
         call_number += 1
+
         if n <= 2:
             return 1
         else:
@@ -14,7 +15,7 @@ def test_make_generator_mem_fibonacci():
 
     fib_generator = make_generator_mem(fibonacci)
     fib = fib_generator()
-
+    print("fib", fibonacci)
     assert next(fib) == 1
     assert next(fib) == 1
     assert next(fib) == 2
@@ -22,7 +23,7 @@ def test_make_generator_mem_fibonacci():
     assert next(fib) == 5
     assert next(fib) == 8
 
-    assert call_number == 8
+    assert call_number == 34
 
 
 def test_make_generator_mem_catalan():

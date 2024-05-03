@@ -14,9 +14,10 @@ def make_generator(f: Callable[[int], R]):
     return generator
 
 
+# jakaś herezja xd
 def make_generator_mem(f: Callable[[int], R]):
     @cache
-    def memoized_f(n):
+    def cached_f(n):
         return f(n)
 
-    return make_generator(memoized_f)
+    return make_generator(cached_f)

@@ -4,34 +4,16 @@ T = TypeVar("T")
 
 
 def forall(pred: Callable[[T], bool], iterable: Iterable[T]) -> bool:
-    for el in iterable:
-        if not pred(el):
-            return False
-    return True
+    return all(pred(el) for el in iterable)
 
 
 def exists(pred: Callable[[T], bool], iterable: Iterable[T]) -> bool:
-    for el in iterable:
-        if pred(el):
-            return True
-    return False
+    return any(pred(el) for el in iterable)
 
 
 def atleast(n: int, pred: Callable[[T], bool], iterable: Iterable[T]) -> bool:
-    count = 0
-    for el in iterable:
-        if pred(el):
-            count += 1
-        if count >= n:
-            return True
-    return count >= n
+    return sum(1 for el in iterable if pred(el)) >= n
 
 
 def atmost(n: int, pred: Callable[[T], bool], iterable: Iterable[T]) -> bool:
-    count = 0
-    for el in iterable:
-        if pred(el):
-            count += 1
-        if count > n:
-            return False
-    return not count > n
+    return sum(1 for el in iterable if pred(el)) <= n
