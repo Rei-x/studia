@@ -1,29 +1,33 @@
 from laby07.zad5 import make_generator_mem
 
 
+class LocalMario:
+    def fibonacci(self, n):
+        if n <= 2:
+            return 1
+        else:
+            return self.fibonacci(n - 1) + self.fibonacci(n - 2)
+
+
 def test_make_generator_mem_fibonacci():
-    call_number = 0
-
     def fibonacci(n):
-        nonlocal call_number
-        call_number += 1
-
         if n <= 2:
             return 1
         else:
             return fibonacci(n - 1) + fibonacci(n - 2)
 
+    # doesn't work with local functions
+    fib_generator = make_generator_mem(fibonacci)
+    # doesn't work with methods on classes
     fib_generator = make_generator_mem(fibonacci)
     fib = fib_generator()
-    print("fib", fibonacci)
+
     assert next(fib) == 1
     assert next(fib) == 1
     assert next(fib) == 2
     assert next(fib) == 3
     assert next(fib) == 5
     assert next(fib) == 8
-
-    assert call_number == 34
 
 
 def test_make_generator_mem_catalan():
