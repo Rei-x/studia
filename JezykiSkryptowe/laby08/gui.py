@@ -144,6 +144,8 @@ class LogBrowser(QWidget):
         self.file_lines = []
         with open(filePath, "r") as file:
             self.file_lines = file.readlines()
+            self.filtered_lines = self.file_lines
+
         self.total_pages = (len(self.file_lines) - 1) // self.lines_per_page + 1
         self.current_page = 0
         self.updateListWidget()
@@ -152,7 +154,7 @@ class LogBrowser(QWidget):
         self.logListWidget.clear()
         start_index = self.current_page * self.lines_per_page
         end_index = start_index + self.lines_per_page
-        for line in self.file_lines[start_index:end_index]:
+        for line in self.filtered_lines[start_index:end_index]:
             self.logListWidget.addItem(line.strip())
 
     def showNextPage(self):
