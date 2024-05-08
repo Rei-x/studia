@@ -1,1 +1,1 @@
-PGPASSWORD=password psql -h localhost -U username -d dbname -f dump_rh.sql
+PGPASSWORD=mypassword psql -h localhost -U myuser -d mydb -f ./dump-rh.sql

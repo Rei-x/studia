@@ -16,6 +16,7 @@ def sqrt_newton(x: float, epsilon: float, guess: float | None = None):
     guess = x / 2.0 if guess is None else guess
 
     next_guess = (guess + x / guess) / 2.0
+
     return (
         next_guess
         if abs(next_guess**2 - x) < epsilon
@@ -26,7 +27,7 @@ def sqrt_newton(x: float, epsilon: float, guess: float | None = None):
 def make_alpha_dict(string: str):
     return {
         char: [word for word in string.split() if char in word]
-        for char in filter(lambda x: x.isalpha(), string)
+        for char in sorted(set(filter(lambda x: x.isalpha(), string)))
     }
 
 

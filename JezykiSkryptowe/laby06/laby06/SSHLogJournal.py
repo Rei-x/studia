@@ -14,27 +14,19 @@ class SSHLogJournal:
     _ssh_log_entries: list[SSHLogEntry]
 
     def __getitem__(self, key: int | slice | datetime.datetime | IPv4Address):
-        if isinstance(key, slice):
-            return self._ssh_log_entries[key.start : key.stop : key.step]
-        elif isinstance(key, int):
+        if isinstance(key, int) or isinstance(key, slice):
             return self._ssh_log_entries[key]
         elif isinstance(key, datetime.datetime):
-            return next(
-                (
-                    log
-                    for log in self._ssh_log_entries
-                    if log.timestamp_with_current_year == key
-                ),
-                None,
+            return (
+                log
+                for log in self._ssh_log_entries
+                if log.timestamp_with_current_year == key
             )
         elif isinstance(key, IPv4Address):
-            return next(
-                (
-                    log
-                    for log in self._ssh_log_entries
-                    if log.has_ipv4 and log.ipv4() == key
-                ),
-                None,
+            return (
+                log
+                for log in self._ssh_log_entries
+                if log.has_ipv4 and log.ipv4() == key
             )
         else:
             raise TypeError("Invalid key type")
@@ -50,6 +42,9 @@ class SSHLogJournal:
 
     def __contains__(self, value):
         return value in self._ssh_log_entries
+
+    def filter(self, predicate):
+        return filter(predicate, self._ssh_log_entries)
 
     def append(self, log: str):
         if "Failed password for invalid user" in log:

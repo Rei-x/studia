@@ -46,10 +46,13 @@ users = [SSHUser("webmaster", None), SSHUser("test9", None)]
 
 log_entries = journal.get_logs_by_type(MessageType.INVALID_PASSWORD)
 
+print(log_entries[2:4])
+
 two_lists = users + log_entries
 
 for item in two_lists:
     print(item)
     if not item.validate():
         print(f"Invalid item: {item}")
+
         break

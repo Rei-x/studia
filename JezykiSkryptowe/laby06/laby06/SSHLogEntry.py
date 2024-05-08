@@ -45,7 +45,7 @@ class SSHLogEntry(ABC):
         else:
             raise ValueError(f"Cannot parse line: {log_line}")
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self._original_log_line
 
     def ipv4(self):
@@ -64,10 +64,10 @@ class SSHLogEntry(ABC):
     def has_ipv4(self):
         return self.ipv4() is not None
 
-    def __lt__(self, value: "SSHLogEntry") -> bool:
+    def __lt__(self, value: "SSHLogEntry"):
         return self.timestamp_with_current_year < value.timestamp_with_current_year
 
-    def __gt__(self, value: "SSHLogEntry") -> bool:
+    def __gt__(self, value: "SSHLogEntry"):
         return self.timestamp_with_current_year > value.timestamp_with_current_year
 
     @cached_property

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import random
+import string
 
 
 @dataclass()
@@ -7,9 +8,7 @@ class PasswordGenerator:
     length: int
     count: int
     charset: list[str] = field(
-        default_factory=lambda: list(
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        )
+        default_factory=lambda: list(string.ascii_letters + string.digits)
     )
 
     def __post_init__(self):
