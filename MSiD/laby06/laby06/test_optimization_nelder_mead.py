@@ -3,7 +3,15 @@
 import numpy as np
 import pytest
 
-from optimization_nelder_mead import contract, expand, reflect, shrink
+from optimization_nelder_mead import (
+    rosenbrock_function,
+    shrink,
+    contract,
+    expand,
+    reflect,
+    run_nelder_mead,
+    Simplex2D,
+)
 
 
 def sphere_function(x: np.ndarray) -> float:
@@ -146,15 +154,27 @@ def test_shrink(simplex, sigma, exp_val):
     np.testing.assert_array_equal(exp_val, shrink(simplex, sigma))
 
 
-# @pytest.mark.parametrize(
-#     "initial_simplex, expected_optimum",
-#     [
-#         (Simplex2D([-1.5, -1.5], [-1.0, -1.5], [-1.5, .0], rosenbrock_function), np.array([1.0, 1.0])),
-#         (Simplex2D([-1., -1.], [.0, 3.5], [1.5, .0], rosenbrock_function), np.array([1.0, 1.0])),
-#         (Simplex2D([-1., -1.], [.0, 3.5], [1.5, .0], sphere_function), np.array([.0, .0])),
-#         (Simplex2D([10.0, 100.0], [-30.0, 70.0], [100.0, -50.0], sphere_function), np.array([.0, .0])),
-#     ]
-# )
-# def test_run_nelder_mead_rosenbrock(initial_simplex, expected_optimum):
-#     optimum_point, _ = run_nelder_mead(initial_simplex)
-#     np.testing.assert_array_almost_equal(optimum_point, expected_optimum, decimal=5)
+@pytest.mark.parametrize(
+    "initial_simplex, expected_optimum",
+    [
+        (
+            Simplex2D([-1.5, -1.5], [-1.0, -1.5], [-1.5, 0.0], rosenbrock_function),
+            np.array([1.0, 1.0]),
+        ),
+        (
+            Simplex2D([-1.0, -1.0], [0.0, 3.5], [1.5, 0.0], rosenbrock_function),
+            np.array([1.0, 1.0]),
+        ),
+        (
+            Simplex2D([-1.0, -1.0], [0.0, 3.5], [1.5, 0.0], sphere_function),
+            np.array([0.0, 0.0]),
+        ),
+        (
+            Simplex2D([10.0, 100.0], [-30.0, 70.0], [100.0, -50.0], sphere_function),
+            np.array([0.0, 0.0]),
+        ),
+    ],
+)
+def test_run_nelder_mead_rosenbrock(initial_simplex, expected_optimum):
+    optimum_point, _ = run_nelder_mead(initial_simplex)
+    np.testing.assert_array_almost_equal(optimum_point, expected_optimum, decimal=5)

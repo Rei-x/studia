@@ -161,7 +161,7 @@ def shrink(simplex: np.ndarray, sigma: float) -> np.ndarray:
 
     :return: simplex with all point but the best shrinked towards it
     """
-    print(simplex)
+
     if sigma <= 0 or sigma >= 1:
         raise ValueError(
             "Invalid value of sigma parameter. Sigma must be in range (0,1)!"
