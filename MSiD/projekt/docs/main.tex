@@ -1,0 +1,94 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{a4paper}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Bartosz Gotowski}
+\lhead{Raport z projektu Data Science}
+\rfoot{Strona \thepage}
+
+\title{Analiza ofert wynajmu mieszkań we Wrocławiu}
+\author{Bartosz Gotowski}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\pagebreak
+
+\section{Wstęp}
+Rynek nieruchomości we Wrocławiu, podobnie jak w wielu obszarach miejskich, jest złożony i dynamiczny. Potencjalni najemcy i inwestorzy wymagają szczegółowych i dokładnych informacji, aby móc podejmować świadome decyzje. Celem raportu jest analiza tego co najbardziej wpływa na cenę wynajmu mieszkania oraz stworzenie klasyfikatora pozwalającego stwierdzić czy dana oferta wynajmu mieszkania we Wrocławiu jest atrakcyjna. 
+
+\section{Zbieranie danych}
+Dane były zbierane od 2023-07-30 do 2024-03-05, co minutę, z serwisu OLX, za pomocą skryptów zbierających dane z niepublicznego API serwisu. Zestaw danych zawiera informacje o cenach, lokalizacjach, powierzchniach, opisie, tytule i liczbie pokoi dla 26775 ofert wynajmu mieszkań we Wrocławiu.
+
+\section{Przetwarzanie danych}
+\subsection{Techniki ekstrakcji}
+Dane zwracane z API nie posiadały dokładnego adresu mieszkania, dlatego do tego został użyty model LLM (OpenAI GPT-3.5), który wyciągał tą informację z opisu i tytułu ogłoszenia. Dodatkowo z opisu zostały wyekstrahowane dane na temat ilości pokoi i kaucji, żeby móc uzupełnić brakujące dane, w przypadku braku takiej informacji z API.
+
+
+\subsection{Obliczanie odległości}
+Za pomocą własnej instancji usługi \href{https://nominatim.org}{Nominatim} została obliczona odległość danego mieszkania od centrum Wrocławia (ustalonego jako adres "Galerii Dominikańskiej") w metrach.
+
+
+\newpage
+
+\subsection{Filtrowanie danych}
+Dane zostały przefiltrowane, żeby odrzucić wartości skrajne. Przyjęto następujące reguły filtrowania:
+\begin{itemize}
+  \item 400 < Cena < 10000
+  \item 5 < Powierzchnia < 200
+  \item Odległość od centrum < 10000
+  \item Kaucja < 10000
+  \item 0 < Liczba pokoi 
+\end{itemize}
+
+\section{Analiza}
+\subsection{Analiza korelacji}
+Wstępna eksploracyjna analiza danych ujawniła zauważalną korelację między ceną a powierzchnią (współczynnik Pearsona = 0.65), sugerując, że większe mieszkania mają tendencję do bycia droższymi. Jednak korelacja między odległością do centrum miasta a ceną była marginalna (współczynnik Pearsona = -0.12), wskazując, że bliskość do "Galerii Dominikańskiej" nie wpływa znacząco na ceny wynajmu.
+
+
+\subsection{Analiza regresji}
+Model regresji liniowej został dopasowany do danych, potwierdzając trendy zidentyfikowane w analizie korelacji. Linia regresji dla ceny jako funkcji powierzchni podkreśliła pozytywny związek, natomiast wpływ odległości do centrum miasta na cenę wydawał się nieistotny.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/area_regression.png}
+  \caption{Linia regresji dla ceny jako funkcji powierzchni}
+  \label{fig:area_regression}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/distance_regression.png}
+  \caption{Linia regresji dla ceny jako funkcji odległości do centrum}
+  \label{fig:distance_regression}
+\end{figure}
+
+
+
+\subsection{Analiza ceny za pokój}
+Analiza podkreśliła również, że cena za pokój maleje wraz ze wzrostem liczby pokoi w mieszkaniu. Najbardziej znaczący spadek ceny za pokój zaobserwowano przy porównywaniu mieszkań jednopokojowych z dwupokojowymi, sugerując, że większe mieszkania mogą oferować lepszą wartość pod względem przestrzeni za pieniądze, co widać na wykresie \ref{fig:mean_price_over_number_of_rooms}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/mean_price_over_number_of_rooms.png}
+  \caption{Średnia cena za mieszkanie}
+  \label{fig:mean_price_over_number_of_rooms}
+\end{figure}
+
+\section{Wnioski}
+Wyniki tego projektu dostarczają jasnych wglądów w rynek wynajmu we Wrocławiu, z powierzchnią i liczbą pokoi jako znaczącymi determinantami ceny, podczas gdy bliskość do centrum miasta ma zaskakująco niski wpływ na koszty wynajmu. Te wglądy mogą pomóc potencjalnym najemcom i inwestorom nieruchomości w podejmowaniu bardziej świadomych decyzji.
+
+\end{document}
