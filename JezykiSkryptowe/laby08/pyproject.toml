@@ -4,8 +4,8 @@ version = "0.1.0"
 description = ""
 authors = ["Bartosz Gotowski <bartoszgotowski03@gmail.com>"]
 readme = "README.md"
-packages = [{include = "laby08"}]
-package-mode = false
+packages = [{ include = "laby08" }]
+
 
 [tool.poetry.dependencies]
 python = ">=3.11"
