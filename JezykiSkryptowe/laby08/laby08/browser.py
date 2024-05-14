@@ -38,7 +38,6 @@ class LogBrowser(QWidget):
         self.openButton.setFixedWidth(100)
         self.openButton.clicked.connect(self.openFileDialog)
 
-        # Reduce spacing or add stretch factors to bring elements closer
         self.fromDateEdit = QDateEdit()
         self.fromDateEdit.setCalendarPopup(True)
         self.fromDateEdit.setDate(datetime.datetime.now() - datetime.timedelta(days=7))
@@ -57,11 +56,8 @@ class LogBrowser(QWidget):
 
         self.filterButton.clicked.connect(self.applyDateFilter)
 
-        # Add widgets to the fileLayout with less spacing or specific alignment
         fileLayout.addWidget(self.pathLabel)
         fileLayout.addWidget(self.openButton)
-
-        # Adjust filter layout to make labels and date edits closer
 
         filterLayout.addWidget(QLabel("From"))
         filterLayout.addWidget(self.fromDateEdit)
@@ -98,7 +94,6 @@ class LogBrowser(QWidget):
         bottomLayout.addStretch(1)
         bottomLayout.addWidget(self.nextButton)
 
-        # Assembling the main layout
         mainLayout.addLayout(topLayout)
         mainLayout.addLayout(middleLayout)
         mainLayout.addLayout(bottomLayout)

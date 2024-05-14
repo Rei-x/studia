@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from functools import cache
 import re
 import locale
 from typing import Optional
@@ -36,7 +37,9 @@ class ApacheLog(BaseModel):
         return self.original_log
 
     @classmethod
+    @cache
     def from_log(cls, log_line: str):
+        print("called")
         match = pattern.match(log_line)
 
         if not match:
@@ -55,7 +58,8 @@ class ApacheLog(BaseModel):
         http_code = match.group("status")
         number_of_bytes = match.group("size")
         locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-        return cls(
+
+        log = cls(
             host_address=host,
             timestamp=datetime.strptime(timestamp, "%d/%b/%Y:%H:%M:%S %z"),
             http_method=http_method,
@@ -64,3 +68,5 @@ class ApacheLog(BaseModel):
             number_of_bytes=int(number_of_bytes) if number_of_bytes != "-" else None,
             original_log=log_line.strip(),
         )
+
+        return log
