@@ -5,19 +5,16 @@
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
-
+\usepackage{longtable}
 \usepackage[T1]{fontenc}
 \usepackage[polish]{babel}
+\usepackage{booktabs}
+\usepackage{pdflscape}
 \usepackage[utf8]{inputenc}
 
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{Bartosz Gotowski}
-\lhead{Raport z projektu Data Science}
-\rfoot{Strona \thepage}
 
 \title{Analiza ofert wynajmu mieszkań we Wrocławiu}
-\author{Bartosz Gotowski}
+\author{Bartosz Gotowski 272647}
 \date{\today}
 
 \begin{document}
@@ -28,39 +25,97 @@
 \pagebreak
 
 \section{Wstęp}
-Rynek nieruchomości we Wrocławiu, podobnie jak w wielu obszarach miejskich, jest złożony i dynamiczny. Potencjalni najemcy i inwestorzy wymagają szczegółowych i dokładnych informacji, aby móc podejmować świadome decyzje. Celem raportu jest analiza tego co najbardziej wpływa na cenę wynajmu mieszkania oraz stworzenie klasyfikatora pozwalającego stwierdzić czy dana oferta wynajmu mieszkania we Wrocławiu jest atrakcyjna. 
+Rynek nieruchomości we Wrocławiu, podobnie jak w wielu obszarach miejskich, jest złożony i dynamiczny. Potencjalni najemcy i inwestorzy wymagają szczegółowych i dokładnych informacji, aby móc podejmować świadome decyzje. 
+
+Celem raportu jest analiza tego co najbardziej wpływa na cenę wynajmu mieszkania oraz stworzenie klasyfikatora pozwalającego stwierdzić czy dana oferta wynajmu mieszkania we Wrocławiu jest atrakcyjna. 
+
+Charakterystyka problemu jest dość subiektywna, przez można się spodziewać wpływu przekonań osobistych na wyniki analizy. 
 
 \section{Zbieranie danych}
-Dane były zbierane od 2023-07-30 do 2024-03-05, co minutę, z serwisu OLX, za pomocą skryptów zbierających dane z niepublicznego API serwisu. Zestaw danych zawiera informacje o cenach, lokalizacjach, powierzchniach, opisie, tytule i liczbie pokoi dla 26775 ofert wynajmu mieszkań we Wrocławiu.
+Dane były zbierane od 2023-07-30 do 2024-03-05, co minutę, z serwisu OLX, za pomocą skryptów zbierających dane z niepublicznego serwisu API. Zestaw danych zawiera informacje o cenach, lokalizacjach, powierzchniach, opisie, tytule i liczbie pokoi dla 26775 ofert wynajmu mieszkań we Wrocławiu.
+
 
 \section{Przetwarzanie danych}
 \subsection{Techniki ekstrakcji}
 Dane zwracane z API nie posiadały dokładnego adresu mieszkania, dlatego do tego został użyty model LLM (OpenAI GPT-3.5), który wyciągał tą informację z opisu i tytułu ogłoszenia. Dodatkowo z opisu zostały wyekstrahowane dane na temat ilości pokoi i kaucji, żeby móc uzupełnić brakujące dane, w przypadku braku takiej informacji z API.
 
+Prompt użyty do modelu LLM:
+\begin{verbatim}
+Wypisz w formacie json.
+{ "title": "streszczenie": "ulica": "liczbaPokoi": 
+"dostepneOdISODATE": "kaucjaJakoLiczba": }
+Jestes profesjonalnym agentem nieruchomosci i przygotowujesz
+oferte na strone. Pomijaj dane kontaktowe. Obecny rok to 2024.
+Napisz konkretny tytuł. Opis jest krótki i ma maksymalnie 100
+znakow. Badz konkretny. Jesli nie ma jakiejs informacji daj null.
+"czynsz", "liczbaPokoi", "kaucja" zapisuj koniecznie jako liczby. 
+Jesli mieszkanie jest dostepne od zaraz napisz "TODAY".
+Jesli nie było takiej informacji, daj null.
+\end{verbatim}
+
 
 \subsection{Obliczanie odległości}
 Za pomocą własnej instancji usługi \href{https://nominatim.org}{Nominatim} została obliczona odległość danego mieszkania od centrum Wrocławia (ustalonego jako adres "Galerii Dominikańskiej") w metrach.
 
-
-\newpage
-
-\subsection{Filtrowanie danych}
-Dane zostały przefiltrowane, żeby odrzucić wartości skrajne. Przyjęto następujące reguły filtrowania:
+\subsection{Wstępna analiza danych}
+Do określenia jakości danych, zostały narysowane wykresy dla ceny, powierzchni i odległości od centrum miasta. Na wykresach \ref{fig:scatter_price_area}, \ref{fig:scatter_price_rooms} i \ref{fig:scatter_price_distance} widać, że dane są zanieczyszczone wartościami skrajnymi:
 \begin{itemize}
-  \item 400 < Cena < 10000
-  \item 5 < Powierzchnia < 200
-  \item Odległość od centrum < 10000
-  \item Kaucja < 10000
-  \item 0 < Liczba pokoi 
+  \item Wartości ceny mieszkań są powyżej 10000 zł 
+  \item Wartości powierzchni mieszkań są zbyt wysokie
+  \item Liczba pokoi równa 0
+  \item Dystans sugerujący inne miasto
 \end{itemize}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/preliminary/area_vs_price.png}
+  \caption{Wykres rozrzutu ceny i powierzchni przed filtrowaniem}
+  \label{fig:scatter_price_area}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/preliminary/price_vs_rooms.png}
+  \caption{Wykreślona cena i liczba pokoi przed filtrowaniem}
+  \label{fig:scatter_price_rooms}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/preliminary/distance_vs_price.png}
+  \caption{Wykreślona cena i odległość do centrum przed filtrowaniem}
+  \label{fig:scatter_price_distance}
+\end{figure}
+
+\pagebreak
+\subsection{Filtrowanie danych}
+Dane zostały przefiltrowane, żeby odrzucić wartości skrajne. Przyjęto następujące reguły filtrowania:
+  \begin{itemize}
+    \item 400 zł < Cena < 10000 zł
+    \item 5 $m^2$ < Powierzchnia < 200 $m^2$
+    \item Odległość od centrum < 10000 m
+    \item Kaucja < 10000 zł
+    \item 0 < Liczba pokoi 
+  \end{itemize}
+
+
 \section{Analiza}
+\subsection{Rozkład danych}
+Najbardziej interesującą daną jest cena danego mieszkania dlatego został dla niej narysowany rozkład. Na wykresie \ref{fig:price_distribution} widać, że rozkład cen mieszkań jest zbliżony do prawostronnie skośnego rozkładu normalnego. Najwięcej mieszkań jest w przedziale cenowym 2000-4000 zł i widać znaczącą ilość mieszkań o cenie 2500 zł i 3000 zł, co sugeruje, że te ceny są najbardziej popularne.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/price_distribution.png}
+  \caption{Rozkład cen mieszkań}
+  \label{fig:price_distribution}
+\end{figure}
+
 \subsection{Analiza korelacji}
-Wstępna eksploracyjna analiza danych ujawniła zauważalną korelację między ceną a powierzchnią (współczynnik Pearsona = 0.65), sugerując, że większe mieszkania mają tendencję do bycia droższymi. Jednak korelacja między odległością do centrum miasta a ceną była marginalna (współczynnik Pearsona = -0.12), wskazując, że bliskość do "Galerii Dominikańskiej" nie wpływa znacząco na ceny wynajmu.
+Wstępna eksploracyjna analiza danych ujawniła zauważalną korelację między ceną a powierzchnią (współczynnik Pearsona = 0.65), sugerując, że większe mieszkania mają tendencję do bycia droższymi. Jednak korelacja między odległością do centrum miasta a ceną była marginalna (współczynnik Pearsona = -0.06), wskazując, że bliskość do centrum  nie wpływa znacząco na ceny wynajmu.
 
 
 \subsection{Analiza regresji}
-Model regresji liniowej został dopasowany do danych, potwierdzając trendy zidentyfikowane w analizie korelacji. Linia regresji dla ceny jako funkcji powierzchni podkreśliła pozytywny związek, natomiast wpływ odległości do centrum miasta na cenę wydawał się nieistotny.
+Model regresji liniowej został dopasowany do danych, potwierdzając trendy zidentyfikowane w analizie korelacji. Linia regresji dla ceny jako funkcji powierzchni podkreśliła pozytywny związek \ref{fig:area_regression}, natomiast wpływ odległości do centrum miasta na cenę, zaskakująco, wydawał się nieistotny \ref{fig:distance_regression}.
 
 \begin{figure}[h]
   \centering
@@ -78,8 +133,8 @@ Model regresji liniowej został dopasowany do danych, potwierdzając trendy zide
 
 
 
-\subsection{Analiza ceny za pokój}
-Analiza podkreśliła również, że cena za pokój maleje wraz ze wzrostem liczby pokoi w mieszkaniu. Najbardziej znaczący spadek ceny za pokój zaobserwowano przy porównywaniu mieszkań jednopokojowych z dwupokojowymi, sugerując, że większe mieszkania mogą oferować lepszą wartość pod względem przestrzeni za pieniądze, co widać na wykresie \ref{fig:mean_price_over_number_of_rooms}.
+\subsection{Analiza ceny ze względu na liczbę pokoi}
+Analiza podkreśliła również, że im większa liczba pokoi, tym wyższa cena wynajmu. Na wykresie \ref{fig:mean_price_over_number_of_rooms} widać, że średnia cena mieszkania rośnie wraz z liczbą pokoi, co sugeruje, że liczba pokoi jest ważnym czynnikiem wpływającym na cenę wynajmu mieszkania, ale silnie skorelowanym z powierzchnią mieszkania, przez co nie brano tego pod uwagę przy klasyfikacji ofert.
 
 \begin{figure}[h]
   \centering
@@ -88,7 +143,92 @@ Analiza podkreśliła również, że cena za pokój maleje wraz ze wzrostem licz
   \label{fig:mean_price_over_number_of_rooms}
 \end{figure}
 
+Natomiast jeśli chodzi o rozkład cen mieszkań pogrupowanych ze względu na liczbę pokoi, to widać, że pojedyncze histogramy są wyraźnie podobne do siebie, z wyjątkiem mieszkań z 4 pokojami, prawdopodobnie ze względu na małą ilość danych \ref{fig:rooms_price_distribution}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{plots/rooms_price_distribution.png}
+  \caption{Ceny mieszkań w zależności od liczby pokoi}
+  \label{fig:rooms_price_distribution}
+\end{figure}
+
+\pagebreak
+
+\subsection{Rozkład ceny w czasie}
+Na wykresie \ref{fig:price_over_time} widać, że ceny mieszkań w Wrocławiu są dość stabilne w czasie (wahania około 100 zł), co sugeruje, że czas nie wpływa znacząco na ceny wynajmu mieszkań. Możliwe, że jest to spowodowane tym, że dane zostały zebrane w stosunkowo krótkim okresie czasu.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{plots/price_over_time.png}
+  \caption{Średnia cena mieszkania w czasie}
+  \label{fig:price_over_time}
+\end{figure}
+
+
+\subsection{Wybranie modelu}
+
+Do stworzenia modelu klasyfikacyjnego zdecydowano się na regresję liniową, która pozwoli na przewidzenie ceny danego mieszkania, a następnie sklasyfikowania go jako okazja, jeśli jego cena z oferty jest mniejsza od przewidzianej o ustalony margines.
+
+Jako zmienne niezależne wybrano powierzchnię mieszkania, ponieważ jest ona silnie skorelowana z ceną mieszkania, a pozostałe zmienne niezależne nie wykazały znaczącego wpływu na cenę wynajmu mieszkania (dystans od centrum) albo są silnie skorelowane z powierzchnią (liczba pokoi).
+
+Model regresji liniowej ma podaną postać, gdzie $y$ to cena mieszkania, a $x$ to powierzchnia mieszkania:
+\begin{equation}
+  y = 31x + 1366.83
+\end{equation}
+
+\subsection{Dobranie parametrów}
+W celu znalezienia najlepszego marginesu, został narysowany wykres porównujący średnią cene mieszkań z średnią ceną 10\% najtańszych mieszkań \ref{fig:margin_analysis}. Jak widać, różnica wynosi od 500 do ponad 1000 zł, więc można testować margines w tym zakresie. Gdy powierzchnia mieszkania jest większa, danych jest mniej, więc margines staje się mniej przewidywalny, ale postanowiono nie przejmować się tym, ze względu na rzadkość tak dużych mieszkań.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{plots/difference_in_price_of_best_offers.png}
+  \caption{Porównanie cen}
+  \label{fig:margin_analysis}
+\end{figure}
+
+\subsection{Testowanie modelu}
+Do przetestowania modelu wybrano 4 marginesy o wartościach 300, 500, 700 i 1000 zł. Wyniki zostały pokazane na wykresie \ref{fig:classification}. 
+
+Zdecydowano się wybrać margines 500 zł, ponieważ potrafi wychwycić zadowalającą ilość ofert w różnym zakresie powierzchni tych mieszkań. Problemy z pozostałymi marginesami:
+\begin{itemize}
+  \item 300 zł - bardzo dużo ofert klasyfikowanych jako okazje, co sugeruje, że model jest zbyt liberalny
+  \item 700 zł - przy małych powierzchniach mieszkań, brakuje ofert klasyfikowanych jako okazje
+  \item 1000 zł - przy małych powierzchniach mieszkań, prawie żadne oferty nie są klasyfikowane jako okazje
+\end{itemize}
+
+
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{plots/multi_model_vs_data.png}
+  \caption{Klasyfikacja ofert}
+  \label{fig:classification}
+\end{figure}
+
+\pagebreak
+
 \section{Wnioski}
-Wyniki tego projektu dostarczają jasnych wglądów w rynek wynajmu we Wrocławiu, z powierzchnią i liczbą pokoi jako znaczącymi determinantami ceny, podczas gdy bliskość do centrum miasta ma zaskakująco niski wpływ na koszty wynajmu. Te wglądy mogą pomóc potencjalnym najemcom i inwestorom nieruchomości w podejmowaniu bardziej świadomych decyzji.
+Dla marginesu 500 zł model końcowo klasyfikuje około 13\% mieszkań z zebranych danych jako okazje i po przejrzeniu małej próbki ofert sklasyfikowanych jako okazje \ref{tab:best_offers}, jego wyniki wydają się zadowalające. 
+
+To czy dana oferta jest okazją, jest dość subiektywnym pojęciem, dlatego parametry powinny być dostosowywane pod osobę korzystającą z modelu, w zakresie od 300 do 1000 zł.
+
+Zaskakującym wnioskiem jest to, że cena wynajmu mieszkania we Wrocławiu nie jest zależna od odległości od centrum miasta. Sugeruje to, że są inne ważniejsze czynniki, którymi mogłyby być przykładowo dostępność komunikacyjna, dostępność sklepów, wyposażenie i stan mieszkania, czy też poziom hałasu w okolicy, jednak z powodu braku danych nie można było tego sprawdzić w tym raporcie.
+
+\begin{table}[h]
+  \centering
+  \caption{Lista przykładowych ofert sklasyfikowanych jako okazjonalne}
+  \label{tab:best_offers}
+  \begin{tabular}{clrrrr}
+      \toprule
+      \textbf{ID} & \textbf{Cena} & \textbf{Powierzchnia} & \textbf{Liczba pokoi} & \textbf{Dystans do centrum} \\
+      \midrule
+      13805 & 1300 zł & 48 $m^2$ & 3 & 1315 m \\
+      17591 & 2200 zł& 44 $m^2$ & 2 & 5156 m\\
+      13073 &  2500 zł & 55 $m^2$ & 2 & 6474 m \\
+      787   & 2700 zł & 62 $m^2$ & 2 & 1811 m \\
+      775   & 2290 zł & 49 $m^2$ & 2 & 862 m \\
+      \bottomrule
+  \end{tabular}
+\end{table}
 
 \end{document}

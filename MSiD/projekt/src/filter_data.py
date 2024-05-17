@@ -8,7 +8,7 @@ def clean_data(data: DataFrame):
         "400 < price < 10000 and "
         "aiDeposit < 10000 and "
         "distanceToCityCentre < 10000 and "
-        "5 < area < 200 and "
+        "5 < area < 100 and "
         "numberOfRooms > 0"
     )
 

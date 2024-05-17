@@ -14,10 +14,10 @@ def mean_price_over_number_of_rooms():
         y="price",
         data=filtered,
         errorbar="sd",
-        err_kws={"linewidth": 2},
+        err_kws={"linewidth": 2},  # type: ignore
     )
     ax.bar_label(ax.containers[0])  # type: ignore
-    ax.set_title("Średnia cena mieszkania w zależności od liczby pokoi")
+    ax.set_title("Średnia cena wynajmu mieszkania w zależności od liczby pokoi")
     ax.set_xlabel("Liczba pokoi")
     ax.set_ylabel("Cena")
     price_per_room = filtered.copy()

@@ -19,9 +19,9 @@ def price_over_time():
     plt.figure(figsize=(20, 10))
     ax = sns.lineplot(x="createdAt", y="smoothed_price", data=df, color="blue")
 
-    ax.set_title("Rolling Average Price over Time")
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price")
+    ax.set_title("Średnia krocząca ceny w czasie")
+    ax.set_xlabel("Data")
+    ax.set_ylabel("Cena [zł]")
 
     plt.grid(True)
 

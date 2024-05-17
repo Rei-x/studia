@@ -1,6 +1,7 @@
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 from src.get_data import get_parsed_data
 
@@ -27,10 +28,24 @@ def distance_regression():
         color="red",
         linewidth=2,
     )
-    plt.title("Cena mieszkania w zależności od odległości od centrum")
-    plt.xlabel(
-        "Odległość od centrum [m]",
+
+    correlation_matrix = np.corrcoef(
+        filtered["distanceToCityCentre"], filtered["price"]
     )
+    pearson_corr = correlation_matrix[0, 1]
+
+    plt.annotate(
+        f"Pearson r: {pearson_corr:.2f}",
+        xy=(0.05, 0.95),
+        xycoords="axes fraction",
+        fontsize=12,
+        ha="left",
+        va="top",
+        bbox=dict(boxstyle="round", fc="white", ec="gray"),
+    )
+
+    plt.title("Cena mieszkania w zależności od odległości od centrum")
+    plt.xlabel("Odległość od centrum [m]")
     plt.ylabel("Cena [zł]")
 
     plt.grid(True)

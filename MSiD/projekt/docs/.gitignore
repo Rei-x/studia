@@ -11,7 +11,7 @@
 *.cb
 *.cb2
 .*.lb
-plots/*.png
+plots/**/*.png
 ## Intermediate documents:
 *.dvi
 *.xdv
