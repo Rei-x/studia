@@ -1,6 +1,6 @@
 import { deleteFileFilesFileIdDelete, type FilePublic } from "@/client";
 import { useMutation } from "@tanstack/react-query";
-import { FileIcon, DownloadIcon, Loader2Icon } from "lucide-react";
+import { FileIcon, DownloadIcon, Loader2Icon, EyeIcon } from "lucide-react";
 import prettyBytes from "pretty-bytes";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useDrag } from "react-dnd";
+import { PDFPreview } from "../PDFPreview";
 
 export const File = (file: FilePublic) => {
   const { mutateAsync, isPending } = useMutation({
@@ -63,7 +64,7 @@ export const File = (file: FilePublic) => {
             variant="ghost"
             className="hover:bg-slate-200"
           >
-            <DownloadIcon className="h-5 w-5 text-gray-500" />
+            <EyeIcon className="h-5 w-5 text-gray-500" />
           </Button>
         </div>
       ) : (
@@ -91,14 +92,22 @@ export const File = (file: FilePublic) => {
                     </p>
                   </div>
                 </div>
-                <Button
-                  onClick={() => {}}
-                  size="icon"
-                  variant="ghost"
-                  className="hover:bg-slate-200"
+                <PDFPreview
+                  pdfState={{
+                    file: {
+                      id: file.id,
+                      filename: file.filename,
+                    },
+                  }}
                 >
-                  <DownloadIcon className="h-5 w-5 text-gray-500" />
-                </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="hover:bg-slate-200"
+                  >
+                    <EyeIcon className="h-5 w-5 text-gray-500" />
+                  </Button>
+                </PDFPreview>
               </div>
             </ContextMenuTrigger>
             <ContextMenuContent>

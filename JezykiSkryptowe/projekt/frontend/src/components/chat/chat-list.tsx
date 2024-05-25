@@ -10,7 +10,7 @@ import { FileIcon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import type { Document, Search } from "@/lib/types";
 import { useSetAtom } from "jotai/react";
-import { pdfAtom } from "../PdfViewer";
+import { previewAtom } from "../DocumentPreview";
 import Image from "next/image";
 import { ImageFallback } from "../ImageFallback";
 
@@ -21,7 +21,7 @@ interface ChatListProps {
 }
 
 const KnowledgeBase = ({ message }: { message: MessagePublic }) => {
-  const setPdfState = useSetAtom(pdfAtom);
+  const setPdfState = useSetAtom(previewAtom);
   return (
     <span className="p-3 rounded-md">
       <span className="font-bold">📚 Knowledge Base</span>

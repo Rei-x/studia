@@ -1,5 +1,4 @@
-import { Button, ScrollMode, Viewer, Worker } from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { Worker } from "@react-pdf-viewer/core";
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
@@ -10,27 +9,12 @@ import { useAtom } from "jotai/react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
-import { highlightPlugin } from "@react-pdf-viewer/highlight";
 import { useEffect, useState } from "react";
-import type { FilePublic } from "@/client";
-import { searchPlugin } from "@react-pdf-viewer/search";
-import { PDFHighlight } from "@pdf-highlight/react-pdf-highlight";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
-export const pdfAtom = atom<{
+export const previewAtom = atom<{
   file:
     | {
         id: string;
@@ -43,9 +27,8 @@ export const pdfAtom = atom<{
   highlight: undefined,
 });
 
-export const PdfViewer = () => {
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
-  const [pdfState, setPdfState] = useAtom(pdfAtom);
+export const DocumentPreview = () => {
+  const [pdfState, setPdfState] = useAtom(previewAtom);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

@@ -88,18 +88,7 @@ export function Sidebar({ threads }: SidebarProps) {
           <p className="font-medium">Chats</p>
           <span className="text-zinc-300">({threads.length})</span>
         </div>
-
         <div>
-          {/* <Link
-            href="#"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon" }),
-              "h-9 w-9"
-            )}
-          >
-            <MoreHorizontal size={20} />
-          </Link> */}
-
           <Link
             href={`/thread/${v4()}`}
             className={cn(
