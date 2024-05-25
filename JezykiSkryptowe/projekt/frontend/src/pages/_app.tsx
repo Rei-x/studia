@@ -8,6 +8,10 @@ import Head from "next/head";
 import { Toaster } from "@/components/ui/sonner";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+// Import the styles provided by the react-pdf-viewer packages
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import { PdfViewer } from "@/components/PdfViewer";
 
 OpenAPI.BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const inter = Inter({ subsets: ["latin"] });
@@ -27,6 +31,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             <Component {...pageProps} />
           </DndProvider>
         </main>
+        <PdfViewer />
         <Toaster closeButton={true} />
       </QueryClientProvider>
     </JotaiProvider>

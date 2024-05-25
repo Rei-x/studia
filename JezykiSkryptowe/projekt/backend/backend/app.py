@@ -2,6 +2,7 @@ import json
 import os
 from uuid import uuid4
 from fastapi import FastAPI, UploadFile, WebSocket
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import desc, select
@@ -16,6 +17,7 @@ from backend.models import (
     File,
     FilePublic,
     Message,
+    MessageKind,
     MessagePublic,
     SentBy,
     Thread,
@@ -23,6 +25,7 @@ from backend.models import (
 )
 from qdrant_client.http import models as rest
 from langchain_core.messages import AIMessageChunk
+from langchain_core.documents import Document
 
 
 load_dotenv()
@@ -142,6 +145,18 @@ async def upload_file(files: list[UploadFile], session: SessionDep):
     return {"message": "Files uploaded successfully"}
 
 
+@app.get("/files/{file_id}")
+async def get_file(file_id: str, session: SessionDep):
+    file = session.exec(select(File).where(File.id == file_id)).one_or_none()
+
+    if not file:
+        return {"message": "File not found"}
+
+    return StreamingResponse(
+        open(file.on_disk, "rb"), media_type="application/octet-stream"
+    )
+
+
 @app.websocket("/chat/{thread_id}")
 async def chat_endpoint(websocket: WebSocket, session: SessionDep, thread_id: str):
     await websocket.accept()
@@ -197,32 +212,61 @@ async def chat_endpoint(websocket: WebSocket, session: SessionDep, thread_id: st
                     flush=True,
                 )
                 event_data: AIMessageChunk = event["data"].get("chunk", None)  # type: ignore
+                message = Message(
+                    id=event_data.id,
+                    content=bot_messages_by_id[event["run_id"]],
+                    thread_id=thread_id,
+                    sent_by=SentBy.bot,
+                )
                 if (
                     event_data.response_metadata
                     and bot_messages_by_id[event["run_id"]] != ""
                 ):
                     session.add(
-                        Message(
-                            id=event_data.id,
-                            content=bot_messages_by_id[event["run_id"]],
-                            thread_id=thread_id,
-                            sent_by=SentBy.bot,
-                        )
+                        message,
                     )
                 await websocket.send_json(
-                    {
-                        **event_data.dict(),
-                        "metadata": event.get("metadata", {}),
-                        "kind": event["event"],
-                        "run_id": event["run_id"],
-                        "name": event["name"],
-                    }
+                    message.model_dump(),
                 )
 
             if kind == "on_tool_start":
-                print(f"Tool start: {event}", flush=True)
+                tool_input = event["data"].get("input", "")
+                message = Message(
+                    id=event["run_id"] + "_input",
+                    content=json.dumps(tool_input),
+                    thread_id=thread_id,
+                    sent_by=SentBy.bot,
+                    kind=MessageKind.tool_start,
+                    tool_name=event["name"],
+                )
+                await websocket.send_json(message.model_dump())
+
+                session.add(message)
 
             if kind == "on_tool_end":
-                print(f"Tool end: {event}", flush=True)
+                tool_output = event["data"].get("output", "")
+
+                if isinstance(tool_output, dict):
+                    parsed_output = json.dumps(tool_output)
+                elif isinstance(tool_output, list):
+                    if all(isinstance(i, Document) for i in tool_output):
+                        new_value: list[Document] = tool_output
+                        parsed_output = json.dumps([i.dict() for i in new_value])
+                    else:
+                        parsed_output = json.dumps(tool_output)
+                else:
+                    parsed_output = json.dumps(tool_output)
+                message = Message(
+                    id=event["run_id"] + "_output",
+                    content=parsed_output,
+                    thread_id=thread_id,
+                    sent_by=SentBy.bot,
+                    kind=MessageKind.tool_output,
+                    tool_name=event["name"],
+                )
+                session.add(
+                    message,
+                )
+                await websocket.send_json(message.model_dump())
 
         session.commit()

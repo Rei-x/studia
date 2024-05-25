@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.stretched-link::after {
+  content: "";
+  @apply z-10 absolute inset-0 bg-transparent pointer-events-auto;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

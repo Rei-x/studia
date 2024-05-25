@@ -16,9 +16,13 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+export type MessageKind = 'message' | 'tool_start' | 'tool_output';
+
 export type MessagePublic = {
     content: string;
     sent_by?: SentBy;
+    kind?: MessageKind;
+    tool_name?: string | null;
     id: string;
     thread_id: string;
 };

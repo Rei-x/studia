@@ -59,6 +59,12 @@ export const $HTTPValidationError = {
     title: 'HTTPValidationError'
 } as const;
 
+export const $MessageKind = {
+    type: 'string',
+    enum: ['message', 'tool_start', 'tool_output'],
+    title: 'MessageKind'
+} as const;
+
 export const $MessagePublic = {
     properties: {
         content: {
@@ -72,6 +78,25 @@ export const $MessagePublic = {
                 }
             ],
             default: 'user'
+        },
+        kind: {
+            allOf: [
+                {
+                    '$ref': '#/components/schemas/MessageKind'
+                }
+            ],
+            default: 'message'
+        },
+        tool_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tool Name'
         },
         id: {
             type: 'string',

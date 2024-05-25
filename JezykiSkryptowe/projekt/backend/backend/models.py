@@ -28,9 +28,17 @@ class SentBy(str, enum.Enum):
     bot = "bot"
 
 
+class MessageKind(str, enum.Enum):
+    message = "message"
+    tool_start = "tool_start"
+    tool_output = "tool_output"
+
+
 class MessageBase(SQLModel):
     content: str
     sent_by: SentBy = Field(default=SentBy.user, nullable=False)
+    kind: MessageKind = Field(default=MessageKind.message, nullable=False)
+    tool_name: str | None = None
 
 
 class Message(MessageBase, table=True):

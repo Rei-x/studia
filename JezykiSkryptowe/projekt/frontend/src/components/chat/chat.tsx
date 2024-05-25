@@ -28,6 +28,7 @@ interface WsMessage {
   name: string | null;
   id: string;
   example: boolean;
+  kind: string;
   tool_calls: unknown[];
   invalid_tool_calls: unknown[];
   tool_call_chunks: unknown[];
@@ -89,40 +90,49 @@ export function Chat({ selectedThread }: ChatProps) {
   const handleMessage = useCallback(
     (message: MessageEvent<string>) => {
       setChatState(({ messages: prev, ...rest }) => {
-        const parsedMessage = JSON.parse(message.data) as WsMessage;
+        const parsedMessage = JSON.parse(message.data) as MessagePublic;
 
-        if (parsedMessage.content === "") {
+        if (parsedMessage.kind === "message") {
+          if (parsedMessage.content === "") {
+            return {
+              ...rest,
+              messages: prev,
+            };
+          }
+          if (prev[prev.length - 1]?.id === parsedMessage.id) {
+            return {
+              ...rest,
+              messages: prev.map((msg) =>
+                msg.id === parsedMessage.id
+                  ? {
+                      ...msg,
+                      content: `${parsedMessage.content}`,
+                    }
+                  : msg
+              ),
+            };
+          } else {
+            return {
+              ...rest,
+              messages: [...prev, parsedMessage],
+            };
+          }
+        } else if (parsedMessage.kind === "tool_start") {
           return {
             ...rest,
-            messages: prev,
+            messages: [...prev, parsedMessage],
+          };
+        } else if (parsedMessage.kind === "tool_output") {
+          return {
+            ...rest,
+            messages: [...prev, parsedMessage],
           };
         }
-        if (prev[prev.length - 1]?.id === parsedMessage.id) {
-          return {
-            ...rest,
-            messages: prev.map((msg) =>
-              msg.id === parsedMessage.id
-                ? {
-                    ...msg,
-                    content: `${msg.content}${parsedMessage.content}`,
-                  }
-                : msg
-            ),
-          };
-        } else {
-          return {
-            ...rest,
-            messages: [
-              ...prev,
-              {
-                id: parsedMessage.id,
-                content: parsedMessage.content,
-                thread_id: selectedThread?.id,
-                sent_by: "bot",
-              },
-            ],
-          };
-        }
+
+        return {
+          messages: prev,
+          ...rest,
+        };
       });
     },
     [selectedThread?.id, setChatState]
@@ -141,6 +151,7 @@ export function Chat({ selectedThread }: ChatProps) {
     const newMessage = {
       sent_by: "user",
       content: message.content,
+      kind: "message",
       id: v4(),
       thread_id: selectedThread.id,
     } as const;
