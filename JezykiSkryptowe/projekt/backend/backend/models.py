@@ -42,3 +42,27 @@ class Message(MessageBase, table=True):
 class MessagePublic(MessageBase):
     id: str
     thread_id: str
+
+
+class FileBase(SQLModel):
+    filename: str
+    on_disk: str
+    size: int
+
+
+class File(FileBase, table=True):
+    id: str | None = Field(default_factory=lambda: uuid4().hex, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
+class FilePublic(FileBase):
+    id: str
+    created_at: datetime
+
+
+class MessageStore(SQLModel, table=True):
+    __tablename__ = "message_store"  # type: ignore
+
+    id: int = Field(default=None, primary_key=True)
+    session_id: str | None = Field(default=None)
+    message: str | None = Field(default=None)

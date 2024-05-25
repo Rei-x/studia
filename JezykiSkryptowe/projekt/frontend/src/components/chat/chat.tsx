@@ -1,9 +1,21 @@
 import ChatTopbar from "./chat-topbar";
 import { ChatList } from "./chat-list";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import type { Message, UserData } from "@/lib/data";
 import useWebsocket from "react-use-websocket";
-import type { MessagePublic, ThreadPublicWithMessages } from "@/client";
+import type {
+  FilePublic,
+  MessagePublic,
+  ThreadPublicWithMessages,
+} from "@/client";
+import { v4 } from "uuid";
+import { useRouter } from "next/router";
+import { atomFamily } from "jotai/utils";
+import { atom } from "jotai/vanilla";
+import { useAtom } from "jotai/react";
+import { useDrop } from "react-dnd";
+import { cn } from "@/lib/utils";
+import deepEqual from "fast-deep-equal";
 interface ChatProps {
   selectedThread: ThreadPublicWithMessages;
 }
@@ -21,37 +33,100 @@ interface WsMessage {
   tool_call_chunks: unknown[];
 }
 
+export const chatAtomFamily = atomFamily(
+  (param: string) =>
+    atom<{ messages: MessagePublic[]; files: FilePublic[]; threadId: string }>({
+      messages: [],
+      files: [],
+      threadId: param,
+    }),
+  deepEqual
+);
+
 export function Chat({ selectedThread }: ChatProps) {
-  const [messagesState, setMessages] = useState<MessagePublic[]>([]);
+  const chatAtom = useMemo(
+    () => chatAtomFamily(selectedThread.id),
+    [selectedThread.id]
+  );
 
-  const allMessages = [...selectedThread.messages, ...messagesState];
+  const [chatState, setChatState] = useAtom(chatAtom);
 
-  const handleMessage = useCallback((message: MessageEvent<string>) => {
-    setMessages((prev) => {
-      const parsedMessage = JSON.parse(message.data) as WsMessage;
+  const messages = chatState.messages;
 
-      if (prev[prev.length - 1]?.id === parsedMessage.id) {
-        return prev.map((msg) =>
-          msg.id === parsedMessage.id
-            ? {
-                ...msg,
-                content: `${msg.content}${parsedMessage.content}`,
-              }
-            : msg
-        );
-      } else {
-        return [
-          ...prev,
-          {
-            id: parsedMessage.id,
-            content: parsedMessage.content,
-            thread_id: selectedThread?.id,
-            sent_by: "bot",
-          },
-        ];
-      }
-    });
-  }, []);
+  const allMessages = [...selectedThread.messages, ...messages].filter(
+    (message, index, self) =>
+      index ===
+      self.findIndex(
+        (t) =>
+          t.id === message.id &&
+          t.sent_by === message.sent_by &&
+          t.content === message.content
+      )
+  );
+
+  const handleDrop = useCallback(
+    (file: FilePublic) => {
+      setChatState((prev) => ({
+        ...prev,
+        files: [...prev.files.filter((f) => f.id !== file.id), file],
+      }));
+    },
+    [setChatState]
+  );
+
+  const [{ isOver, canDrop }, drop] = useDrop(
+    () => ({
+      accept: "file",
+      drop: handleDrop,
+      collect: (monitor) => ({
+        isOver: !!monitor.isOver(),
+        canDrop: !!monitor.canDrop(),
+      }),
+    }),
+    [handleDrop]
+  );
+
+  const handleMessage = useCallback(
+    (message: MessageEvent<string>) => {
+      setChatState(({ messages: prev, ...rest }) => {
+        const parsedMessage = JSON.parse(message.data) as WsMessage;
+
+        if (parsedMessage.content === "") {
+          return {
+            ...rest,
+            messages: prev,
+          };
+        }
+        if (prev[prev.length - 1]?.id === parsedMessage.id) {
+          return {
+            ...rest,
+            messages: prev.map((msg) =>
+              msg.id === parsedMessage.id
+                ? {
+                    ...msg,
+                    content: `${msg.content}${parsedMessage.content}`,
+                  }
+                : msg
+            ),
+          };
+        } else {
+          return {
+            ...rest,
+            messages: [
+              ...prev,
+              {
+                id: parsedMessage.id,
+                content: parsedMessage.content,
+                thread_id: selectedThread?.id,
+                sent_by: "bot",
+              },
+            ],
+          };
+        }
+      });
+    },
+    [selectedThread?.id, setChatState]
+  );
 
   const { sendMessage } = useWebsocket(
     `http://localhost:8000/chat/${selectedThread.id}`,
@@ -63,22 +138,36 @@ export function Chat({ selectedThread }: ChatProps) {
   );
 
   const addNewMessage = (message: { content: string }) => {
-    setMessages((prev) => [
+    const newMessage = {
+      sent_by: "user",
+      content: message.content,
+      id: v4(),
+      thread_id: selectedThread.id,
+    } as const;
+
+    setChatState((prev) => ({
       ...prev,
-      {
-        id: Math.random().toString(),
-        content: message.content,
-        sent_by: "user",
-        thread_id: selectedThread.id,
-      },
-    ]);
-    sendMessage(message.content);
+      messages: [...prev.messages, newMessage],
+    }));
+    sendMessage(JSON.stringify(newMessage));
   };
 
   return (
-    <div className="flex flex-col border-l justify-between w-full h-full">
+    <div className="flex flex-col border-x relative justify-between w-full h-full">
       <ChatTopbar selectedUser={selectedThread} />
-      <ChatList messages={allMessages} sendMessage={addNewMessage} />
+      <div className="w-full overflow-y-auto overflow-x-hidden h-full flex flex-col">
+        <ChatList messages={allMessages} sendMessage={addNewMessage} />
+        <div
+          ref={drop}
+          className={cn(
+            canDrop && "transition-all inset-0 bg-black bg-opacity-50 z-10",
+            {
+              "opacity-0 ": !isOver,
+            },
+            "absolute"
+          )}
+        ></div>
+      </div>
     </div>
   );
 }

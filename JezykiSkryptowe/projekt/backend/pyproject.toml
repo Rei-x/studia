@@ -7,7 +7,7 @@ readme = "README.md"
 package-mode = false 
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 fastapi = "^0.111.0"
 pydantic = "^2.7.1"
 SQLAlchemy = "^2.0.30"
@@ -20,6 +20,11 @@ langchain-anthropic = "^0.1.13"
 python-dotenv = "^1.0.1"
 sqlmodel = "^0.0.18"
 pydantic-settings = "^2.2.1"
+langchain-experimental = "^0.0.59"
+langchainhub = "^0.1.15"
+qdrant-client = "^1.9.1"
+unstructured = "^0.14.2"
+langchain-qdrant = "^0.1.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"

@@ -1,18 +1,17 @@
 import React from "react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 
-import { Info, Phone, Video } from "lucide-react";
+import { Info } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
-import type { UserData } from "@/lib/data";
 import type { ThreadPublicWithMessages } from "@/client";
 
 interface ChatTopbarProps {
   selectedUser: ThreadPublicWithMessages;
 }
 
-export const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
+const TopbarIcons = [{ icon: Info }];
 
 export default function ChatTopbar({ selectedUser }: ChatTopbarProps) {
   return (

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { RootGetResponse, MessagesMessagesGetResponse, ThreadsThreadsGetResponse } from './types.gen';
+import type { RootGetResponse, MessagesMessagesGetResponse, FilesFilesGetResponse, DeleteFileFilesFileIdDeleteData, DeleteFileFilesFileIdDeleteResponse, ThreadsThreadsGetResponse, UploadFileUploadPostData, UploadFileUploadPostResponse } from './types.gen';
 
 /**
  * Root
@@ -26,6 +26,34 @@ export const messagesMessagesGet = (): CancelablePromise<MessagesMessagesGetResp
 }); };
 
 /**
+ * Files
+ * @returns FilePublic Successful Response
+ * @throws ApiError
+ */
+export const filesFilesGet = (): CancelablePromise<FilesFilesGetResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/files'
+}); };
+
+/**
+ * Delete File
+ * @param data The data for the request.
+ * @param data.fileId
+ * @returns ResponseModel Successful Response
+ * @throws ApiError
+ */
+export const deleteFileFilesFileIdDelete = (data: DeleteFileFilesFileIdDeleteData): CancelablePromise<DeleteFileFilesFileIdDeleteResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/files/{file_id}',
+    path: {
+        file_id: data.fileId
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Threads
  * @returns ThreadPublicWithMessages Successful Response
  * @throws ApiError
@@ -33,4 +61,21 @@ export const messagesMessagesGet = (): CancelablePromise<MessagesMessagesGetResp
 export const threadsThreadsGet = (): CancelablePromise<ThreadsThreadsGetResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/threads'
+}); };
+
+/**
+ * Upload File
+ * @param data The data for the request.
+ * @param data.formData
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const uploadFileUploadPost = (data: UploadFileUploadPostData): CancelablePromise<UploadFileUploadPostResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/upload',
+    formData: data.formData,
+    mediaType: 'multipart/form-data',
+    errors: {
+        422: 'Validation Error'
+    }
 }); };

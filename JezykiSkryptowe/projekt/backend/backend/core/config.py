@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     )
 
     SQLITE_DATABASE_URI: str = "sqlite:///./db.sqlite3"
+    OPENAI_API_KEY: str
+    QDRANT_URL: str
+    QDRANT_API_KEY: str
+    TAVILY_API_KEY: str
+    UNSTRUCTURED_API_KEY: str
 
 
 settings = Settings()  # type: ignore
