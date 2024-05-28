@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import ChatBottombar from "./chat-bottombar";
 import { AnimatePresence, motion } from "framer-motion";
@@ -11,7 +11,6 @@ import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import type { Document, Search } from "@/lib/types";
 import { useSetAtom } from "jotai/react";
 import { previewAtom } from "../DocumentPreview";
-import Image from "next/image";
 import { ImageFallback } from "../ImageFallback";
 
 interface ChatListProps {
@@ -329,7 +328,7 @@ const Message = ({ message }: { message: MessagePublic }) => {
 export function ChatList({ sendMessage, messages }: ChatListProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop =
         messagesContainerRef.current.scrollHeight;

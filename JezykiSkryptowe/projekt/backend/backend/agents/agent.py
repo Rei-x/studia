@@ -1,7 +1,6 @@
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.runnables.config import RunnableConfig
 from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
 from langchain_community.chat_message_histories.sql import SQLChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import create_openai_functions_agent
@@ -9,11 +8,11 @@ from langchain.agents import AgentExecutor
 from backend.agents.rag import retrieval_tool
 from langchain_community.tools.tavily_search import TavilySearchResults
 
-load_dotenv()
+from backend.core.config import settings
 
 
-model = ChatOpenAI(model="gpt-3.5-turbo")
-instructions = """Jesteś asystentem do zadań związanych z odpowiadaniem na pytania. Użyj fragmentów kontekstu lub bazy wiedzy, w skrajnych przypadkach użyj wyszukiwarki, aby odpowiedzieć na pytanie. Jeśli nie znasz odpowiedzi, po prostu powiedz, że nie wiesz. Użyj maksymalnie trzech zdań i utrzymaj odpowiedź zwięzłą.
+model = ChatOpenAI(model=settings.BASE_MODEL)
+instructions = """Jesteś asystentem do zadań związanych z odpowiadaniem na pytania. Użyj fragmentów kontekstu lub bazy wiedzy, w skrajnych przypadkach użyj wyszukiwarki, aby odpowiedzieć na pytanie. Jeśli nie znasz odpowiedzi, po prostu powiedz, że nie wiesz. Utrzymaj odpowiedź zwięzłą.
 """
 
 prompt = ChatPromptTemplate.from_messages(
@@ -26,10 +25,6 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 tools = [
-    # PythonREPLTool(
-    #     name="Python_script_runner",
-    #     description="Użyj tego narzędzia do uruchamiania kodu Pythona i zawsze dodawaj instrukcję print, aby zobaczyć wynik.",
-    # ),
     retrieval_tool,
     TavilySearchResults(
         name="google_search",
@@ -41,7 +36,7 @@ tools = [
 ]
 
 agent = create_openai_functions_agent(
-    ChatOpenAI(temperature=0, name="Main-Model"),
+    ChatOpenAI(temperature=0),
     tools,
     prompt,
 )
@@ -50,14 +45,14 @@ agent_executor = AgentExecutor(
     agent=agent,  # type: ignore
     tools=tools,
     verbose=True,
-    return_intermediate_steps=True,  # type: ignore
+    return_intermediate_steps=True,
 )
 
 
 with_message_history = RunnableWithMessageHistory(
     agent_executor,  # type: ignore
     lambda session_id: SQLChatMessageHistory(
-        session_id=session_id, connection_string="sqlite:///db.sqlite3"
+        session_id=session_id, connection_string=settings.SQLITE_DATABASE_URI
     ),
     input_messages_key="question",
     history_messages_key="history",

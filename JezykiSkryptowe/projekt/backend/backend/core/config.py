@@ -23,5 +23,12 @@ class Settings(BaseSettings):
     TAVILY_API_KEY: str
     UNSTRUCTURED_API_KEY: str
 
+    UPLOAD_DIR: str = "uploads"
+    
+    BASE_MODEL: str = "gpt-4o"
+    BASE_EMBEDDING: str = "text-embedding-3-small"
+    
+    
+
 
 settings = Settings()  # type: ignore

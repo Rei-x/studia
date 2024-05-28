@@ -1,7 +1,6 @@
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import Qdrant
 from langchain_community.document_loaders import UnstructuredAPIFileIOLoader
-from dotenv import load_dotenv
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
 from langchain_core.tools import Tool
@@ -9,10 +8,7 @@ from backend.core.config import settings
 import io
 
 
-load_dotenv()
-
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-model = ChatOpenAI(model="gpt-3.5-turbo")
+embeddings = OpenAIEmbeddings(model=settings.BASE_EMBEDDING)
 qdrant_client = QdrantClient(url=settings.QDRANT_URL, api_key=settings.QDRANT_API_KEY)
 
 qdrant = Qdrant(qdrant_client, "docs", embeddings)
@@ -37,11 +33,8 @@ async def process_file_with_unstructured(file: bytes, filename: str, id: str):
 
 def search(query: str):
     result = qdrant.search(query, "similarity")
-    with open("results.txt", "w") as f:
-        f.write(str(result))
 
     return result
-
 
 retrieval_tool = Tool(
     name="baza_wiedzy",

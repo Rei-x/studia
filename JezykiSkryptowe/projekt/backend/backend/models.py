@@ -1,7 +1,12 @@
 from datetime import datetime
 import enum
 from uuid import uuid4
+from pydantic import BaseModel
 from sqlmodel import Field, Relationship, SQLModel
+
+
+class ResponseModel(BaseModel):
+    message: str
 
 
 class ThreadBase(SQLModel):
