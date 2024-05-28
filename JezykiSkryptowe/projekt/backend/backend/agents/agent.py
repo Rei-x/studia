@@ -12,7 +12,7 @@ from backend.core.config import settings
 
 
 model = ChatOpenAI(model=settings.BASE_MODEL)
-instructions = """Jesteś asystentem do zadań związanych z odpowiadaniem na pytania. Użyj fragmentów kontekstu lub bazy wiedzy, w skrajnych przypadkach użyj wyszukiwarki, aby odpowiedzieć na pytanie. Jeśli nie znasz odpowiedzi, po prostu powiedz, że nie wiesz. Utrzymaj odpowiedź zwięzłą.
+instructions = """Jesteś asystentem do zadań związanych z odpowiadaniem na pytania. Użyj fragmentów kontekstu lub bazy wiedzy, w skrajnych przypadkach użyj wyszukiwarki, aby odpowiedzieć na pytanie. Jeśli nie znasz odpowiedzi, po prostu powiedz, że nie wiesz. Dogłębie odpowiadaj na pytania.
 """
 
 prompt = ChatPromptTemplate.from_messages(

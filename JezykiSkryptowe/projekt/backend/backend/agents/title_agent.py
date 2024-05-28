@@ -7,7 +7,7 @@ load_dotenv()
 
 model = ChatOpenAI(model="gpt-3.5-turbo")
 
-instructions = """Jesteś ekspertem w tworzeniu małych i zwięzłych tytułów dla rozmów. Musisz stworzyć jednozdaniowy tytuł dla każdej wiadomości w rozmowie. Przykład:
+instructions = """Jesteś ekspertem w tworzeniu małych i zwięzłych tytułów dla rozmów. Musisz stworzyć jednozdaniowy tytuł dla każdej wiadomości w rozmowie. Opisz to co otrzymałeś. Przykład:
 
 Wiadomość: Cześć, jak się masz?
 Twoja odpowiedź: Przyjazne powitanie.
