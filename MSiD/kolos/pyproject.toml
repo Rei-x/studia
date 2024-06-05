@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "laby06"
+version = "0.1.0"
+description = ""
+authors = ["Bartosz Gotowski <bartoszgotowski03@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.26.4"
+pandas = "^2.2.1"
+matplotlib = "^3.8.4"
+seaborn = "^0.13.2"
+scipy = "^1.13.0"
+pyqt6 = "^6.6.1"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+pytest = "^8.1.1"
+ruff = "^0.4.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
