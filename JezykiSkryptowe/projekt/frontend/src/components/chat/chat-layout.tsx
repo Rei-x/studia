@@ -69,7 +69,7 @@ const FileUpload = () => {
   });
 
   return (
-    <div className={cn(isPending && "pointer-events-none", "h-auto")}>
+    <div className={cn(isPending && "pointer-events-none", "h-full")}>
       <FileUploader
         value={files}
         onValueChange={setFiles}
@@ -99,7 +99,7 @@ const FileUpload = () => {
               files.map((file, i) => (
                 <FileUploaderItem key={i} index={i}>
                   <Paperclip className="h-4 w-4 stroke-current" />
-                  <span>{file.name}</span>
+                  <span className="truncate w-full">{file.name}</span>
                 </FileUploaderItem>
               ))}
           </FileUploaderContent>
@@ -177,21 +177,22 @@ export function ChatLayout() {
         </Head>
 
         <Chat selectedThread={selectedThread} />
-        <div className="w-[500px] flex flex-col justify-between">
-          <div>
-            <h2 className="text-2xl font-medium mb-4 mx-4 mt-4">Documents</h2>
-            <ScrollArea className="space-y-4 max-h-full">
+        <div className="w-[500px] flex flex-col h-full">
+          <div className="flex-auto flex flex-col h-full">
+            <h2 className="text-2xl font-medium mb-4 mx-4 mt-4 flex-initial">
+              Documents
+            </h2>
+            <div className="space-y-4 overflow-y-auto">
               <AnimatePresence mode="popLayout">
                 {files?.map((file) => (
                   <File key={`side-${file.id}`} {...file} />
                 ))}
               </AnimatePresence>
-            </ScrollArea>
-          </div>
-
-          <div>
-            <hr className="mt-auto" />
-            <FileUpload />
+            </div>
+            <div>
+              <hr className="mt-auto" />
+              <FileUpload />
+            </div>
           </div>
         </div>
       </div>

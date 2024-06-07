@@ -22,6 +22,7 @@ from langchain_core.messages import AIMessageChunk
 from langchain_core.documents import Document
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 app = FastAPI()

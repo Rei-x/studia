@@ -7,6 +7,9 @@ from langchain_core.tools import Tool
 from backend.core.config import settings
 import io
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 embeddings = OpenAIEmbeddings(model=settings.BASE_EMBEDDING)
 qdrant_client = QdrantClient(url=settings.QDRANT_URL, api_key=settings.QDRANT_API_KEY)
@@ -35,6 +38,7 @@ def search(query: str):
     result = qdrant.search(query, "similarity")
 
     return result
+
 
 retrieval_tool = Tool(
     name="baza_wiedzy",

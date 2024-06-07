@@ -54,7 +54,7 @@ export const File = (file: FilePublic) => {
           <div className="flex items-center space-x-4">
             <FileIcon className="h-6 w-6 text-gray-500 " />
             <div>
-              <p className="font-medium">{file.filename}</p>
+              <p className="font-medium truncate">{file.filename}</p>
               <p className="text-sm text-gray-500 ">{prettyBytes(file.size)}</p>
             </div>
           </div>
@@ -83,10 +83,12 @@ export const File = (file: FilePublic) => {
                   { "opacity-50": isPending }
                 )}
               >
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 max-w-full">
                   <FileIcon className="h-6 w-6 text-gray-500 " />
-                  <div>
-                    <p className="font-medium">{file.filename}</p>
+                  <div className="w-full">
+                    <p className="font-medium truncate max-w-40">
+                      {file.filename}
+                    </p>
                     <p className="text-sm text-gray-500 ">
                       {prettyBytes(file.size)}
                     </p>
