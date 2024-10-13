@@ -1,0 +1,1 @@
+curl solvro.pwr.edu.pl
