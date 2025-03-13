@@ -21,10 +21,7 @@ const sendEvent = async (message: BaseEvent) => {
 };
 
 setInterval(() => {
-  const eventId = Math.floor(Math.random() * 100000);
   sendEvent(
-    new VideoRecordingCompletedEvent(
-      `http://example.com/${eventId}-recording.mp4`
-    )
+    new VideoRecordingCompletedEvent("http://example.com/recording.mp4")
   );
 }, 3000);

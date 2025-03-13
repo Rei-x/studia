@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
-import { MeetingStartedEvent } from 'src/domain/MeetingStartedEvent';
+import { MeetingEndedEvent } from 'src/domain/MeetingEndedEvent';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -10,7 +10,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RABBIT_MQ_URL ?? ''],
-        queue: MeetingStartedEvent.name,
+        queue: MeetingEndedEvent.name,
       },
     },
   );
