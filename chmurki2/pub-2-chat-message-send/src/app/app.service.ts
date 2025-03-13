@@ -9,9 +9,9 @@ export class AppService {
   constructor(@Inject('RABBIT_MQ_SERVICE') private client: ClientProxy) {}
 
   @Cron('* * * * * *')
-  updateMeeting() {
+  sendChatMessage() {
     if (Math.random() > 0.9) {
-      this.logger.log('Meeting updated event sent');
+      this.logger.log('Chat message event sent');
       this.client.emit(
         ChatMessageSentEvent.name,
         new ChatMessageSentEvent('meetingId', 'Hello!').serialize(),

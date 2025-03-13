@@ -1,0 +1,23 @@
+{
+  "name": "chmurki2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:con-1": "cd con-1-meeting-notification && npm run start:dev -- --preserveWatchOutput",
+    "start:con-2": "cd con-2-chat-message-notification && npm run start:dev -- --preserveWatchOutput",
+    "start:con-3": "cd con-3-meeting-transcription && npm run start:dev -- --preserveWatchOutput",
+    "start:con-4": "cd con-4-generate-meeting-summary && npm run start:dev -- --preserveWatchOutput",
+    "start:pub-1": "cd pub-1-meeting-start && npm run start:dev -- --preserveWatchOutput",
+    "start:pub-2": "cd pub-2-chat-message-send && npm run start:dev -- --preserveWatchOutput",
+    "start:pub-3": "cd pub-3-meeting-end && npm run start:dev -- --preserveWatchOutput",
+    "start": "concurrently -c auto npm:start:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

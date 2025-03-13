@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
-import { ChatMessageSentEvent } from 'src/domain/ChatMessageSentEvent';
+import { MeetingTranscribedEvent } from 'src/domain/MeetingTranscribedEvent';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -10,7 +10,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RABBIT_MQ_URL ?? ''],
-        queue: ChatMessageSentEvent.name,
+        queue: MeetingTranscribedEvent.name,
       },
     },
   );
