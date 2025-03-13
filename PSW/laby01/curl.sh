@@ -1,1 +1,1 @@
-curl solvro.pwr.edu.pl
+curl solvro.pwr.edu.pl -I
