@@ -1,0 +1,182 @@
+\documentclass[12pt,a4paper]{article}
+
+% Essential packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+
+% Set page margins
+\geometry{a4paper, margin=2.5cm}
+
+% Define colors for code listings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configure code listings style
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% Document info
+\title{\LARGE \textbf{Problem Komiwojażera w Systemie Komunikacji Miejskiej}\\
+\large Algorytmy optymalizacyjne w zastosowaniu do planowania tras}
+\author{Imię Nazwisko}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Niniejszy raport przedstawia implementację i analizę algorytmów służących do optymalizacji tras w systemie komunikacji miejskiej. W pierwszej części opisano algorytmy wyszukiwania najkrótszych połączeń między przystankami (algorytm Dijkstry oraz A*) przy uwzględnieniu różnych kryteriów optymalizacji: czasu przejazdu oraz liczby przesiadek. W drugiej części przedstawiono rozwiązanie problemu komiwojażera dla odwiedzenia zbioru przystanków z wykorzystaniem metody przeszukiwania z zabronieniami (Tabu Search) wraz z modyfikacjami mającymi na celu poprawę jakości rozwiązań.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Wprowadzenie}
+\subsection{Opis problemu}
+W niniejszym raporcie zajmujemy się dwoma zadaniami optymalizacyjnymi w kontekście planowania tras w komunikacji miejskiej:
+\begin{enumerate}
+    \item Wyszukiwanie najkrótszych połączeń między dwoma przystankami z uwzględnieniem kryteriów czasu przejazdu lub liczby przesiadek.
+    \item Planowanie optymalnej trasy przejazdu przez zbiór zadanych przystanków z powrotem do punktu początkowego (wariant problemu komiwojażera).
+\end{enumerate}
+
+\subsection{Dane wejściowe}
+Dane dotyczące systemu komunikacji miejskiej dostarczone są w pliku \texttt{connection\_graph.csv}. Plik ten zawiera informacje o połączeniach między przystankami, czasach przejazdów oraz liniach komunikacyjnych.
+
+\section{Zadanie 1: Wyszukiwanie najkrótszych połączeń}
+\subsection{Algorytm Dijkstry}
+\subsubsection{Opis teoretyczny}
+Algorytm Dijkstry służy do znajdowania najkrótszych ścieżek w grafie ważonym o nieujemnych wagach krawędzi. W kontekście naszego zadania, graf reprezentuje sieć transportu publicznego, gdzie wierzchołkami są przystanki, a krawędzie oznaczają bezpośrednie połączenia między nimi.
+
+\subsubsection{Implementacja dla optymalizacji czasu przejazdu}
+% Opis implementacji algorytmu Dijkstry do minimalizacji czasu przejazdu
+
+\subsubsection{Wyniki i analiza}
+% Wyniki eksperymentów, przykładowe trasy, porównanie z innymi algorytmami
+
+\subsection{Algorytm A* dla optymalizacji czasu przejazdu}
+\subsubsection{Opis teoretyczny}
+Algorytm A* stanowi rozszerzenie algorytmu Dijkstry poprzez wprowadzenie heurystyki, która szacuje koszt dotarcia do celu. W przypadku optymalizacji czasu przejazdu, heurystyka może opierać się na odległości euklidesowej podzielonej przez średnią prędkość środków transportu.
+
+\subsubsection{Implementacja}
+% Opis implementacji A* dla minimalizacji czasu przejazdu
+
+\subsubsection{Wyniki i analiza}
+% Wyniki eksperymentów, porównanie z algorytmem Dijkstry
+
+\subsection{Algorytm A* dla optymalizacji liczby przesiadek}
+\subsubsection{Opis teoretyczny}
+W tym wariancie funkcja kosztu oraz heurystyka są dostosowane do minimalizacji liczby przesiadek między liniami komunikacyjnymi.
+
+\subsubsection{Implementacja}
+% Opis implementacji A* dla minimalizacji liczby przesiadek
+
+\subsubsection{Wyniki i analiza}
+% Wyniki eksperymentów, porównanie z poprzednimi implementacjami
+
+\subsection{Modyfikacje algorytmu A*}
+\subsubsection{Opis wprowadzonych modyfikacji}
+% Opis modyfikacji zwiększających efektywność algorytmu
+
+\subsubsection{Wyniki i porównanie z podstawową wersją}
+% Porównanie efektywności zmodyfikowanego algorytmu z wersją podstawową
+
+\section{Zadanie 2: Problem odwiedzenia zbioru przystanków}
+\subsection{Metoda przeszukiwania z zabronieniami (Tabu Search)}
+\subsubsection{Opis teoretyczny}
+Tabu Search to metaheurystyka wykorzystywana do rozwiązywania problemów optymalizacyjnych. W kontekście problemu komiwojażera, metoda ta pozwala na efektywne przeszukiwanie przestrzeni rozwiązań z uniknięciem utknięcia w lokalnym optimum.
+
+\subsubsection{Podstawowa implementacja}
+% Opis implementacji podstawowej wersji Tabu Search
+
+\subsubsection{Wyniki i analiza}
+% Wyniki eksperymentów dla podstawowej wersji algorytmu
+
+\subsection{Modyfikacja długości listy tabu}
+\subsubsection{Opis teoretyczny}
+Długość listy tabu ma istotny wpływ na efektywność algorytmu. Zbyt krótka lista może prowadzić do cyklicznego przeszukiwania tych samych rozwiązań, natomiast zbyt długa może nadmiernie ograniczać przestrzeń poszukiwań.
+
+\subsubsection{Implementacja}
+% Opis implementacji adaptacyjnego doboru długości listy tabu
+
+\subsubsection{Wyniki i analiza}
+% Porównanie z wersją podstawową
+
+\subsection{Modyfikacja z kryterium aspiracji}
+\subsubsection{Opis teoretyczny}
+Kryterium aspiracji pozwala na przyjęcie rozwiązania znajdującego się na liście tabu, jeśli spełnia ono określone warunki, np. jest lepsze od najlepszego dotychczas znalezionego rozwiązania.
+
+\subsubsection{Implementacja}
+% Opis implementacji kryterium aspiracji
+
+\subsubsection{Wyniki i analiza}
+% Porównanie z poprzednimi wersjami algorytmu
+
+\subsection{Strategia próbkowania sąsiedztwa}
+\subsubsection{Opis teoretyczny}
+Efektywne próbkowanie sąsiedztwa bieżącego rozwiązania może znacząco wpłynąć na wydajność algorytmu, szczególnie dla dużych instancji problemu.
+
+\subsubsection{Implementacja}
+% Opis implementacji strategii próbkowania sąsiedztwa
+
+\subsubsection{Wyniki i analiza}
+% Porównanie z poprzednimi wersjami algorytmu
+
+\section{Podsumowanie}
+\subsection{Porównanie zaimplementowanych algorytmów}
+% Porównanie wszystkich zaimplementowanych algorytmów pod kątem jakości rozwiązań i czasu obliczeń
+
+\subsection{Napotkane problemy implementacyjne}
+% Opis problemów napotkanych podczas implementacji oraz sposobów ich rozwiązania
+
+\subsection{Wnioski}
+% Ogólne wnioski dotyczące efektywności algorytmów w kontekście planowania tras w komunikacji miejskiej
+
+\section{Wykorzystane biblioteki}
+% Opis bibliotek wykorzystanych do implementacji algorytmów
+
+\begin{thebibliography}{9}
+    \bibitem{dijkstra} Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. Numerische Mathematik, 1(1), 269-271.
+    \bibitem{astar} Hart, P. E., Nilsson, N. J., & Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. IEEE Transactions on Systems Science and Cybernetics, 4(2), 100-107.
+    \bibitem{tabu} Glover, F. (1989). Tabu search—part I. ORSA Journal on Computing, 1(3), 190-206.
+    \bibitem{tsp} Lawler, E. L., Lenstra, J. K., Rinnooy Kan, A. H. G., & Shmoys, D. B. (1985). The Traveling Salesman Problem: A Guided Tour of Combinatorial Optimization. Wiley.
+\end{thebibliography}
+
+\appendix
+\section{Kod źródłowy}
+% Fragmenty kodu źródłowego ilustrujące kluczowe elementy implementacji
+
+\section{Przykładowe dane wejściowe i wyjściowe}
+% Przykłady danych wejściowych i odpowiadających im wyników
+
+\end{document}
