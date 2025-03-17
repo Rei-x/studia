@@ -7,7 +7,9 @@ export class AppService {
   private readonly logger = new Logger(AppService.name);
   constructor(@Inject('RABBIT_MQ_SERVICE') private client: ClientProxy) {}
 
-  handleMeetingStartedEvent(data: MeetingStartedEvent) {
+  async handleMeetingStartedEvent(data: MeetingStartedEvent) {
     this.logger.log('Meeting started event received', data);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    this.logger.log('Meeting started event processe', data);
   }
 }

@@ -8,8 +8,8 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @EventPattern(MeetingStartedEvent.name)
-  getHello(data: string) {
-    this.appService.handleMeetingStartedEvent(
+  async getHello(data: string) {
+    await this.appService.handleMeetingStartedEvent(
       MeetingStartedEvent.deserialize(data),
     );
   }
