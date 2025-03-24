@@ -1,1 +1,17 @@
+@import "bootstrap/scss/bootstrap";
+
 @import "mdb-ui-kit/css/mdb.min.css";
+
+html,
+body,
+header,
+#intro {
+  height: 100%;
+}
+#intro {
+  background: url("../img/bg.jpg") no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
