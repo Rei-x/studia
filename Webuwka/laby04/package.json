@@ -16,6 +16,7 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "mdb-ui-kit": "^8.2.0",
-    "aos": "^2.3.4"
+    "aos": "^2.3.4",
+    "chart.js": "^4.4.1"
   }
 }
