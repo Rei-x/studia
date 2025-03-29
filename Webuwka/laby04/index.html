@@ -459,6 +459,96 @@
           </div>
         </div>
       </section>
+      <section id="employees" class="mt-5">
+        <div
+          id="carousel-indicators"
+          class="carousel slide"
+          data-mdb-ride="carousel"
+          data-mdb-carousel-init
+        >
+          <div class="carousel-indicators">
+            <button
+              type="button"
+              data-mdb-target="#carousel-indicators"
+              data-mdb-slide-to="0"
+              class="active"
+              aria-current="true"
+              aria-label="Slide 1"
+            ></button>
+            <button
+              type="button"
+              data-mdb-target="#carousel-indicators"
+              data-mdb-slide-to="1"
+              aria-label="Slide 2"
+            ></button>
+            <button
+              type="button"
+              data-mdb-target="#carousel-indicators"
+              data-mdb-slide-to="2"
+              aria-label="Slide 3"
+            ></button>
+          </div>
+          <div class="carousel-inner">
+            <div class="carousel-item active bg-gray">
+              <div
+                class="d-flex gap-4 justify-content-evenly p-3 bg-primary bg-gradient"
+              >
+                <div class="card">
+                  <img
+                    src="src/img/maciek.jpg"
+                    class="card-img-top card-img-fixed"
+                    alt="Fissure in Sandstone"
+                  />
+                  <div class="card-body">
+                    <h5 class="card-title">Maciek Kowalski</h5>
+                    <p class="card-text">Górnik tynkarz akrobata</p>
+                  </div>
+                </div>
+                <div class="card">
+                  <img
+                    src="src/img/maciek.jpg"
+                    class="card-img-top card-img-fixed"
+                    alt="Fissure in Sandstone"
+                  />
+                  <div class="card-body">
+                    <h5 class="card-title">Maciek Kowalski</h5>
+                    <p class="card-text">Górnik tynkarz akrobata</p>
+                  </div>
+                </div>
+                <div class="card">
+                  <img
+                    src="src/img/maciek.jpg"
+                    class="card-img-top card-img-fixed"
+                    alt="Fissure in Sandstone"
+                  />
+                  <div class="card-body">
+                    <h5 class="card-title">Maciek Kowalski</h5>
+                    <p class="card-text">Górnik tynkarz akrobata</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-mdb-target="#carousel-indicators"
+            data-mdb-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Poprzedni</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-mdb-target="#carousel-indicators"
+            data-mdb-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Następny</span>
+          </button>
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
@@ -489,9 +579,9 @@
 
     <script type="module" src="/src/js/main.js"></script>
     <script type="module">
-      const { Ripple, initMDB } = mdb;
+      const { Ripple, Carousel, initMDB } = mdb;
 
-      initMDB({ Ripple });
+      initMDB({ Ripple, Carousel });
     </script>
   </body>
 </html>
