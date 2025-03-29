@@ -6,18 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
 
-    <!-- MDB icon -->
     <link
       rel="icon"
       href="https://mdbootstrap.com/favicon.ico"
       type="image/x-icon"
     />
-    <!-- Font Awesome -->
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-    <!-- Google Fonts Roboto -->
+
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
@@ -33,10 +32,8 @@
   <body>
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-        <!-- Container wrapper -->
         <div class="container-fluid">
-          <!-- Toggle button -->
-          <a class="navbar-brand" href="#">Navbar</a>
+          <a class="navbar-brand" href="#">Podróże</a>
           <button
             data-mdb-collapse-init
             class="navbar-toggler"
@@ -49,59 +46,36 @@
             <i class="fas fa-bars"></i>
           </button>
 
-          <!-- Collapsible wrapper -->
           <div class="collapse navbar-collapse" id="navbarLeftAlignExample">
-            <!-- Left links -->
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link" href="#">Home</a>
+                <a class="nav-link" href="#intro">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Features</a>
+                <a class="nav-link" href="#lastTravels">Nasze Podróże</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Pricing</a>
+                <a class="nav-link" href="#googleMaps">Lokalizacja</a>
               </li>
-              <!-- Navbar dropdown -->
+              <li class="nav-item">
+                <a class="nav-link" href="#faq">FAQ</a>
+              </li>
+
               <li class="nav-item dropdown">
-                <a
-                  data-mdb-dropdown-init
-                  class="nav-link dropdown-toggle"
-                  href="#"
-                  id="navbarDropdown"
-                  role="button"
-                  aria-expanded="false"
-                >
-                  Dropdown
-                </a>
-                <!-- Dropdown menu -->
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li>
-                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#textImage">O nas</a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#">Another action</a>
+                    <a class="dropdown-item" href="#employees">Nasz Zespół</a>
                   </li>
                   <li><hr class="dropdown-divider" /></li>
                   <li>
-                    <a class="dropdown-item" href="#">Something else here</a>
+                    <a class="dropdown-item" href="#contact">Kontakt</a>
                   </li>
                 </ul>
               </li>
             </ul>
-            <!-- Left links -->
-            <form class="d-flex input-group w-auto">
-              <input
-                type="search"
-                class="form-control rounded"
-                placeholder="Search"
-                aria-label="Search"
-                aria-describedby="search-addon"
-              />
-              <span class="input-group-text border-0" id="search-addon">
-                <i class="fas fa-search" style="color: white"></i>
-              </span>
-            </form>
           </div>
           <!-- Collapsible wrapper -->
         </div>
@@ -117,20 +91,27 @@
           >
             <div class="row d-flex justify-content-center text-center">
               <div class="col-md-10">
-                <!-- Heading -->
-                <h2 class="display-4 fw-bold text-white pt-5 mb-2">
+                <h2 class="display-4 fw-bold text-white pt-5 mb-2 fade-in">
                   Podróżowanie
                 </h2>
-                <!-- Divider -->
                 <hr class="hr" />
-                <!-- Description -->
-                <h4 class="text-white my-4">
+                <h4
+                  class="text-white my-4"
+                  data-aos="fade-up"
+                  data-aos-delay="200"
+                >
                   Lorem ipsum dolor sit amet, consectetur adipisicing elit.
                   Deleniti consequuntu r.
                 </h4>
-                <button type="button" class="btn btn-outline-light">
-                  Dowiedz się więcej<i class="fas fa-book ml-2"></i>
-                </button>
+                <a
+                  href="#lastTravels"
+                  class="btn btn-light"
+                  data-mdb-ripple-color="#110000"
+                  data-aos="zoom-in"
+                  data-aos-delay="400"
+                >
+                  Dowiedz się więcej<i class="fas fa-book ms-2"></i>
+                </a>
               </div>
             </div>
           </div>
@@ -138,15 +119,14 @@
       </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container my-5">
-      <!-- Last Travels Section -->
       <section id="lastTravels" class="text-center">
-        <h2 class="h1 fw-bold mb-5">Nasze Ostatnie Podróże</h2>
+        <h2 class="h1 fw-bold mb-5 animated-underline" data-aos="fade-up">
+          Nasze Ostatnie Podróże
+        </h2>
 
         <div class="row g-4">
-          <!-- Travel Card Template -->
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
             <div class="card hover-overlay h-100">
               <img
                 src="src/img/trip1.png"
@@ -166,7 +146,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
             <div class="card hover-overlay h-100">
               <img
                 src="src/img/trip2.png"
@@ -186,7 +166,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
             <div class="card hover-overlay h-100">
               <img
                 src="src/img/trip3.png"
@@ -206,7 +186,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
             <div class="card hover-overlay h-100">
               <img
                 src="src/img/trip4.png"
@@ -226,7 +206,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
             <div class="card hover-overlay h-100">
               <img
                 src="./src/img/trip5.png"
@@ -246,7 +226,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="400">
             <div class="card hover-overlay h-100">
               <img
                 src="src/img/trip6.png"
@@ -268,10 +248,14 @@
         </div>
       </section>
 
-      <!-- Google Maps Section -->
       <section id="googleMaps" class="mt-5">
-        <h2 class="text-center h1 fw-bold mb-5">Gdzie nas znaleźć</h2>
-        <div class="mx-auto">
+        <h2
+          class="text-center h1 fw-bold mb-5 animated-underline"
+          data-aos="fade-up"
+        >
+          Gdzie nas znaleźć
+        </h2>
+        <div class="mx-auto" data-aos="zoom-in">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4870.29337889928!2d19.93732178938393!3d50.06167494192174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47165b1b3990b82b%3A0x8957c5f44ca0e594!2sRynek%20G%C5%82%C3%B3wny%20w%20Krakowie!5e0!3m2!1spl!2spl!4v1700937334972!5m2!1spl!2spl"
             width="100%"
@@ -284,16 +268,25 @@
         </div>
       </section>
 
-      <!-- FAQ Section -->
       <section id="faq" class="mt-5">
-        <h2 class="text-center h1 fw-bold mb-5">FAQ</h2>
-        <div class="accordion" id="faqAccordion">
+        <h2
+          class="text-center h1 fw-bold mb-5 animated-underline"
+          data-aos="fade-up"
+        >
+          FAQ
+        </h2>
+        <div
+          class="accordion"
+          id="faqAccordion"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
               <button
+                data-mdb-collapse-init
                 class="accordion-button"
                 type="button"
-                data-mdb-toggle="collapse"
                 data-mdb-target="#collapseOne"
                 aria-expanded="true"
                 aria-controls="collapseOne"
@@ -316,9 +309,9 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
               <button
+                data-mdb-collapse-init
                 class="accordion-button collapsed"
                 type="button"
-                data-mdb-toggle="collapse"
                 data-mdb-target="#collapseTwo"
                 aria-expanded="false"
                 aria-controls="collapseTwo"
@@ -341,9 +334,9 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
               <button
+                data-mdb-collapse-init
                 class="accordion-button collapsed"
                 type="button"
-                data-mdb-toggle="collapse"
                 data-mdb-target="#collapseThree"
                 aria-expanded="false"
                 aria-controls="collapseThree"
@@ -366,11 +359,10 @@
         </div>
       </section>
 
-      <!-- Text and Image Section -->
       <section id="textImage" class="mt-5">
         <div class="container">
           <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-3" data-aos="fade-right">
               <h3>Odkryj Świat z Nami</h3>
               <p>
                 Dołącz do naszej społeczności podróżników i odkrywaj
@@ -378,12 +370,13 @@
                 wyprawy, które pozostaną w Twojej pamięci na zawsze.
               </p>
             </div>
-            <div class="col-md-9">
-              <div class="ratio" style="--bs-aspect-ratio: 33.33%">
+            <div class="col-md-9" data-aos="fade-left" data-aos-delay="200">
+              <div class="ratio" style="--mdb-aspect-ratio: 33.33%">
                 <img
                   src="src/img/travel.png"
                   alt="Podróże"
-                  class="img-fluid rounded object-fit-cover"
+                  style="object-fit: cover"
+                  class="img-fluid rounded"
                 />
               </div>
             </div>
@@ -391,11 +384,10 @@
         </div>
       </section>
 
-      <!-- Quote Section -->
       <section id="quote" class="py-5 bg-light mt-5">
         <div class="container">
           <div class="row">
-            <div class="col-md-8 mx-auto text-center">
+            <div class="col-md-8 mx-auto text-center" data-aos="zoom-in">
               <h2 class="h1 fw-bold mb-3">Inspiracja Podróży</h2>
               <p class="lead">
                 "Podróże kształcą. Przede wszystkim uczą pokory wobec świata."
@@ -406,12 +398,16 @@
         </div>
       </section>
 
-      <!-- Contact Section -->
       <section id="contact" class="mt-5">
         <div class="row">
           <div class="col-md-9 mx-auto">
-            <h2 class="text-center h1 fw-bold mb-5">Skontaktuj się z nami</h2>
-            <form>
+            <h2
+              class="text-center h1 fw-bold mb-5 animated-underline"
+              data-aos="fade-up"
+            >
+              Skontaktuj się z nami
+            </h2>
+            <form data-aos="fade-up" data-aos-delay="200">
               <div class="row mb-3">
                 <div class="col-md-6">
                   <label for="name" class="form-label">Imię</label>
@@ -459,99 +455,390 @@
           </div>
         </div>
       </section>
-      <section id="employees" class="mt-5">
-        <div
-          id="carousel-indicators"
-          class="carousel slide"
-          data-mdb-ride="carousel"
-          data-mdb-carousel-init
-        >
-          <div class="carousel-indicators">
-            <button
-              type="button"
-              data-mdb-target="#carousel-indicators"
-              data-mdb-slide-to="0"
-              class="active"
-              aria-current="true"
-              aria-label="Slide 1"
-            ></button>
-            <button
-              type="button"
-              data-mdb-target="#carousel-indicators"
-              data-mdb-slide-to="1"
-              aria-label="Slide 2"
-            ></button>
-            <button
-              type="button"
-              data-mdb-target="#carousel-indicators"
-              data-mdb-slide-to="2"
-              aria-label="Slide 3"
-            ></button>
-          </div>
-          <div class="carousel-inner">
-            <div class="carousel-item active bg-gray">
-              <div
-                class="d-flex gap-4 justify-content-evenly p-3 bg-primary bg-gradient"
-              >
-                <div class="card">
-                  <img
-                    src="src/img/maciek.jpg"
-                    class="card-img-top card-img-fixed"
-                    alt="Fissure in Sandstone"
-                  />
-                  <div class="card-body">
-                    <h5 class="card-title">Maciek Kowalski</h5>
-                    <p class="card-text">Górnik tynkarz akrobata</p>
+      <section id="employees" class="mt-5 py-5 bg-light">
+        <div class="container">
+          <h2
+            class="text-center h1 fw-bold mb-2 animated-underline"
+            data-aos="fade-up"
+          >
+            Nasz Zespół
+          </h2>
+          <p
+            class="text-center text-muted mb-5"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            Poznaj profesjonalistów, którzy pomogą Ci zaplanować wymarzoną
+            podróż
+          </p>
+
+          <div
+            id="carousel-indicators"
+            class="carousel slide carousel-dark"
+            data-mdb-ride="carousel"
+            data-mdb-carousel-init
+            data-aos="zoom-in"
+            data-aos-delay="200"
+          >
+            <div class="carousel-indicators">
+              <button
+                type="button"
+                data-mdb-target="#carousel-indicators"
+                data-mdb-slide-to="0"
+                class="active rounded-circle"
+                aria-current="true"
+                aria-label="Slide 1"
+                style="width: 10px; height: 10px; margin: 0 8px"
+              ></button>
+              <button
+                type="button"
+                data-mdb-target="#carousel-indicators"
+                data-mdb-slide-to="1"
+                aria-label="Slide 2"
+                class="rounded-circle"
+                style="width: 10px; height: 10px; margin: 0 8px"
+              ></button>
+              <button
+                type="button"
+                data-mdb-target="#carousel-indicators"
+                data-mdb-slide-to="2"
+                aria-label="Slide 3"
+                class="rounded-circle"
+                style="width: 10px; height: 10px; margin: 0 8px"
+              ></button>
+            </div>
+            <div class="carousel-inner rounded-5">
+              <div class="carousel-item active">
+                <div
+                  class="d-flex flex-wrap gap-4 justify-content-evenly p-5 bg-white"
+                >
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Maciek Kowalski</h5>
+                      <p class="card-text text-muted">
+                        Specjalista ds. Podróży
+                      </p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Maciek Kowalski</h5>
+                      <p class="card-text text-muted">Przewodnik Turystyczny</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Maciek Kowalski</h5>
+                      <p class="card-text text-muted">Koordynator Wycieczek</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="card">
-                  <img
-                    src="src/img/maciek.jpg"
-                    class="card-img-top card-img-fixed"
-                    alt="Fissure in Sandstone"
-                  />
-                  <div class="card-body">
-                    <h5 class="card-title">Maciek Kowalski</h5>
-                    <p class="card-text">Górnik tynkarz akrobata</p>
+              </div>
+              <div class="carousel-item">
+                <div
+                  class="d-flex flex-wrap gap-4 justify-content-evenly p-5 bg-white"
+                >
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Anna Nowak</h5>
+                      <p class="card-text text-muted">
+                        Specjalista ds. Podróży
+                      </p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Tomasz Wiśniewski</h5>
+                      <p class="card-text text-muted">Przewodnik Turystyczny</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Karolina Majewska</h5>
+                      <p class="card-text text-muted">Koordynator Wycieczek</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="card">
-                  <img
-                    src="src/img/maciek.jpg"
-                    class="card-img-top card-img-fixed"
-                    alt="Fissure in Sandstone"
-                  />
-                  <div class="card-body">
-                    <h5 class="card-title">Maciek Kowalski</h5>
-                    <p class="card-text">Górnik tynkarz akrobata</p>
+              </div>
+              <div class="carousel-item">
+                <div
+                  class="d-flex flex-wrap gap-4 justify-content-evenly p-5 bg-white"
+                >
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Piotr Zieliński</h5>
+                      <p class="card-text text-muted">Fotograf Podróżniczy</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Magdalena Kowalczyk</h5>
+                      <p class="card-text text-muted">Konsultant Turystyczny</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="card border-0 shadow-2-strong"
+                    style="width: 18rem"
+                  >
+                    <div class="bg-image hover-overlay">
+                      <img
+                        src="src/img/maciek.jpg"
+                        class="card-img-top card-img-fixed rounded-top"
+                        alt="Team Member"
+                      />
+                      <div
+                        class="mask"
+                        style="background-color: rgba(0, 0, 0, 0.05)"
+                      ></div>
+                    </div>
+                    <div class="card-body text-center">
+                      <h5 class="card-title fw-bold">Jan Lewandowski</h5>
+                      <p class="card-text text-muted">Pilot Wycieczek</p>
+                      <div class="d-flex justify-content-center gap-3 mt-3">
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-facebook-f"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-twitter"></i
+                        ></a>
+                        <a class="btn btn-outline-primary btn-floating btn-sm"
+                          ><i class="fab fa-linkedin-in"></i
+                        ></a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <button
+              class="carousel-control-prev"
+              type="button"
+              data-mdb-target="#carousel-indicators"
+              data-mdb-slide="prev"
+            >
+              <span
+                class="carousel-control-prev-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Poprzedni</span>
+            </button>
+            <button
+              class="carousel-control-next"
+              type="button"
+              data-mdb-target="#carousel-indicators"
+              data-mdb-slide="next"
+            >
+              <span
+                class="carousel-control-next-icon"
+                aria-hidden="true"
+              ></span>
+              <span class="visually-hidden">Następny</span>
+            </button>
           </div>
-          <button
-            class="carousel-control-prev"
-            type="button"
-            data-mdb-target="#carousel-indicators"
-            data-mdb-slide="prev"
-          >
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Poprzedni</span>
-          </button>
-          <button
-            class="carousel-control-next"
-            type="button"
-            data-mdb-target="#carousel-indicators"
-            data-mdb-slide="next"
-          >
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Następny</span>
-          </button>
         </div>
       </section>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-light py-5 mt-5">
       <div class="container">
         <div class="row">
@@ -579,9 +866,9 @@
 
     <script type="module" src="/src/js/main.js"></script>
     <script type="module">
-      const { Ripple, Carousel, initMDB } = mdb;
+      const { Ripple, Collapse, Carousel, initMDB } = mdb;
 
-      initMDB({ Ripple, Carousel });
+      initMDB({ Ripple, Carousel, Collapse });
     </script>
   </body>
 </html>
