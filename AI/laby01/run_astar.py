@@ -87,8 +87,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--method",
         default="t",
-        choices=["t", "s"],
-        help="Method: 't' for time optimization, 's' for transfers optimization",
+        choices=["t", "p"],
+        help="Method: 't' for time optimization, 'p' for transfers optimization",
     )
     parser.add_argument("--time", default="08:50:00", help="Start time (HH:MM:SS)")
     parser.add_argument("--data", default="connection_graph.csv", help="Data file path")

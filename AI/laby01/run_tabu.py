@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import argparse
 from math import inf
 
 from astar_time_przesiadki import (
@@ -26,7 +27,7 @@ def calculate_route_cost(
     Args:
         start_station: Starting station
         station_sequence: List of stations to visit in sequence
-        criteria: Optimization criteria ('t' for time, 's' for transfers)
+        criteria: Optimization criteria ('t' for time, 'p' for transfers)
         start_time: Initial start time
         graph: Connection graph
         station_coordinates: Dictionary of station coordinates
@@ -334,33 +335,63 @@ def tabu_search(
 
 
 def main():
-    # Read input
-    start_station = "Śliczna"
-    stations_to_visit = ["Bezpieczna", "Prudnicka"]
-    criteria = "t"
-    start_time = "08:50:00"
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description="Find optimal route visiting multiple stations using Tabu Search"
+    )
+    parser.add_argument(
+        "--start", default="Śliczna", help="Starting and ending station"
+    )
+    parser.add_argument(
+        "--stations",
+        default="Bezpieczna,Prudnicka",
+        help="List of stations to visit",
+    )
+    parser.add_argument(
+        "--method",
+        choices=["t", "p"],
+        default="t",
+        help="Optimization criteria: t for time, p for transfers",
+    )
+    parser.add_argument(
+        "--time", default="08:50:00", help="Starting time in HH:MM:SS format"
+    )
+    parser.add_argument(
+        "--iterations", type=int, default=100, help="Maximum number of iterations"
+    )
+    parser.add_argument(
+        "--tabu-size", type=int, default=20, help="Size of the tabu list"
+    )
+    parser.add_argument(
+        "--neighborhood-size",
+        type=int,
+        default=20,
+        help="Number of neighbors to evaluate in each iteration",
+    )
+
+    args = parser.parse_args()
 
     # Map 'p' criteria to 's' for the when_to_ride function
-    search_criteria = "s" if criteria == "p" else criteria
+    search_criteria = args.method
 
     # Start timer
-    start_timer = time.time()
 
     # Load data and build graph
     df = load_data()
     graph, station_coordinates = build_graph(df)
 
+    start_timer = time.time()
     # Run tabu search
     best_cost, best_path = tabu_search(
-        start_station,
-        stations_to_visit,
+        args.start,
+        args.stations.split(","),
         search_criteria,
-        start_time,
+        args.time,
         graph,
         station_coordinates,
-        max_iterations=100,
-        tabu_size=inf,
-        neighborhood_size=inf,
+        max_iterations=args.iterations,
+        tabu_size=args.tabu_size,
+        neighborhood_size=args.neighborhood_size,
     )
 
     # End timer

@@ -673,7 +673,111 @@ Warto podkreślić, że w kontekście sieci komunikacji miejskiej obliczanie kos
 Dzięki zastosowaniu metaheurystyki Tabu Search możliwe jest efektywne przeszukiwanie ogromnej przestrzeni rozwiązań i znajdowanie wysokiej jakości tras w rozsądnym czasie, co byłoby niemożliwe przy użyciu metod dokładnych dla większych instancji problemu.
 
 \subsubsection{Wyniki i analiza}
-% Wyniki eksperymentów dla podstawowej wersji algorytmu
+Podstawowa wersja algorytmu Tabu Search została przetestowana na trzech scenariuszach o rosnącym poziomie złożoności. Celem było zbadanie skuteczności algorytmu dla problemu odwiedzenia zbioru przystanków i powrotu do punktu początkowego przy optymalizacji całkowitego czasu przejazdu.
+
+\paragraph{Scenariusze testowe i metodologia}
+Przeprowadzono następujące testy:
+\begin{enumerate}
+    \item \textbf{Scenariusz prosty}: Odwiedzenie jednego przystanku (Prudnicka) z powrotem do przystanku początkowego (Śliczna), z czasem startu 16:25.
+    \item \textbf{Scenariusz średni}: Odwiedzenie dwóch przystanków (most Grunwaldzki, GALERIA DOMINIKAŃSKA) i powrót do przystanku Śliczna, z czasem startu 8:50.
+    \item \textbf{Scenariusz złożony}: Odwiedzenie czterech przystanków (Bezpieczna, most Grunwaldzki, PL. GRUNWALDZKI, Ogród Botaniczny) i powrót do przystanku Śliczna, z czasem startu 16:25.
+\end{enumerate}
+
+W każdym teście algorytm wykonywał określoną liczbę iteracji (domyślnie 100, w przypadku scenariusza złożonego zwiększono do 200 ze względu na większą złożoność problemu). Wszystkie testy przeprowadzono z optymalizacją czasu przejazdu jako głównego kryterium.
+
+\paragraph{Wyniki eksperymentów}
+Poniższa tabela podsumowuje wyniki uzyskane dla trzech scenariuszy testowych:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Scenariusz} & \textbf{Koszt [min]} & \textbf{Czas obliczeń [s]} & \textbf{Liczba odwiedzonych przystanków} \\
+\hline
+Prosty & 14 & 0,98 & 1 + początkowy \\
+Średni & 40 & 14,52 & 2 + początkowy \\
+Złożony & 76 & 258,55 & 4 + początkowy \\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Analiza szczegółowa trasy dla scenariusza prostego}
+Dla prostego problemu odwiedzenia jednego przystanku (Prudnicka) i powrotu do przystanku początkowego (Śliczna), algorytm znalazł trasę o całkowitym czasie przejazdu 14 minut:
+
+\begin{itemize}
+    \item Trasa do przystanku Prudnicka:
+    \begin{itemize}
+        \item Linia 112: Śliczna → Borowska (Aquapark) (16:25--16:27)
+        \item Linia 124: Borowska (Aquapark) → Kamienna (16:28--16:31)
+        \item Linia 8: Kamienna → Prudnicka (16:31--16:32)
+    \end{itemize}
+    \item Trasa powrotna:
+    \begin{itemize}
+        \item Linia 18: Prudnicka → Bardzka (16:32--16:35)
+        \item Linia 146: Bardzka → Śliczna (16:36--16:39)
+    \end{itemize}
+\end{itemize}
+
+Czas obliczeń dla tego scenariusza wyniósł zaledwie 0,98 sekundy, co wskazuje na wysoką efektywność algorytmu dla prostych problemów.
+
+\paragraph{Analiza szczegółowa trasy dla scenariusza średniego}
+Dla średniego problemu odwiedzenia dwóch przystanków i powrotu, algorytm znalazł trasę o całkowitym czasie przejazdu 40 minut:
+
+\begin{itemize}
+    \item Trasa do przystanku most Grunwaldzki:
+    \begin{itemize}
+        \item Linia 612: Śliczna → DWORZEC AUTOBUSOWY (08:50--08:54)
+        \item Linia K: DWORZEC AUTOBUSOWY → DWORZEC GŁÓWNY (08:54--08:57)
+        \item Linia 4: DWORZEC GŁÓWNY → most Grunwaldzki (08:57--09:08)
+    \end{itemize}
+    \item Trasa do GALERIA DOMINIKAŃSKA:
+    \begin{itemize}
+        \item Linia 145: most Grunwaldzki → Poczta Główna (09:09--09:11)
+        \item Linia N: Poczta Główna → GALERIA DOMINIKAŃSKA (09:12--09:15)
+    \end{itemize}
+    \item Trasa powrotna:
+    \begin{itemize}
+        \item Linia N: GALERIA DOMINIKAŃSKA → DWORZEC AUTOBUSOWY (09:15--09:22)
+        \item Linia 113: DWORZEC AUTOBUSOWY → Śliczna (09:24--09:30)
+    \end{itemize}
+\end{itemize}
+
+Czas obliczeń dla tego scenariusza wyniósł 14,52 sekundy, co stanowi około 15-krotny wzrost w porównaniu ze scenariuszem prostym.
+
+\paragraph{Analiza szczegółowa trasy dla scenariusza złożonego}
+Dla złożonego problemu odwiedzenia czterech przystanków, algorytm znalazł trasę o całkowitym czasie przejazdu 76 minut. Ze względu na złożoność trasy, przedstawiono ją w skróconej formie:
+
+\begin{itemize}
+    \item Śliczna → Bezpieczna (16:25--17:00) - z wykorzystaniem linii 112, 15 i K
+    \item Bezpieczna → Ogród Botaniczny (17:00--17:18) - z wykorzystaniem linii K, 930 i 23 
+    \item Ogród Botaniczny → PL. GRUNWALDZKI (17:18--17:23) - z wykorzystaniem linii 111
+    \item PL. GRUNWALDZKI → most Grunwaldzki (17:23--17:24) - z wykorzystaniem linii 13
+    \item most Grunwaldzki → Śliczna (17:24--17:41) - z wykorzystaniem linii 13, 16, 134 i 112
+\end{itemize}
+
+Czas obliczeń dla tego scenariusza wyniósł 258,55 sekundy (ponad 4 minuty), co pokazuje znaczący wzrost złożoności obliczeniowej wraz ze zwiększeniem liczby przystanków do odwiedzenia.
+
+\paragraph{Analiza skalowania algorytmu}
+Na podstawie przeprowadzonych testów można zauważyć, że czas obliczeń algorytmu Tabu Search rośnie wykładniczo wraz ze wzrostem liczby przystanków do odwiedzenia:
+
+\begin{itemize}
+    \item Dla 1 przystanku: 0,98 sekundy
+    \item Dla 2 przystanków: 14,52 sekundy (około 15-krotny wzrost)
+    \item Dla 4 przystanków: 258,55 sekundy (około 18-krotny wzrost względem scenariusza średniego)
+\end{itemize}
+
+Ten wykładniczy wzrost czasu obliczeń jest zgodny z teoretyczną złożonością problemu komiwojażera, gdzie liczba możliwych permutacji stacji rośnie jako $(n-1)!/2$ dla $n$ przystanków.
+
+\paragraph{Wnioski}
+Podstawowa implementacja algorytmu Tabu Search skutecznie znajduje rozwiązania dla problemu odwiedzenia zbioru przystanków w systemie komunikacji miejskiej, jednak z pewnymi ograniczeniami:
+
+\begin{enumerate}
+    \item Algorytm jest wysoce efektywny dla małych instancji problemu (1-2 przystanki), z czasami obliczeń poniżej 15 sekund.
+    \item Dla większych instancji (4 przystanki) czas obliczeń znacząco rośnie, osiągając ponad 4 minuty, co może być problematyczne dla aplikacji działających w czasie rzeczywistym.
+    \item Jakość znalezionych rozwiązań wydaje się być dobra, z logicznymi sekwencjami przystanków i efektywnym wykorzystaniem dostępnych połączeń.
+    \item Zauważalna jest tendencja algorytmu do preferowania przystanków położonych w podobnych rejonach miasta, co sugeruje, że algorytm skutecznie wykorzystuje strukturę geograficzną sieci komunikacyjnej.
+\end{enumerate}
+
+Wyniki wskazują na potrzebę dalszych modyfikacji algorytmu w celu poprawy jego efektywności dla większych instancji problemu. W kolejnych sekcjach zbadamy wpływ modyfikacji takich jak adaptacyjna długość listy tabu, kryterium aspiracji oraz strategie próbkowania sąsiedztwa na wydajność algorytmu.
 
 \subsection{Modyfikacja długości listy tabu}
 \subsubsection{Opis teoretyczny}

@@ -125,7 +125,7 @@ def when_to_ride(
     Args:
         start_station: Name of the starting station
         end_station: Name of the destination station
-        criteria: Criteria for optimization ('t' for time, 's' for transfers)
+        criteria: Criteria for optimization ('t' for time, 'p' for transfers)
         start_time: Starting time in "HH:MM:SS" format
         df: Optional DataFrame with connection data
         debug: Whether to print debug information
@@ -158,13 +158,13 @@ def when_to_ride(
     for station in all_stations:
         if criteria == "t":
             nodes[station] = (inf, inf)  # (time, transfers) for time optimization
-        else:  # criteria == 's'
+        else:  # criteria == 'p'
             nodes[station] = (inf, inf)  # (transfers, time) for transfers optimization
 
     # Initialize starting node
     if criteria == "t":
         nodes[start_station] = (start_seconds, 0)  # (time, transfers)
-    else:  # criteria == 's'
+    else:  # criteria == 'p'
         nodes[start_station] = (0, start_seconds)  # (transfers, time)
 
     if debug:
@@ -190,7 +190,7 @@ def when_to_ride(
         heapq.heappush(
             pq, (start_seconds + time_heuristic, 0, start_seconds, start_station, None)
         )
-    else:  # criteria == 's'
+    else:  # criteria == 'p'
         # Prioritize transfers
         heapq.heappush(
             pq, (0, start_seconds + time_heuristic, start_seconds, start_station, None)
@@ -200,7 +200,7 @@ def when_to_ride(
         if criteria == "t":
             # Prioritize time
             _, transfers, current_time, current_node, current_line = heapq.heappop(pq)
-        else:  # criteria == 's'
+        else:  # criteria == 'p'
             # Prioritize transfers
             transfers, _, current_time, current_node, current_line = heapq.heappop(pq)
 
@@ -209,7 +209,7 @@ def when_to_ride(
             # For time optimization, compare (time, transfers)
             if (current_time, transfers) > nodes[current_node]:
                 continue
-        else:  # criteria == 's'
+        else:  # criteria == 'p'
             # For transfers optimization, compare (transfers, time)
             if (transfers, current_time) > nodes[current_node]:
                 continue
