@@ -292,7 +292,96 @@ Odpowiednio dobrana funkcja heurystyczna ma kluczowe znaczenie dla wydajności a
 W naszej implementacji, heurystyka oparta na odległości geograficznej i średniej prędkości transportu skutecznie ukierunkowuje przeszukiwanie w stronę przystanku docelowego, jednocześnie nie przeszacowując rzeczywistego czasu podróży, co gwarantuje znalezienie optymalnego rozwiązania.
 
 \subsubsection{Wyniki i analiza}
-% Wyniki eksperymentów, porównanie z algorytmem Dijkstry
+Algorytm A* został przetestowany na tych samych trzech scenariuszach co algorytm Dijkstry, co pozwala na bezpośrednie porównanie efektywności obu podejść. Poniżej przedstawiamy wyniki eksperymentów i ich analizę, ze szczególnym uwzględnieniem czasu obliczeń oraz jakości znalezionych rozwiązań.
+
+\paragraph{Porównanie czasów obliczeń}
+Poniższa tabela przedstawia porównanie czasów obliczeń dla obu algorytmów:
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Trasa} & \textbf{Czas Dijkstra [s]} & \textbf{Czas A* [s]} \\
+\hline
+Śliczna → Prudnicka & - & 0,0052 \\
+Śliczna → most Grunwaldzki & 13,38 & 0,0382 \\
+Śliczna → Bezpieczna & 34,61 & 0,1099 \\
+\hline
+\end{tabular}
+\end{center}
+
+Należy zaznaczyć, że w przypadku algorytmu A* czas tworzenia grafu nie jest wliczany w podany czas obliczeń, podczas gdy w przypadku Dijkstry graf był tworzony na bieżąco. Pomimo tego, różnica jest znacząca i wskazuje na wysoką efektywność algorytmu A* w przeszukiwaniu przestrzeni rozwiązań.
+
+\paragraph{Porównanie jakości rozwiązań}
+W przypadku wszystkich trzech scenariuszy, oba algorytmy znalazły rozwiązania o identycznym koszcie czasowym:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Trasa} & \textbf{Czas podróży} & \textbf{Dijkstra} & \textbf{A*} \\
+\hline
+Śliczna → Prudnicka & 7 min & 16:25 - 16:32 & 16:25 - 16:32 \\
+Śliczna → most Grunwaldzki & 18 min & 8:50 - 9:08 & 8:50 - 9:08 \\
+Śliczna → Bezpieczna & 35 min & 16:25 - 17:00 & 16:25 - 17:00 \\
+\hline
+\end{tabular}
+\end{center}
+
+Warto jednak zwrócić uwagę na różnice w znalezionych trasach:
+
+\begin{itemize}
+    \item \textbf{Śliczna → Prudnicka}: Oba algorytmy znalazły tę samą trasę z identycznymi liniami i czasami przesiadek.
+    
+    \item \textbf{Śliczna → most Grunwaldzki}: Oba algorytmy znalazły trasę z 3 odcinkami, wykorzystując te same linie i przystanki przesiadkowe.
+    
+    \item \textbf{Śliczna → Bezpieczna}: Interesująca różnica pojawia się w tym przypadku. Podczas gdy algorytm Dijkstry znalazł trasę z 4 odcinkami:
+    \begin{center}
+    Linia 112: Śliczna → DWORZEC AUTOBUSOWY \\
+    Linia 15: DWORZEC AUTOBUSOWY → Arkady (Capitol) \\
+    Linia 7: Arkady (Capitol) → Broniewskiego \\
+    Linia 118: Broniewskiego → Bezpieczna
+    \end{center}
+    
+    Algorytm A* znalazł krótszą trasę z 3 odcinkami:
+    \begin{center}
+    Linia 112: Śliczna → DWORZEC AUTOBUSOWY \\
+    Linia 15: DWORZEC AUTOBUSOWY → Pomorska \\
+    Linia K: Pomorska → Bezpieczna
+    \end{center}
+    
+    Oba rozwiązania mają ten sam koszt czasowy (35 minut), jednak A* znalazło trasę z mniejszą liczbą przesiadek, co może być korzystniejsze dla pasażera.
+\end{itemize}
+
+\paragraph{Efektywność heurystyki}
+Wyniki testów wyraźnie pokazują, że zastosowana heurystyka geograficzna w algorytmie A* jest wysoce efektywna. Dzięki ukierunkowaniu przeszukiwania w stronę celu, A* osiąga dramatyczną redukcję czasu obliczeń:
+
+\begin{itemize}
+    \item Dla scenariusza drugiego (Śliczna → most Grunwaldzki), A* jest około 350 razy szybszy niż Dijkstra.
+    \item Dla scenariusza trzeciego (Śliczna → Bezpieczna), A* jest około 315 razy szybszy niż Dijkstra.
+\end{itemize}
+
+Jednocześnie, zastosowana heurystyka jest dopuszczalna (nie przeszacowuje rzeczywistego kosztu), co gwarantuje optymalność znalezionych rozwiązań.
+
+\paragraph{Wpływ złożoności problemu}
+Obserwujemy, że czas obliczeń dla obu algorytmów rośnie wraz ze złożonością problemu, jednak A* wykazuje znacznie mniejszą wrażliwość na ten wzrost:
+
+\begin{itemize}
+    \item Dla Dijkstry, wzrost czasu między scenariuszem 2 a 3 wynosi około 158\% (z 13,38s do 34,61s).
+    \item Dla A*, wzrost czasu między scenariuszem 2 a 3 wynosi około 188\% (z 0,0382s do 0,1099s).
+\end{itemize}
+
+Procentowy wzrost jest podobny, jednak w wartościach bezwzględnych różnica jest znacząca - dla Dijkstry to dodatkowe 21,23 sekundy, podczas gdy dla A* to zaledwie 0,0717 sekundy.
+
+\paragraph{Wnioski z porównania}
+Przeprowadzone eksperymenty wyraźnie wskazują na przewagę algorytmu A* nad algorytmem Dijkstry w kontekście planowania tras w systemie komunikacji miejskiej:
+
+\begin{enumerate}
+    \item A* zapewnia znacząco krótsze czasy obliczeń, co jest kluczowe dla aplikacji działających w czasie rzeczywistym.
+    \item Jakość znalezionych rozwiązań jest identyczna lub lepsza w porównaniu do algorytmu Dijkstry.
+    \item Różnica w wydajności staje się coraz bardziej widoczna wraz ze wzrostem złożoności problemu.
+    \item W przypadku złożonych tras, A* może znajdować rozwiązania o tej samej jakości czasowej, ale z mniejszą liczbą przesiadek, co zwiększa komfort podróży.
+\end{enumerate}
+
+Warto również zauważyć, że znaczące różnice w czasach obliczeń wynikają nie tylko z zastosowania heurystyki, ale również z efektywniejszej implementacji algorytmu A*, który wykorzystuje wcześniej zbudowaną strukturę grafu, podczas gdy Dijkstra buduje graf na bieżąco. W praktycznych zastosowaniach, gdzie graf może być wstępnie przetworzony i załadowany do pamięci, A* oferuje zdecydowanie lepszą responsywność, co jest kluczowe dla systemów planowania tras komunikacji miejskiej.
 
 \subsection{Algorytm A* dla optymalizacji liczby przesiadek}
 \subsubsection{Opis teoretyczny}
