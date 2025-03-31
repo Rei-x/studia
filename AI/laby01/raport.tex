@@ -102,7 +102,7 @@ Zaimplementowany algorytm wykorzystuje kolejkę priorytetową (zrealizowaną prz
     \end{itemize}
 \end{enumerate}
 
-Szczególne znaczenie ma sposób obliczania czasu przyjazdu do sąsiedniego przystanku, który uwzględnia czas oczekiwania na pojazd:
+Szczególne znaczenie ma sposób obliczania czasu przyjazdu do sąsiedniego przystanku, który uwzględnia czas oczekiwania na przystanku:
 
 \begin{algorithmic}
 \STATE $scheduledDeparture \gets$ czas odjazdu pojazdu z rozkładu
@@ -127,36 +127,37 @@ Test dla trasy Śliczna → Prudnicka, rozpoczynając o 16:25, wykazał, że alg
     \item Linia 124: Borowska (Aquapark) → Kamienna, 16:28--16:31
     \item Linia 8: Kamienna → Prudnicka, 16:31--16:32
 \end{itemize}
-Całkowity czas podróży wyniósł 7 minut, co wskazuje na optymalność znalezionego rozwiązania dla bliskich przystanków.
+Całkowity czas podróży wyniósł 7 minut, a czas obliczeń wyniósł zaledwie 0,0077 sekundy, co wskazuje na wysoką efektywność algorytmu dla prostych tras.
 
 \paragraph{Scenariusz 2: Średnia odległość}
-Dla trasy Śliczna → most Grunwaldzki, rozpoczynając o 8:50, algorytm wykazał się dłuższym czasem obliczeniowym (13,38 s), znajdując trasę składającą się z trzech etapów:
+Dla trasy Śliczna → most Grunwaldzki, rozpoczynając o 8:50, algorytm znalazł trasę składającą się z trzech etapów przy czasie obliczeniowym 0,0598 sekundy:
 \begin{itemize}
     \item Linia 612: Śliczna → DWORZEC AUTOBUSOWY, 8:50--8:54
     \item Linia K: DWORZEC AUTOBUSOWY → DWORZEC GŁÓWNY, 8:54--8:57
     \item Linia 4: DWORZEC GŁÓWNY → most Grunwaldzki, 8:57--9:08
 \end{itemize}
-Całkowity czas podróży wyniósł 18 minut (8:50--9:08), a wzrost czasu obliczeń odzwierciedla większą liczbę możliwych połączeń do rozważenia.
+Całkowity czas podróży wyniósł 18 minut (8:50--9:08), a wzrost czasu obliczeń w porównaniu do pierwszego scenariusza odzwierciedla większą liczbę możliwych połączeń do rozważenia.
 
 \paragraph{Scenariusz 3: Trasa złożona}
-Najbardziej wymagający test (Śliczna → Bezpieczna, start o 16:25) zademonstrował znaczący wzrost złożoności obliczeniowej (34,61 s) dla tras wymagających wielu przesiadek:
+Najbardziej wymagający test (Śliczna → Bezpieczna, start o 16:25) wykazał dalszy wzrost złożoności obliczeniowej (0,1116 sekundy) dla tras wymagających wielu przesiadek:
 \begin{itemize}
     \item Linia 112: Śliczna → DWORZEC AUTOBUSOWY, 16:25--16:31
     \item Linia 15: DWORZEC AUTOBUSOWY → Arkady (Capitol), 16:31--16:35
     \item Linia 7: Arkady (Capitol) → Broniewskiego, 16:35--16:56
     \item Linia 118: Broniewskiego → Bezpieczna, 16:56--17:00
 \end{itemize}
-Całkowita podróż zajęła 35 minut (16:25--17:00), co pokazuje, że algorytm skutecznie znajduje złożone trasy, choć kosztem znacznie większego nakładu obliczeniowego.
+Całkowita podróż zajęła 35 minut (16:25--17:00), co pokazuje, że algorytm skutecznie znajduje złożone trasy, przy zachowaniu akceptowalnego czasu obliczeń.
 
 \paragraph{Wnioski z analizy wydajności}
 Z przeprowadzonych testów wynika kilka istotnych obserwacji:
 \begin{enumerate}
-    \item \textbf{Wzrost złożoności obliczeniowej:} Czas działania algorytmu wzrasta znacząco wraz ze złożonością problemu, co jest szczególnie widoczne w porównaniu między scenariuszem 2 (13,38 s) a scenariuszem 3 (34,61 s).
+    \item \textbf{Wzrost złożoności obliczeniowej:} Czas działania algorytmu wzrasta wraz ze złożonością problemu, co jest widoczne w porównaniu między scenariuszem 1 (0,0077 s), scenariuszem 2 (0,0598 s) a scenariuszem 3 (0,1116 s).
+    \item \textbf{Skalowalność:} Wzrost czasu obliczeń jest proporcjonalny do złożoności problemu - mniej więcej liniowy względem liczby przeszukiwanych węzłów.
     \item \textbf{Efektywność przesiadek:} Algorytm skutecznie minimalizuje czas oczekiwania na przesiadki, co widać we wszystkich scenariuszach. Jedynie w przypadku pierwszego scenariusza przesiadka z linii 112 na 124 zajęła 1 minutę, w pozostałych przypadkach czas oczekiwania był zerowy.
-    \item \textbf{Praktyczne zastosowanie:} Pomimo zwiększonego czasu obliczeń dla złożonych tras, algorytm konsekwentnie znajduje optymalne rozwiązania, choć dla człowieka zerowy czas na przesiadkę, może być niewykonalny - w realnym zastosowaniu powinno się uwzględnić dodatkowy czas.
+    \item \textbf{Praktyczne zastosowanie:} Algorytm działa wystarczająco szybko dla zastosowań w czasie rzeczywistym, choć dla bardzo rozległych sieci transportowych może wymagać dalszych optymalizacji.
 \end{enumerate}
 
-Przeprowadzone testy potwierdzają, że zaimplementowany algorytm Dijkstry z modyfikacjami dostosowanymi do specyfiki transportu publicznego skutecznie znajduje optymalne połączenia, uwzględniając zarówno czas przejazdu, jak i czasy oczekiwania na przesiadki. Jednocześnie wyniki wskazują na potrzebę optymalizacji algorytmu dla złożonych tras, co będzie przedmiotem dalszych badań z wykorzystaniem heurystyk algorytmu A*.
+Przeprowadzone testy potwierdzają, że zaimplementowany algorytm Dijkstry z modyfikacjami dostosowanymi do specyfiki transportu publicznego skutecznie znajduje optymalne połączenia, uwzględniając zarówno czas przejazdu, jak i czasy oczekiwania na przesiadki. Jednocześnie warto zaznaczyć, że w praktycznym zastosowaniu należałoby uwzględnić dodatkowy czas na przesiadkę, gdyż zerowy czas przesiadki może być niemożliwy do realizacji przez człowieka.
 
 \subsection{Algorytm A* dla optymalizacji czasu przejazdu}
 \subsubsection{Opis teoretyczny}
@@ -388,10 +389,147 @@ Warto również zauważyć, że znaczące różnice w czasach obliczeń wynikaj�
 W tym wariancie funkcja kosztu oraz heurystyka są dostosowane do minimalizacji liczby przesiadek między liniami komunikacyjnymi.
 
 \subsubsection{Implementacja}
-% Opis implementacji A* dla minimalizacji liczby przesiadek
+Implementacja algorytmu A* dla minimalizacji liczby przesiadek opiera się na tej samej podstawowej strukturze co algorytm optymalizujący czas przejazdu, ale z kluczowymi modyfikacjami dotyczącymi funkcji priorytetyzującej i porównywania węzłów. Główne różnice i elementy tej implementacji to:
+
+\begin{enumerate}
+    \item \textbf{Struktura węzłów} -- W przypadku optymalizacji przesiadek, struktura informacji o węzłach zostaje odwrócona:
+    \begin{itemize}
+        \item Dla optymalizacji czasu, węzły są reprezentowane jako: \texttt{(czas, liczba\_przesiadek)}
+        \item Dla optymalizacji przesiadek, węzły są reprezentowane jako: \texttt{(liczba\_przesiadek, czas)}
+    \end{itemize}
+    Takie odwrócenie porządku zapewnia, że podczas porównywania węzłów pierwszeństwo ma liczba przesiadek, a czas jest brany pod uwagę tylko jako kryterium drugorzędne.
+    
+    \item \textbf{Kolejka priorytetowa} -- Elementy w kolejce priorytetowej dla optymalizacji przesiadek mają format:
+    \begin{center}
+        \texttt{(liczba\_przesiadek, czas + heurystyka, aktualny\_czas, przystanek, aktualna\_linia)}
+    \end{center}
+    W przeciwieństwie do optymalizacji czasowej, gdzie pierwszy element to \texttt{czas + heurystyka}, tutaj kluczowym czynnikiem decydującym o priorytecie jest liczba przesiadek.
+    
+    \item \textbf{Funkcja heurystyczna} -- Sama funkcja heurystyczna pozostaje ta sama (oparta na odległości geograficznej i szacowanym czasie), jednak jest ona wykorzystywana w inny sposób:
+    \begin{itemize}
+        \item Dla optymalizacji czasu, heurystyka jest dodawana do czasu: \texttt{priorytet = czas + heurystyka}
+        \item Dla optymalizacji przesiadek, heurystyka jest dodawana do czasu, ale czas jest drugim elementem krotki: \texttt{priorytet = (przesiadki, czas + heurystyka)}
+    \end{itemize}
+    
+    \item \textbf{Śledzenie przesiadek} -- Algoritm zlicza przesiadki poprzez porównanie aktualnej linii z linią dla nowego połączenia:
+    \begin{lstlisting}[language=Python]
+    new_line = connection["line"]
+    new_transfers = transfers
+    if current_line is not None and new_line != current_line:
+        new_transfers += 1
+    \end{lstlisting}
+    
+    \item \textbf{Aktualizacja węzłów} -- Dla optymalizacji przesiadek, warunek aktualizacji węzła jest oparty na porównaniu krotek \texttt{(przesiadki, czas)}:
+    \begin{lstlisting}[language=Python]
+    if (new_transfers, new_time) < nodes[neighbor]:
+        nodes[neighbor] = (new_transfers, new_time)
+        # Aktualizacja informacji o poprzedniku i dodanie do kolejki...
+    \end{lstlisting}
+    
+    \item \textbf{Generowanie trasy} -- Sposób odtwarzania znalezionej trasy jest identyczny jak w przypadku optymalizacji czasu, wykorzystuje on słownik \texttt{prev}, który przechowuje informacje o poprzednikach każdego węzła wraz z użytą linią komunikacyjną.
+\end{enumerate}
+
+Poniższy fragment kodu ilustruje kluczowe różnice w implementacji A* dla optymalizacji liczby przesiadek:
+
+\begin{lstlisting}[language=Python]
+# Początkowo węzły są inicjalizowane inaczej dla różnych kryteriów
+if criteria == "t":
+    nodes[start_station] = (start_seconds, 0)  # (czas, przesiadki)
+else:  # criteria == 's'
+    nodes[start_station] = (0, start_seconds)  # (przesiadki, czas)
+
+# Początkowy element kolejki priorytetowej zależy od kryterium
+if criteria == "t":
+    # Priorytetyzacja czasu
+    heapq.heappush(
+        pq, (start_seconds + time_heuristic, 0, start_seconds, start_station, None)
+    )
+else:  # criteria == 's'
+    # Priorytetyzacja przesiadek
+    heapq.heappush(
+        pq, (0, start_seconds + time_heuristic, start_seconds, start_station, None)
+    )
+
+# W głównej pętli wyciągamy element z kolejki odpowiednio do kryterium
+if criteria == "t":
+    # Dla optymalizacji czasu
+    _, transfers, current_time, current_node, current_line = heapq.heappop(pq)
+else:  # criteria == 's'
+    # Dla optymalizacji przesiadek
+    transfers, _, current_time, current_node, current_line = heapq.heappop(pq)
+\end{lstlisting}
+
+Taka implementacja zapewnia, że algorytm A* w pierwszej kolejności znajdzie trasę z minimalną liczbą przesiadek, a dopiero w drugiej kolejności zoptymalizuje czas podróży. Jest to szczególnie istotne dla pasażerów preferujących wygodę podróżowania (mniej przesiadek) kosztem potencjalnie dłuższego czasu przejazdu.
 
 \subsubsection{Wyniki i analiza}
-% Wyniki eksperymentów, porównanie z poprzednimi implementacjami
+Algorytm A* zoptymalizowany pod kątem minimalizacji liczby przesiadek został przetestowany na tych samych trzech scenariuszach co poprzednie implementacje. Poniżej przedstawiamy wyniki oraz analizę ich skuteczności i efektywności.
+
+\paragraph{Porównanie wyników}
+Poniższa tabela zestawia wyniki dla trzech scenariuszy testowych:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Trasa} & \textbf{Czas oblicz. [s]} & \textbf{Liczba przesiadek} & \textbf{Czas podróży} & \textbf{Godziny}\\
+\hline
+Śliczna → Prudnicka & 0,0463 & 1 & 12 min & 16:25 - 16:37 \\
+Śliczna → most Grunwaldzki & 0,0665 & 2 & 18 min & 08:50 - 09:08 \\
+Śliczna → Bezpieczna & 0,0326 & 0 & 11h 33min & 16:27 - 04:00* \\
+\hline
+\end{tabular}
+\end{center}
+\small{* Czas "28:00:00" w wynikach oznacza 04:00 następnego dnia (28 - 24 = 4).}
+
+\paragraph{Analiza szczegółowa scenariuszy}
+
+\begin{itemize}
+    \item \textbf{Śliczna → Prudnicka}: Algorytm znalazł trasę z jedną przesiadką, która trwa 12 minut:
+    \begin{center}
+    Linia 112: Śliczna → DWORZEC AUTOBUSOWY (16:25 - 16:31) \\
+    Linia 8: DWORZEC AUTOBUSOWY → Prudnicka (16:32 - 16:37)
+    \end{center}
+    
+    Warto zauważyć, że trasa ta różni się od znalezionej przez algorytm optymalizujący czas, który wykorzystał trzy przesiadki dla uzyskania podróży trwającej 7 minut. Jest to doskonała ilustracja kompromisu między czasem podróży a wygodą (mniejszą liczbą przesiadek).
+    
+    \item \textbf{Śliczna → most Grunwaldzki}: Trasa zawiera dwie przesiadki i trwa 18 minut:
+    \begin{center}
+    Linia 612: Śliczna → DWORZEC AUTOBUSOWY (08:50 - 08:54) \\
+    Linia K: DWORZEC AUTOBUSOWY → DWORZEC GŁÓWNY (08:54 - 08:57) \\
+    Linia 4: DWORZEC GŁÓWNY → most Grunwaldzki (08:57 - 09:08)
+    \end{center}
+    
+    W tym przypadku algorytm znalazł identyczną trasę jak w przypadku optymalizacji czasowej, co sugeruje, że jest to rozwiązanie optymalne pod względem obu kryteriów.
+    
+    \item \textbf{Śliczna → Bezpieczna}: Najciekawszy przypadek - algorytm znalazł bezpośrednie połączenie bez przesiadek:
+    \begin{center}
+    Linia 143: Śliczna → Bezpieczna (16:27 - 04:00 dnia następnego)
+    \end{center}
+    
+    Jest to drastyczna różnica w porównaniu do trasy znalezionej przez algorytm optymalizujący czas, który wykorzystał 4 przesiadki dla trasy trwającej 35 minut. Oznacza to, że istnieje bezpośrednie połączenie, które pozwala uniknąć przesiadek kosztem znacznie dłuższego czasu podróży (11 godzin i 33 minuty).
+\end{itemize}
+
+\paragraph{Efektywność obliczeniowa}
+Interesujące jest, że czas obliczeń dla scenariusza 3 (Śliczna → Bezpieczna) był najniższy spośród wszystkich testów (0,0326 s), mimo że teoretycznie jest to najbardziej złożony problem. Wynika to prawdopodobnie z faktu, że algorytm szybko znalazł bezpośrednie połączenie, które jest optymalne pod względem liczby przesiadek, i mógł wcześnie zakończyć poszukiwania.
+
+\paragraph{Kompromis czas vs. wygoda}
+Przeprowadzone testy wyraźnie ilustrują kompromis między czasem podróży a wygodą pasażera:
+
+\begin{itemize}
+    \item Dla trasy Śliczna → Prudnicka: redukcja z 3 do 1 przesiadki kosztem wydłużenia czasu podróży z 7 do 12 minut (+71\%).
+    \item Dla trasy Śliczna → most Grunwaldzki: identyczna trasa dla obu kryteriów.
+    \item Dla trasy Śliczna → Bezpieczna: redukcja z 3 przesiadek do 0, kosztem znacznego wydłużenia czasu podróży z 35 minut do 11 godzin i 33 minut. To skrajny przykład kompromisu między wygodą a czasem.
+\end{itemize}
+
+\paragraph{Wnioski}
+Algorytm A* zoptymalizowany pod kątem minimalizacji liczby przesiadek skutecznie znajduje trasy wymagające minimalnej liczby zmian środków transportu, co jest istotnym kryterium wygody dla wielu pasażerów, zwłaszcza osób starszych, podróżujących z bagażami czy z dziećmi. Wyniki wskazują, że:
+
+\begin{enumerate}
+    \item Dla niektórych tras możliwe jest znalezienie rozwiązań, które są optymalne zarówno pod względem czasu, jak i liczby przesiadek.
+    \item Dla innych tras istnieje wyraźny kompromis, gdzie redukcja liczby przesiadek wiąże się z wydłużeniem czasu podróży.
+    \item Algorytm jest wystarczająco szybki dla zastosowań praktycznych, z czasami obliczeń nieprzekraczającymi 0,07 sekundy dla testowanych scenariuszy.
+\end{enumerate}
+
+Zaimplementowany algorytm mógłby być wykorzystany w praktycznych aplikacjach planowania podróży, oferując użytkownikom możliwość wyboru między trasami zoptymalizowanymi pod kątem czasu a trasami z minimalną liczbą przesiadek, w zależności od ich preferencji i okoliczności podróży.
 
 \subsection{Modyfikacje algorytmu A*}
 \subsubsection{Opis wprowadzonych modyfikacji}
@@ -405,8 +543,134 @@ W tym wariancie funkcja kosztu oraz heurystyka są dostosowane do minimalizacji 
 \subsubsection{Opis teoretyczny}
 Tabu Search to metaheurystyka wykorzystywana do rozwiązywania problemów optymalizacyjnych. W kontekście problemu komiwojażera, metoda ta pozwala na efektywne przeszukiwanie przestrzeni rozwiązań z uniknięciem utknięcia w lokalnym optimum.
 
+Problem komiwojażera (Traveling Salesman Problem, TSP) to jedno z klasycznych zagadnień optymalizacyjnych, w którym należy znaleźć najkrótszą trasę przechodzącą przez wszystkie zadane punkty dokładnie raz i powracającą do punktu początkowego. W kontekście systemu komunikacji miejskiej problem ten nabiera dodatkowej złożoności:
+
+\begin{itemize}
+    \item Odległości między przystankami nie są stałe, ale zależą od aktualnych połączeń komunikacyjnych dostępnych w danym momencie.
+    \item Czas przejazdu między przystankami zależy od rozkładu jazdy oraz ewentualnych przesiadek.
+    \item Zamiast minimalizacji dystansu, optymalizujemy czas przejazdu lub liczbę przesiadek.
+    \item Przestrzeń rozwiązań jest ogromna - dla $n$ przystanków liczba możliwych permutacji wynosi $(n-1)!/2$.
+\end{itemize}
+
+Metoda przeszukiwania z zabronieniami (Tabu Search) została zaproponowana przez Freda Glovera w 1986 roku i stanowi zaawansowaną technikę metaheurystyczną, która rozszerza klasyczne metody lokalnego przeszukiwania o struktury pamięciowe. Kluczowe elementy algorytmu Tabu Search to:
+
+\begin{enumerate}
+    \item \textbf{Lista tabu} - struktura pamięciowa przechowująca ostatnio wykonane ruchy, które są czasowo zabronione, by uniknąć cyklicznego przeszukiwania tych samych rozwiązań.
+    \item \textbf{Mechanizm aspiracji} - pozwala na zaakceptowanie ruchu z listy tabu, jeśli prowadzi on do rozwiązania lepszego niż najlepsze dotychczas znalezione.
+    \item \textbf{Intensyfikacja} - koncentracja przeszukiwania w obiecujących regionach przestrzeni rozwiązań.
+    \item \textbf{Dywersyfikacja} - zachęcanie do eksploracji niezbadanych obszarów przestrzeni rozwiązań.
+\end{enumerate}
+
+W odróżnieniu od klasycznych algorytmów lokalnego przeszukiwania, Tabu Search może zaakceptować ruchy pogarszające obecne rozwiązanie, co umożliwia wydostanie się z lokalnych optimów. Jednocześnie, dzięki liście tabu, algorytm unika powrotu do rozwiązań już przeanalizowanych.
+
 \subsubsection{Podstawowa implementacja}
-% Opis implementacji podstawowej wersji Tabu Search
+Implementacja algorytmu przeszukiwania z zabronieniami dla problemu odwiedzenia zbioru przystanków obejmuje kilka kluczowych elementów. Poniżej przedstawiono szczegółowy opis implementacji:
+
+\paragraph{Funkcja kosztu}
+Funkcja \texttt{calculate\_route\_cost} ocenia jakość danego rozwiązania poprzez obliczenie całkowitego kosztu trasy. W zależności od wybranego kryterium optymalizacji, funkcja oblicza:
+\begin{itemize}
+    \item Całkowity czas podróży - suma czasów przejazdów między kolejnymi przystankami oraz czasów oczekiwania na połączenia.
+    \item Całkowitą liczbę przesiadek - suma wszystkich zmian linii komunikacyjnych wymaganych na trasie.
+\end{itemize}
+
+Działanie funkcji kosztu można przedstawić następująco:
+
+\begin{algorithmic}[1]
+\Procedure{ObliczKosztTrasy}{$stacjaPoczątkowa, sekwencjaStacji, kryterium, czasStartu, graf$}
+    \State Inicjalizuj pustą ścieżkę i ustaw bieżącą stację na stację początkową
+    \For{każda następna stacja w sekwencji}
+        \State Znajdź optymalną trasę z bieżącej stacji do następnej stacji
+        \If{nie znaleziono trasy}
+            \Return trasa niemożliwa
+        \EndIf
+        \State Zaktualizuj czas bieżący i bieżącą stację
+        \State Dodaj znalezioną trasę do pełnej ścieżki
+        \If{kryterium to liczba przesiadek}
+            \State Zlicz liczbę przesiadek na tym odcinku
+        \EndIf
+    \EndFor
+    
+    \State Znajdź trasę powrotną do stacji początkowej
+    \If{nie znaleziono trasy powrotnej}
+        \Return trasa niemożliwa
+    \EndIf
+    
+    \State Oblicz całkowity koszt w zależności od kryterium optymalizacji
+    \Return koszt, pełna ścieżka, trasa możliwa
+\EndProcedure
+\end{algorithmic}
+
+\paragraph{Generowanie sąsiedztwa}
+W każdej iteracji algorytmu generujemy zbiór sąsiednich rozwiązań poprzez stosowanie dwóch typów ruchów:
+\begin{itemize}
+    \item \textbf{Zamiana (swap)} - wymiana pozycji dwóch losowo wybranych przystanków w sekwencji.
+    \item \textbf{Wstawienie (insert)} - wyjęcie przystanku z jednej pozycji i wstawienie go na inną pozycję w sekwencji.
+\end{itemize}
+
+\begin{algorithmic}[1]
+\Procedure{GenerujSąsiada}{$bieżącaSekwencja$}
+    \State Wybierz losowo rodzaj ruchu: "zamiana" lub "wstawienie"
+    \If{wybrany ruch to "zamiana"}
+        \State Wybierz losowo dwie pozycje i zamień elementy miejscami
+    \Else
+        \State Wybierz losowo pozycję elementu do usunięcia i miejsce wstawienia
+        \State Przenieś element z pierwszej pozycji na drugą
+    \EndIf
+    \State \Return nowa sekwencja, informacja o wykonanym ruchu
+\EndProcedure
+\end{algorithmic}
+
+\paragraph{Główny algorytm Tabu Search}
+Poniżej przedstawiony jest uproszczony pseudokod głównego algorytmu Tabu Search:
+
+\begin{algorithmic}[1]
+\Procedure{TabuSearch}{$stacjaPoczątkowa, stacjeDoOdwiedzenia, kryterium, czasStartu$}
+    \If{brak stacji do odwiedzenia}
+        \Return rozwiązanie trywialne
+    \EndIf
+
+    \State Wygeneruj losowe rozwiązanie początkowe (permutację stacji)
+    \State Oceń koszt rozwiązania początkowego
+    \State Zainicjalizuj najlepsze rozwiązanie jako bieżące
+    \State Utwórz pustą listę tabu
+    
+    \For{określona liczba iteracji}
+        \State Generuj i oceniaj sąsiedztwo bieżącego rozwiązania:
+        \State $\quad$ - Pomiń ruchy znajdujące się na liście tabu, chyba że spełniają kryterium aspiracji
+        \State $\quad$ - Wybierz najlepszego sąsiada
+
+        \If{nie znaleziono ważnego sąsiada}
+            \State Wykonaj restart z losowego rozwiązania
+        \Else
+            \State Przenieś się do najlepszego znalezionego sąsiada
+            \State Dodaj wykonany ruch do listy tabu
+            \State Usuń najstarsze elementy z listy tabu, jeśli przekroczyła maksymalny rozmiar
+            
+            \If{bieżące rozwiązanie lepsze od najlepszego znanego}
+                \State Zaktualizuj najlepsze rozwiązanie
+            \EndIf
+        \EndIf
+    \EndFor
+    
+    \Return najlepsze znalezione rozwiązanie
+\EndProcedure
+\end{algorithmic}
+
+Przedstawiona implementacja Tabu Search posiada kilka kluczowych cech:
+
+\begin{enumerate}
+    \item \textbf{Pamięć krótkoterminowa} - lista tabu przechowująca niedawno wykonane ruchy, zapobiegająca zawracaniu do niedawno odwiedzonych stanów.
+    
+    \item \textbf{Kryterium aspiracji} - możliwość akceptowania ruchów z listy tabu, jeśli prowadzą do rozwiązania lepszego niż najlepsze znane.
+    
+    \item \textbf{Eksploracja} - algorytm może akceptować rozwiązania gorsze od bieżącego, co pomaga w wydostaniu się z lokalnych minimów.
+    
+    \item \textbf{Strategia dywersyfikacji} - losowe restarty, gdy algorytm nie może znaleźć ważnych sąsiadów.
+\end{enumerate}
+
+Warto podkreślić, że w kontekście sieci komunikacji miejskiej obliczanie kosztu trasy jest złożoną operacją, która wymaga wyszukiwania optymalnych połączeń między kolejnymi przystankami przy uwzględnieniu czasów odjazdów, przyjazdów i ewentualnych przesiadek. Funkcja oceny rozwiązania wykorzystuje wcześniej zaimplementowany algorytm A* do znajdowania optymalnych połączeń między kolejnymi przystankami w sekwencji.
+
+Dzięki zastosowaniu metaheurystyki Tabu Search możliwe jest efektywne przeszukiwanie ogromnej przestrzeni rozwiązań i znajdowanie wysokiej jakości tras w rozsądnym czasie, co byłoby niemożliwe przy użyciu metod dokładnych dla większych instancji problemu.
 
 \subsubsection{Wyniki i analiza}
 % Wyniki eksperymentów dla podstawowej wersji algorytmu
