@@ -46,7 +46,7 @@ def heuristic(start_station, end_station, station_coordinates):
     distance = pythagorean_distance(start_lat, start_lon, end_lat, end_lon)
 
     # Assume an average speed of 30 km/h (8.33 m/s) for public transport
-    avg_speed = 50 * (10 / 36)  # meters per second
+    avg_speed = 30 * (10 / 36)  # meters per second
 
     # Estimated travel time in seconds
     estimated_time = distance / avg_speed

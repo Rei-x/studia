@@ -90,14 +90,6 @@ def when_to_ride(start_station, end_station, criteria, start_time):
             new_time = sched_departure + ride_duration
 
             if new_time < nodes[neighbor]:
-                print(
-                    "new best for ",
-                    neighbor,
-                    ":",
-                    format_time(new_time),
-                    " via ",
-                    row["line"],
-                )
                 nodes[neighbor] = new_time
                 prev[neighbor] = (
                     current_node,
@@ -110,7 +102,7 @@ def when_to_ride(start_station, end_station, criteria, start_time):
 
 
 start_comp = time.time()
-result_time, path = when_to_ride("Śliczna", "most Grunwaldzki", "t", "08:50:00")
+result_time, path = when_to_ride("Śliczna", "Bezpieczna", "t", "16:25:00")
 end_comp = time.time()
 
 if result_time == inf:

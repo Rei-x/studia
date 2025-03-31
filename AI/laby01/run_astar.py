@@ -2,7 +2,7 @@ import argparse
 from math import inf
 import sys
 import time
-from astar_time_przesiadki import when_to_ride
+from astar_time_przesiadki import build_graph, load_data, when_to_ride
 from utils import format_time
 
 
@@ -52,12 +52,16 @@ def main(
     """Main function to run the A* algorithm and print results."""
 
     # Run algorithm and measure time
+    df = load_data(data_file)
+    graph, stations = build_graph(df)
     start_comp = time.time()
     result_time, path = when_to_ride(
         start_station,
         end_station,
         criteria,
         start_time,
+        graph=graph,
+        station_coordinates=stations,
         debug=True,
     )
     end_comp = time.time()

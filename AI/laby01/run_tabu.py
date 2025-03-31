@@ -335,10 +335,10 @@ def tabu_search(
 
 def main():
     # Read input
-    start_station = input().strip()
-    stations_to_visit = input().strip().split(";")
-    criteria = input().strip()
-    start_time = input().strip()
+    start_station = "Śliczna"
+    stations_to_visit = ["Bezpieczna", "Prudnicka"]
+    criteria = "t"
+    start_time = "08:50:00"
 
     # Map 'p' criteria to 's' for the when_to_ride function
     search_criteria = "s" if criteria == "p" else criteria
@@ -358,9 +358,9 @@ def main():
         start_time,
         graph,
         station_coordinates,
-        max_iterations=200,
-        tabu_size=30,
-        neighborhood_size=30,
+        max_iterations=100,
+        tabu_size=inf,
+        neighborhood_size=inf,
     )
 
     # End timer

@@ -48,7 +48,7 @@
 % Document info
 \title{\LARGE \textbf{Problem Komiwojażera w Systemie Komunikacji Miejskiej}\\
 \large Algorytmy optymalizacyjne w zastosowaniu do planowania tras}
-\author{Imię Nazwisko}
+\author{Bartosz Gotowski}
 \date{\today}
 
 \begin{document}
@@ -79,17 +79,217 @@ Dane dotyczące systemu komunikacji miejskiej dostarczone są w pliku \texttt{co
 Algorytm Dijkstry służy do znajdowania najkrótszych ścieżek w grafie ważonym o nieujemnych wagach krawędzi. W kontekście naszego zadania, graf reprezentuje sieć transportu publicznego, gdzie wierzchołkami są przystanki, a krawędzie oznaczają bezpośrednie połączenia między nimi.
 
 \subsubsection{Implementacja dla optymalizacji czasu przejazdu}
-% Opis implementacji algorytmu Dijkstry do minimalizacji czasu przejazdu
+Implementacja algorytmu Dijkstry dla optymalizacji czasu przejazdu w komunikacji miejskiej wymaga uwzględnienia specyfiki tego problemu. W standardowej wersji algorytmu, każda krawędź grafu ma stałą wagę, natomiast w przypadku systemu komunikacji miejskiej musimy uwzględnić:
+
+\begin{itemize}
+    \item Rozkłady jazdy -- pojazdy odjeżdżają o konkretnych godzinach
+    \item Czas oczekiwania na przystanku -- jeśli przyjedziemy na przystanek przed odjazdem, musimy czekać
+    \item Dzień cykliczny -- rozkład jazdy obowiązuje w cyklu 24-godzinnym
+\end{itemize}
+
+Zaimplementowany algorytm wykorzystuje kolejkę priorytetową (zrealizowaną przy pomocy struktury kopca w module \texttt{heapq}) do efektywnego wybierania przystanku o najmniejszym dotychczasowym czasie dojazdu. Główne elementy implementacji to:
+
+\begin{enumerate}
+    \item Inicjalizacja tablicy odległości (w naszym przypadku -- czasów przyjazdu) dla wszystkich przystanków wartością nieskończoną, z wyjątkiem przystanku startowego, któremu przypisujemy czas początkowy.
+    \item Inicjalizacja słownika \texttt{prev}, który przechowuje informacje o poprzednich przystankach i detalach podróży, umożliwiając późniejsze odtworzenie trasy.
+    \item W głównej pętli algorytmu:
+    \begin{itemize}
+        \item Wybór przystanku o najmniejszym dotychczasowym czasie dojazdu z kolejki priorytetowej.
+        \item Jeśli wybrany przystanek jest celem, algorytm kończy działanie i zwraca znalezioną trasę.
+        \item W przeciwnym przypadku rozpatrujemy wszystkie połączenia wychodzące z bieżącego przystanku.
+        \item Dla każdego połączenia obliczamy czas przyjazdu uwzględniając: aktualny czas, czas oczekiwania na pojazd oraz czas przejazdu.
+        \item Jeśli znaleźliśmy lepszą trasę do sąsiedniego przystanku, aktualizujemy informacje i dodajemy ten przystanek do kolejki.
+    \end{itemize}
+\end{enumerate}
+
+Szczególne znaczenie ma sposób obliczania czasu przyjazdu do sąsiedniego przystanku, który uwzględnia czas oczekiwania na pojazd:
+
+\begin{algorithmic}
+\STATE $scheduledDeparture \gets$ czas odjazdu pojazdu z rozkładu
+\IF{$scheduledDeparture < currentTime$}
+    \STATE $scheduledDeparture \gets scheduledDeparture + 24$ godziny
+\ENDIF
+\STATE $rideDuration \gets$ czas przejazdu między przystankami
+\STATE $newTime \gets scheduledDeparture + rideDuration$
+\end{algorithmic}
+
+Powyższe podejście gwarantuje uwzględnienie czasu oczekiwania na przystanku, jeśli przyjazd na przystanek nastąpił przed planowanym odjazdem pojazdu. Dodatkowo, implementacja uwzględnia cykliczność rozkładu jazdy, dodając 24 godziny do czasu odjazdu, jeśli jest on wcześniejszy niż aktualny czas.
+
+Implementacja umożliwia również śledzenie i wyświetlanie znalezionej optymalnej trasy z podziałem na linie komunikacyjne, co ma szczególne znaczenie praktyczne dla użytkownika systemu transportu publicznego.
 
 \subsubsection{Wyniki i analiza}
-% Wyniki eksperymentów, przykładowe trasy, porównanie z innymi algorytmami
+Algorytm Dijkstry został przetestowany na trzech różnych scenariuszach o rosnącym poziomie złożoności, co pozwoliło na kompleksową ocenę jego skuteczności w systemie transportu miejskiego.
+
+\paragraph{Scenariusz 1: Bliskie przystanki} 
+Test dla trasy Śliczna → Prudnicka, rozpoczynając o 16:25, wykazał, że algorytm efektywnie radzi sobie z prostymi trasami. Znaleziona ścieżka obejmowała trzy przesiadki:
+\begin{itemize}
+    \item Linia 112: Śliczna → Borowska (Aquapark), 16:25--16:27
+    \item Linia 124: Borowska (Aquapark) → Kamienna, 16:28--16:31
+    \item Linia 8: Kamienna → Prudnicka, 16:31--16:32
+\end{itemize}
+Całkowity czas podróży wyniósł 7 minut, co wskazuje na optymalność znalezionego rozwiązania dla bliskich przystanków.
+
+\paragraph{Scenariusz 2: Średnia odległość}
+Dla trasy Śliczna → most Grunwaldzki, rozpoczynając o 8:50, algorytm wykazał się dłuższym czasem obliczeniowym (13,38 s), znajdując trasę składającą się z trzech etapów:
+\begin{itemize}
+    \item Linia 612: Śliczna → DWORZEC AUTOBUSOWY, 8:50--8:54
+    \item Linia K: DWORZEC AUTOBUSOWY → DWORZEC GŁÓWNY, 8:54--8:57
+    \item Linia 4: DWORZEC GŁÓWNY → most Grunwaldzki, 8:57--9:08
+\end{itemize}
+Całkowity czas podróży wyniósł 18 minut (8:50--9:08), a wzrost czasu obliczeń odzwierciedla większą liczbę możliwych połączeń do rozważenia.
+
+\paragraph{Scenariusz 3: Trasa złożona}
+Najbardziej wymagający test (Śliczna → Bezpieczna, start o 16:25) zademonstrował znaczący wzrost złożoności obliczeniowej (34,61 s) dla tras wymagających wielu przesiadek:
+\begin{itemize}
+    \item Linia 112: Śliczna → DWORZEC AUTOBUSOWY, 16:25--16:31
+    \item Linia 15: DWORZEC AUTOBUSOWY → Arkady (Capitol), 16:31--16:35
+    \item Linia 7: Arkady (Capitol) → Broniewskiego, 16:35--16:56
+    \item Linia 118: Broniewskiego → Bezpieczna, 16:56--17:00
+\end{itemize}
+Całkowita podróż zajęła 35 minut (16:25--17:00), co pokazuje, że algorytm skutecznie znajduje złożone trasy, choć kosztem znacznie większego nakładu obliczeniowego.
+
+\paragraph{Wnioski z analizy wydajności}
+Z przeprowadzonych testów wynika kilka istotnych obserwacji:
+\begin{enumerate}
+    \item \textbf{Wzrost złożoności obliczeniowej:} Czas działania algorytmu wzrasta znacząco wraz ze złożonością problemu, co jest szczególnie widoczne w porównaniu między scenariuszem 2 (13,38 s) a scenariuszem 3 (34,61 s).
+    \item \textbf{Efektywność przesiadek:} Algorytm skutecznie minimalizuje czas oczekiwania na przesiadki, co widać we wszystkich scenariuszach. Jedynie w przypadku pierwszego scenariusza przesiadka z linii 112 na 124 zajęła 1 minutę, w pozostałych przypadkach czas oczekiwania był zerowy.
+    \item \textbf{Praktyczne zastosowanie:} Pomimo zwiększonego czasu obliczeń dla złożonych tras, algorytm konsekwentnie znajduje optymalne rozwiązania, choć dla człowieka zerowy czas na przesiadkę, może być niewykonalny - w realnym zastosowaniu powinno się uwzględnić dodatkowy czas.
+\end{enumerate}
+
+Przeprowadzone testy potwierdzają, że zaimplementowany algorytm Dijkstry z modyfikacjami dostosowanymi do specyfiki transportu publicznego skutecznie znajduje optymalne połączenia, uwzględniając zarówno czas przejazdu, jak i czasy oczekiwania na przesiadki. Jednocześnie wyniki wskazują na potrzebę optymalizacji algorytmu dla złożonych tras, co będzie przedmiotem dalszych badań z wykorzystaniem heurystyk algorytmu A*.
 
 \subsection{Algorytm A* dla optymalizacji czasu przejazdu}
 \subsubsection{Opis teoretyczny}
 Algorytm A* stanowi rozszerzenie algorytmu Dijkstry poprzez wprowadzenie heurystyki, która szacuje koszt dotarcia do celu. W przypadku optymalizacji czasu przejazdu, heurystyka może opierać się na odległości euklidesowej podzielonej przez średnią prędkość środków transportu.
 
 \subsubsection{Implementacja}
-% Opis implementacji A* dla minimalizacji czasu przejazdu
+Implementacja algorytmu A* dla optymalizacji czasu przejazdu rozszerza podejście zastosowane w algorytmie Dijkstry o heurystykę szacującą pozostały czas podróży do celu. Główne elementy implementacji obejmują:
+
+\begin{enumerate}
+    \item \textbf{Reprezentacja grafu} -- Graf komunikacyjny jest reprezentowany jako słownik, gdzie kluczami są nazwy przystanków, a wartościami listy połączeń wychodzących z danego przystanku. Każde połączenie zawiera informacje o stacji docelowej, linii, czasach odjazdu i przyjazdu.
+    
+    \item \textbf{Funkcja heurystyczna} -- Kluczowym elementem algorytmu A* jest funkcja heurystyczna. Zaimplementowana heurystyka opiera się na przybliżonej odległości geograficznej między przystankami:
+    \begin{itemize}
+        \item Odległość obliczana jest przy pomocy wzoru pitagorejskiego, z uwzględnieniem korekty dla długości geograficznej zależnej od szerokości.
+        \item Odległość przekształcana jest na szacowany czas podróży przy założeniu średniej prędkości transportu miejskiego wynoszącej 30 km/h.
+        \item Funkcja heurystyczna nigdy nie przeszacowuje rzeczywistego czasu potrzebnego na dotarcie do celu, co zapewnia optymalność znalezionej trasy.
+    \end{itemize}
+    
+    \item \textbf{Implementacja} -- Heurystyka opiera się na geograficznej odległości między przystankami:
+    \begin{lstlisting}[language=Python]
+    def heuristic(start_station, end_station, station_coordinates):
+        # Pobierz współrzędne dla przystanków
+        start_lat, start_lon = station_coordinates[start_station]
+        end_lat, end_lon = station_coordinates[end_station]
+        
+        # Oblicz odległość w metrach używając twierdzenia Pitagorasa
+        # z korektą dla długości geograficznej
+        distance = pythagorean_distance(start_lat, start_lon, end_lat, end_lon)
+        
+        # Zakładana średnia prędkość transportu publicznego: 30 km/h
+        avg_speed = 30 * (10 / 36)  # metry na sekundę
+        
+        # Szacowany czas podróży w sekundach
+        estimated_time = distance / avg_speed
+        
+        return estimated_time
+    \end{lstlisting}
+    
+    \item \textbf{Struktura kolejki priorytetowej} -- Węzły w kolejce priorytetowej są reprezentowane jako krotki w formacie: \texttt{(czas\_z\_heurystyką, liczba\_przesiadek, aktualny\_czas, przystanek, aktualna\_linia)}. Kluczowe jest to, że priorytet węzła obliczany jest jako suma dotychczasowego czasu podróży i szacowanego czasu pozostałego do celu.
+    
+    \item \textbf{Obsługa czasu} -- Analogicznie jak w algorytmie Dijkstry, implementacja A* uwzględnia:
+    \begin{itemize}
+        \item Cykliczność rozkładu jazdy (24-godzinna) z odpowiednim dostosowaniem czasów.
+        \item Czas oczekiwania na pojazd, jeśli przybycie na przystanek nastąpiło przed planowanym odjazdem.
+        \item Rzeczywisty czas przejazdu między przystankami.
+    \end{itemize}
+    
+    \item \textbf{Śledzenie przesiadek} -- Algorytm śledzi aktualnie używaną linię komunikacyjną, co pozwala na:
+    \begin{itemize}
+        \item Identyfikację momentów przesiadki (zmiana linii).
+        \item Budowanie pełnej trasy z informacją o używanych liniach, czasach odjazdu i przyjazdu.
+    \end{itemize}
+\end{enumerate}
+
+Implementacja uwzględnia również obsługę przypadków specjalnych, takich jak:
+\begin{itemize}
+    \item Brak danych geograficznych dla niektórych stacji (zastosowanie wartości domyślnej dla heurystyki).
+    \item Nieistnienie stacji początkowej lub końcowej w sieci.
+    \item Brak możliwych połączeń między stacjami (zwrócenie informacji o braku trasy).
+\end{itemize}
+
+Poniższy fragment kodu ilustruje kluczowy element algorytmu A* -- wykorzystanie heurystyki w priorytetyzacji ścieżek:
+
+\begin{lstlisting}[language=Python]
+# Obliczenie wartości heurystyki
+time_heuristic = heuristic(neighbor, end_station, station_coordinates)
+
+# Dodanie do kolejki priorytetowej z uwzględnieniem heurystyki
+heapq.heappush(
+    pq,
+    (
+        new_time + time_heuristic,  # F = g + h (koszt dotychczasowy + heurystyka)
+        new_transfers,
+        new_time,
+        neighbor,
+        new_line,
+    ),
+)
+\end{lstlisting}
+
+W porównaniu do algorytmu Dijkstry, A* potencjalnie redukuje liczbę rozpatrywanych węzłów poprzez ukierunkowanie przeszukiwania w stronę celu, co może znacząco przyspieszyć znalezienie optymalnej trasy, szczególnie w przypadku rozległych sieci komunikacyjnych.
+
+\paragraph{Funkcja heurystyczna w algorytmie A*}
+Funkcja heurystyczna stanowi kluczowy element algorytmu A*, który odróżnia go od algorytmu Dijkstry. Jest to funkcja, która dla każdego węzła $n$ szacuje minimalny koszt ścieżki z $n$ do węzła docelowego. Właściwie zaprojektowana heurystyka pozwala znacząco przyspieszyć wyszukiwanie najkrótszej ścieżki poprzez ukierunkowanie przeszukiwania w stronę celu.
+
+W kontekście naszego problemu, funkcja heurystyczna szacuje czas podróży z danego przystanku do stacji docelowej na podstawie ich położenia geograficznego:
+
+\begin{enumerate}
+    \item \textbf{Cel funkcji heurystycznej} -- Funkcja heurystyczna $h(n)$ informuje algorytm, które przystanki prawdopodobnie doprowadzą szybciej do celu, umożliwiając priorytetyzację przeszukiwania obiecujących ścieżek.
+    
+    \item \textbf{Właściwości dobrej heurystyki} -- Implementowana heurystyka jest:
+    \begin{itemize}
+        \item \textit{Dopuszczalna} -- nigdy nie przeszacowuje rzeczywistego kosztu dotarcia do celu, co gwarantuje znalezienie optymalnego rozwiązania.
+        \item \textit{Spójna} -- dla każdej pary węzłów $n$ i następnika $n'$, szacowany koszt $h(n)$ nie przekracza sumy kosztu przejścia z $n$ do $n'$ oraz szacowanego kosztu $h(n')$.
+    \end{itemize}
+    
+    \item \textbf{Implementacja} -- Heurystyka opiera się na geograficznej odległości między przystankami:
+    \begin{lstlisting}[language=Python]
+    def heuristic(start_station, end_station, station_coordinates):
+        # Pobierz współrzędne dla przystanków
+        start_lat, start_lon = station_coordinates[start_station]
+        end_lat, end_lon = station_coordinates[end_station]
+        
+        # Oblicz odległość w metrach używając twierdzenia Pitagorasa
+        # z korektą dla długości geograficznej
+        distance = pythagorean_distance(start_lat, start_lon, end_lat, end_lon)
+        
+        # Zakładana średnia prędkość transportu publicznego: 30 km/h
+        avg_speed = 30 * (10 / 36)  # metry na sekundę
+        
+        # Szacowany czas podróży w sekundach
+        estimated_time = distance / avg_speed
+        
+        return estimated_time
+    \end{lstlisting}
+    
+    \item \textbf{Zastosowanie w algorytmie} -- Funkcja heurystyczna jest używana do obliczenia priorytetu węzłów w kolejce priorytetowej:
+    \begin{itemize}
+        \item Dla każdego węzła obliczany jest koszt $f(n) = g(n) + h(n)$, gdzie $g(n)$ to koszt dotarcia do węzła $n$ z węzła początkowego, a $h(n)$ to szacowany koszt dotarcia z $n$ do celu.
+        \item Węzły o niższej wartości $f(n)$ są rozpatrywane w pierwszej kolejności, co prowadzi do efektywnego przeszukiwania przestrzeni stanów.
+    \end{itemize}
+\end{enumerate}
+
+\paragraph{Znaczenie funkcji heurystycznej dla wydajności}
+Odpowiednio dobrana funkcja heurystyczna ma kluczowe znaczenie dla wydajności algorytmu A*:
+
+\begin{itemize}
+    \item Bez heurystyki (gdy $h(n) = 0$ dla wszystkich węzłów), A* redukuje się do algorytmu Dijkstry, który przeszukuje węzły we wszystkich kierunkach równomiernie.
+    \item Z dokładną heurystyką (gdyby $h(n)$ dokładnie odpowiadała rzeczywistemu kosztowi), A* podążałby bezpośrednio do celu bez zbędnego przeszukiwania.
+    \item W praktyce używamy przybliżonej heurystyki, która balansuje między tymi skrajnościami, znacząco redukując liczbę przeszukiwanych węzłów w porównaniu do Dijkstry.
+\end{itemize}
+
+W naszej implementacji, heurystyka oparta na odległości geograficznej i średniej prędkości transportu skutecznie ukierunkowuje przeszukiwanie w stronę przystanku docelowego, jednocześnie nie przeszacowując rzeczywistego czasu podróży, co gwarantuje znalezienie optymalnego rozwiązania.
 
 \subsubsection{Wyniki i analiza}
 % Wyniki eksperymentów, porównanie z algorytmem Dijkstry
