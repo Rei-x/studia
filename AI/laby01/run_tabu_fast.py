@@ -2,7 +2,8 @@ import sys
 import time
 import random
 import argparse
-from math import inf, sqrt
+from math import inf
+from collections import defaultdict
 
 from astar_time_przesiadki import (
     load_data,
@@ -117,128 +118,6 @@ def calculate_route_cost(
     return total_cost, total_path, True
 
 
-def calculate_optimal_tabu_size(stations_count):
-    """
-    Calculate the optimal tabu list size based on the number of stations.
-
-    The size is calculated using a combination of factors:
-    - The number of possible swaps grows quadratically with the number of stations
-    - We want to avoid cycling while also not wasting memory
-
-    Args:
-        stations_count: Number of stations in the route
-
-    Returns:
-        Optimal tabu list size
-    """
-    if stations_count <= 1:
-        return 1
-
-    # Calculate possible number of moves (swaps and inserts)
-    possible_swaps = stations_count * (stations_count - 1) // 2
-    possible_inserts = stations_count * (stations_count - 1)
-
-    # Base the tabu size on the number of possible moves
-    # Using a square root relationship to balance between too small and too large
-    base_size = int(sqrt(possible_swaps + possible_inserts))
-
-    # Ensure a minimum and maximum size
-    return max(5, min(base_size, 50))
-
-
-def aspiration_function(
-    neighbor_cost, current_cost, best_cost, iteration, max_iterations
-):
-    """
-    Determine whether a tabu move should be accepted based on aspiration criteria.
-
-    Args:
-        neighbor_cost: Cost of the neighbor solution
-        current_cost: Cost of the current solution
-        best_cost: Cost of the best solution found so far
-        iteration: Current iteration number
-        max_iterations: Maximum number of iterations
-
-    Returns:
-        Boolean indicating whether to accept the tabu move
-    """
-    # Accept tabu moves that improve the best solution
-    if neighbor_cost < best_cost:
-        return True
-
-    # Accept tabu moves that are significantly better than the current solution
-    # (even if not better than the global best)
-    improvement_threshold = 0.05  # 5% improvement
-    if neighbor_cost < current_cost * (1 - improvement_threshold):
-        return True
-
-    # Accept more tabu moves in later iterations to escape local optima
-    # (increases diversification in later stages of search)
-    if iteration > 0.7 * max_iterations and random.random() < 0.3:
-        return True
-
-    return False
-
-
-def generate_neighbors(current_sequence, tabu_list, strategy="vertex", debug=False):
-    """
-    Generate neighbors based on the selected strategy.
-
-    Args:
-        current_sequence: Current sequence of stations
-        tabu_list: List of tabu moves
-        strategy: Strategy for generating neighbors ('vertex', 'edge', 'edge_vertex')
-        debug: Enable debug output
-
-    Returns:
-        List of tuples (neighbor_sequence, move)
-    """
-    neighbors = []
-    n = len(current_sequence)
-
-    if strategy == "vertex":
-        # Prohibit specific vertices at specific positions
-        for i in range(n):
-            for j in range(n):
-                if i != j:
-                    neighbor_sequence = current_sequence.copy()
-                    neighbor_sequence[i], neighbor_sequence[j] = (
-                        neighbor_sequence[j],
-                        neighbor_sequence[i],
-                    )
-                    move = ("vertex", i, j)
-                    if move not in tabu_list:
-                        neighbors.append((neighbor_sequence, move))
-
-    elif strategy == "edge":
-        # Prohibit specific edges (pairs of consecutive vertices)
-        for i in range(n - 1):
-            for j in range(i + 1, n):
-                neighbor_sequence = current_sequence.copy()
-                neighbor_sequence[i : j + 1] = reversed(neighbor_sequence[i : j + 1])
-                move = ("edge", i, j)
-                if move not in tabu_list:
-                    neighbors.append((neighbor_sequence, move))
-
-    elif strategy == "edge_vertex":
-        # Prohibit edges involving specific vertices
-        for i in range(n):
-            for j in range(i + 1, n):
-                neighbor_sequence = current_sequence.copy()
-                neighbor_sequence[i], neighbor_sequence[j] = (
-                    neighbor_sequence[j],
-                    neighbor_sequence[i],
-                )
-                move = ("edge_vertex", i, j)
-                if move not in tabu_list:
-                    neighbors.append((neighbor_sequence, move))
-
-    if debug:
-        print(f"Generated {len(neighbors)} neighbors using strategy '{strategy}'")
-
-    return neighbors
-
-
 def tabu_search(
     start_station,
     stations_to_visit,
@@ -247,9 +126,8 @@ def tabu_search(
     graph,
     station_coordinates,
     max_iterations=100,
-    tabu_size=None,
+    tabu_size=20,
     neighborhood_size=20,
-    sampling_strategy="vertex",
     debug=False,
 ):
     """
@@ -263,22 +141,14 @@ def tabu_search(
         graph: Graph representing connections
         station_coordinates: Dictionary of station coordinates
         max_iterations: Maximum number of iterations
-        tabu_size: Size of the tabu list (if None, will be calculated dynamically)
+        tabu_size: Initial size of the tabu list (will be adjusted dynamically)
         neighborhood_size: Number of neighbors to evaluate in each iteration
-        sampling_strategy: Strategy for generating neighbors ('vertex', 'edge', 'edge_vertex')
-        debug: Enable debug output
 
     Returns:
         Tuple of (best_cost, best_path)
     """
     if not stations_to_visit:
         return 0, []
-
-    # Calculate optimal tabu size if not specified
-    if tabu_size is None:
-        tabu_size = calculate_optimal_tabu_size(len(stations_to_visit))
-        if debug:
-            print(f"Dynamically calculated tabu size: {tabu_size}")
 
     # Initialize with a random solution
     current_sequence = stations_to_visit.copy()
@@ -325,11 +195,32 @@ def tabu_search(
     if debug:
         print(f"Initial cost: {best_cost}")
 
-    # Tabu list - store recently visited moves
-    tabu_list = []
+    # Adaptive tabu list size parameters
+    problem_size = len(stations_to_visit)
+    min_tabu_size = max(5, problem_size // 2)  # Lower bound
+    max_tabu_size = max(50, problem_size * 2)  # Upper bound
 
-    # Keep track of aspiration acceptances for statistics
-    aspiration_acceptances = 0
+    # Initialize tabu size based on problem size
+    current_tabu_size = min(max(tabu_size, problem_size), max_tabu_size)
+
+    # Parameters for adaptive adjustment
+    iterations_without_improvement = 0
+    adjustment_frequency = max(
+        5, min(max_iterations // 10, 10)
+    )  # Adjust every N iterations
+
+    if debug:
+        print(f"Initial tabu size: {current_tabu_size}")
+
+    # Tabu list - store recently visited moves with their entry iteration
+    tabu_list = {}
+
+    # Move frequency counter for frequency-based aspiration
+    move_frequency = defaultdict(int)
+
+    # Sequence history for trajectory-based aspiration
+    sequence_history = set()
+    sequence_history.add(tuple(current_sequence))
 
     # Main tabu search loop
     for iteration in range(max_iterations):
@@ -337,52 +228,128 @@ def tabu_search(
             print(f"\nIteration {iteration + 1}/{max_iterations}")
             print(f"Current sequence: {current_sequence}")
             print(f"Current cost: {current_cost}")
+            print(f"Current tabu size: {current_tabu_size}")
+            print(f"Tabu list size: {len(tabu_list)}")
 
-        # Generate neighbors using the selected strategy
-        neighbors = generate_neighbors(
-            current_sequence, tabu_list, sampling_strategy, debug
-        )
-
-        # Evaluate neighbors
+        # Generate and evaluate neighborhood
         best_neighbor_cost = inf
         best_neighbor_sequence = None
         best_neighbor_path = []
-        best_neighbor_move = None
 
-        for neighbor_sequence, move in neighbors[:neighborhood_size]:
-            neighbor_cost, neighbor_path, is_valid = calculate_route_cost(
-                start_station,
-                neighbor_sequence,
-                criteria,
-                start_time,
-                graph,
-                station_coordinates,
-                debug=False,
+        # Try different neighbor generation strategies
+        for _ in range(
+            min(
+                neighborhood_size,
+                len(current_sequence) * (len(current_sequence) - 1) // 2,
             )
+        ):
+            # Randomly select the move type
+            move_type = random.choice(["swap", "insert"])
 
-            if not is_valid:
+            # Perform the selected move
+            if move_type == "swap" and len(current_sequence) >= 2:
+                # Swap two random positions
+                i, j = random.sample(range(len(current_sequence)), 2)
+                neighbor_sequence = current_sequence.copy()
+                neighbor_sequence[i], neighbor_sequence[j] = (
+                    neighbor_sequence[j],
+                    neighbor_sequence[i],
+                )
+                move = ("swap", i, j)
+            elif move_type == "insert" and len(current_sequence) >= 2:
+                # Take element at position i and insert it at position j
+                i = random.randrange(len(current_sequence))
+                j = random.randrange(len(current_sequence))
+                if i == j:
+                    continue
+                neighbor_sequence = current_sequence.copy()
+                element = neighbor_sequence.pop(i)
+                neighbor_sequence.insert(j, element)
+                move = ("insert", i, j)
+            else:
                 continue
 
-            # Check if the move is in the tabu list
+            # Increment move frequency counter
+            move_frequency[move] += 1
+
+            # Track if this is a new sequence
+            is_new_sequence = tuple(neighbor_sequence) not in sequence_history
+
+            # Check if move is tabu
             is_tabu = move in tabu_list
+            aspiration_triggered = False
+            aspiration_reason = ""
 
             if is_tabu:
-                # Apply aspiration criteria
-                if aspiration_function(
-                    neighbor_cost, current_cost, best_cost, iteration, max_iterations
-                ):
-                    if debug:
-                        print(f"Accepting tabu move {move} due to aspiration criteria")
-                    aspiration_acceptances += 1
-                else:
+                # Enhanced aspiration criteria
+
+                # 1. Evaluate the move cost first to save computation when other aspiration criteria apply
+                neighbor_cost, neighbor_path, is_valid = calculate_route_cost(
+                    start_station,
+                    neighbor_sequence,
+                    criteria,
+                    start_time,
+                    graph,
+                    station_coordinates,
+                    debug=False,
+                )
+
+                if not is_valid:
                     continue
 
-            # Accept the neighbor if it's better than the current best neighbor
-            if neighbor_cost < best_neighbor_cost:
-                best_neighbor_cost = neighbor_cost
-                best_neighbor_sequence = neighbor_sequence
-                best_neighbor_path = neighbor_path
-                best_neighbor_move = move
+                # 2. Global aspiration - better than best solution ever found
+                if neighbor_cost < best_cost:
+                    aspiration_triggered = True
+                    aspiration_reason = "global best"
+                # 3. Local aspiration - better than current solution
+                elif neighbor_cost < current_cost:
+                    aspiration_triggered = True
+                    aspiration_reason = "local improvement"
+                # 4. Time-based aspiration - move has been tabu for a long time
+                elif iteration - tabu_list[move] > current_tabu_size * 1.5:
+                    aspiration_triggered = True
+                    aspiration_reason = "time-based"
+                # 5. Frequency-based aspiration - move has been used infrequently
+                elif move_frequency[move] < iteration // (3 * problem_size + 1):
+                    aspiration_triggered = True
+                    aspiration_reason = "frequency-based"
+                # 6. Trajectory-based aspiration - leads to unexplored territory
+                elif is_new_sequence and iteration > max_iterations // 2:
+                    aspiration_triggered = True
+                    aspiration_reason = "trajectory-based"
+
+                if aspiration_triggered:
+                    if debug:
+                        print(
+                            f"Accepting tabu move {move} due to {aspiration_reason} aspiration"
+                        )
+
+                    if neighbor_cost < best_neighbor_cost:
+                        best_neighbor_cost = neighbor_cost
+                        best_neighbor_sequence = neighbor_sequence
+                        best_neighbor_path = neighbor_path
+                        best_neighbor_move = move
+
+                # Skip further evaluation if no aspiration criteria were triggered
+                if not aspiration_triggered:
+                    continue
+            else:
+                # Move is not tabu, evaluate normally
+                neighbor_cost, neighbor_path, is_valid = calculate_route_cost(
+                    start_station,
+                    neighbor_sequence,
+                    criteria,
+                    start_time,
+                    graph,
+                    station_coordinates,
+                    debug=False,
+                )
+
+                if is_valid and neighbor_cost < best_neighbor_cost:
+                    best_neighbor_cost = neighbor_cost
+                    best_neighbor_sequence = neighbor_sequence
+                    best_neighbor_path = neighbor_path
+                    best_neighbor_move = move
 
         # If no valid neighbor found, try a random restart
         if best_neighbor_sequence is None:
@@ -402,16 +369,23 @@ def tabu_search(
 
             if not is_valid:
                 continue
+            iterations_without_improvement += 1
         else:
             # Move to the best neighbor
             current_sequence = best_neighbor_sequence
             current_cost = best_neighbor_cost
             current_path = best_neighbor_path
 
-            # Add the move to the tabu list
-            tabu_list.append(best_neighbor_move)
-            if len(tabu_list) > tabu_size:
-                tabu_list.pop(0)
+            # Add the sequence to history
+            sequence_history.add(tuple(current_sequence))
+
+            # Add the move to the tabu list with current iteration as timestamp
+            tabu_list[best_neighbor_move] = iteration
+
+            # Remove old entries from tabu list
+            tabu_list = {
+                k: v for k, v in tabu_list.items() if iteration - v < current_tabu_size
+            }
 
             if debug:
                 print(f"Moving to neighbor with cost {current_cost}")
@@ -421,14 +395,38 @@ def tabu_search(
             best_sequence = current_sequence.copy()
             best_cost = current_cost
             best_path = current_path
+            iterations_without_improvement = 0
 
             if debug:
                 print(f"New best solution found! Cost: {best_cost}")
+        else:
+            iterations_without_improvement += 1
+
+        # Periodically adjust tabu list size
+        if iteration > 0 and iteration % adjustment_frequency == 0:
+            if iterations_without_improvement >= adjustment_frequency:
+                # Increase tabu size to escape local optima
+                current_tabu_size = min(
+                    current_tabu_size + problem_size // 2, max_tabu_size
+                )
+                if debug:
+                    print(
+                        f"Increasing tabu size to {current_tabu_size} due to lack of improvement"
+                    )
+            else:
+                # Decrease tabu size to intensify search
+                current_tabu_size = max(
+                    current_tabu_size - problem_size // 4, min_tabu_size
+                )
+                if debug:
+                    print(
+                        f"Decreasing tabu size to {current_tabu_size} to intensify search"
+                    )
 
     if debug:
         print(f"\nFinal best sequence: {best_sequence}")
         print(f"Final best cost: {best_cost}")
-        print(f"Aspiration acceptances: {aspiration_acceptances}")
+        print(f"Final tabu size: {current_tabu_size}")
 
     return best_cost, best_path
 
@@ -459,10 +457,7 @@ def main():
         "--iterations", type=int, default=100, help="Maximum number of iterations"
     )
     parser.add_argument(
-        "--tabu-size",
-        type=int,
-        default=None,
-        help="Size of the tabu list (if not specified, will be calculated dynamically)",
+        "--tabu-size", type=int, default=20, help="Size of the tabu list"
     )
     parser.add_argument(
         "--neighborhood-size",
@@ -470,17 +465,13 @@ def main():
         default=20,
         help="Number of neighbors to evaluate in each iteration",
     )
-    parser.add_argument(
-        "--sampling-strategy",
-        choices=["vertex", "edge", "edge_vertex"],
-        default="vertex",
-        help="Strategy for generating neighbors: vertex, edge, or edge_vertex",
-    )
 
     args = parser.parse_args()
 
     # Map 'p' criteria to 's' for the when_to_ride function
     search_criteria = args.method
+
+    # Start timer
 
     # Load data and build graph
     df = load_data()
@@ -498,7 +489,6 @@ def main():
         max_iterations=args.iterations,
         tabu_size=args.tabu_size,
         neighborhood_size=args.neighborhood_size,
-        sampling_strategy=args.sampling_strategy,
     )
 
     # End timer

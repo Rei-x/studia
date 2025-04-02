@@ -780,41 +780,88 @@ Podstawowa implementacja algorytmu Tabu Search skutecznie znajduje rozwiązania 
 Wyniki wskazują na potrzebę dalszych modyfikacji algorytmu w celu poprawy jego efektywności dla większych instancji problemu. W kolejnych sekcjach zbadamy wpływ modyfikacji takich jak adaptacyjna długość listy tabu, kryterium aspiracji oraz strategie próbkowania sąsiedztwa na wydajność algorytmu.
 
 \subsection{Modyfikacja długości listy tabu}
-\subsubsection{Opis teoretyczny}
 Długość listy tabu ma istotny wpływ na efektywność algorytmu. Zbyt krótka lista może prowadzić do cyklicznego przeszukiwania tych samych rozwiązań, natomiast zbyt długa może nadmiernie ograniczać przestrzeń poszukiwań.
 
-\subsubsection{Implementacja}
-% Opis implementacji adaptacyjnego doboru długości listy tabu
+W ramach modyfikacji algorytmu Tabu Search zaimplementowano mechanizm dynamicznego dostosowywania długości listy tabu w zależności od rozmiaru problemu. Istotą tego podejścia jest dostosowanie parametru tabu_size do liczby przystanków w trasie.
 
-\subsubsection{Wyniki i analiza}
-% Porównanie z wersją podstawową
+Implementacja tej modyfikacji opiera się na kilku kluczowych zasadach:
+
+\begin{enumerate}
+    \item \textbf{Dynamiczne obliczanie rozmiaru listy} -- Rozmiar listy tabu jest obliczany na podstawie liczby stacji do odwiedzenia, a nie ustalany jako stała wartość.
+    
+    \item \textbf{Wzór oparty na możliwych ruchach} -- Optymalny rozmiar listy jest szacowany na podstawie liczby możliwych operacji swap i insert, które rosną kwadratowo wraz z liczbą przystanków.
+    
+    \item \textbf{Funkcja pierwiastkowa} -- Zastosowano skalowanie z użyciem pierwiastka kwadratowego liczby możliwych ruchów, co zapewnia rozsądny wzrost rozmiaru listy wraz ze wzrostem złożoności problemu.
+    
+    \item \textbf{Ograniczenia brzegowe} -- Wprowadzono wartości minimalne i maksymalne (5-50), aby zapewnić odpowiedni zakres długości listy tabu niezależnie od wielkości problemu.
+\end{enumerate}
 
 \subsection{Modyfikacja z kryterium aspiracji}
-\subsubsection{Opis teoretyczny}
-Kryterium aspiracji pozwala na przyjęcie rozwiązania znajdującego się na liście tabu, jeśli spełnia ono określone warunki, np. jest lepsze od najlepszego dotychczas znalezionego rozwiązania.
+Kryterium aspiracji pozwala na akceptację ruchów tabu, jeśli prowadzą do lepszego rozwiązania niż najlepsze dotychczas znalezione lub znacząco poprawiają bieżące rozwiązanie.
 
-\subsubsection{Implementacja}
-% Opis implementacji kryterium aspiracji
-
-\subsubsection{Wyniki i analiza}
-% Porównanie z poprzednimi wersjami algorytmu
+Zaawansowane kryterium aspiracji opiera się na trzech mechanizmach:
+\begin{enumerate}
+    \item Akceptacja ruchów tabu poprawiających najlepsze rozwiązanie.
+    \item Akceptacja ruchów poprawiających bieżące rozwiązanie o co najmniej 5\%.
+    \item Dywersyfikacja w późniejszych iteracjach (30\% szans na akceptację tabu ruchu).
+\end{enumerate}
+Mechanizm ten zwiększa eksplorację przestrzeni rozwiązań i unikanie lokalnych minimów.
 
 \subsection{Strategia próbkowania sąsiedztwa}
-\subsubsection{Opis teoretyczny}
 Efektywne próbkowanie sąsiedztwa bieżącego rozwiązania może znacząco wpłynąć na wydajność algorytmu, szczególnie dla dużych instancji problemu.
 
-\subsubsection{Implementacja}
-% Opis implementacji strategii próbkowania sąsiedztwa
+Strategia próbkowania sąsiedztwa została zaimplementowana w celu ograniczenia liczby generowanych sąsiadów w każdej iteracji algorytmu Tabu Search. Wykorzystano trzy podejścia:
+\begin{itemize}
+    \item \textbf{Vertex sampling} -- generowanie sąsiadów poprzez zamianę pozycji dwóch wierzchołków w sekwencji.
+    \item \textbf{Edge sampling} -- odwracanie kolejności wierzchołków w wybranym podciągu sekwencji.
+    \item \textbf{Edge-vertex sampling} -- kombinacja zamiany wierzchołków i odwracania podciągów.
+\end{itemize}
+Każda strategia umożliwia dynamiczne ograniczenie liczby sąsiadów do ustalonej wartości, co pozwala na redukcję czasu obliczeń przy zachowaniu jakości rozwiązań.
 
-\subsubsection{Wyniki i analiza}
-% Porównanie z poprzednimi wersjami algorytmu
+\subsection{Wyniki i analiza zmodyfikowanego algorytmu}
+Po wprowadzeniu modyfikacji algorytmu Tabu Search, przeprowadzono ponowne testy dla trzech scenariuszy: prostego, średniego i złożonego. Wyniki wskazują na znaczną poprawę efektywności obliczeniowej przy zachowaniu jakości rozwiązań.
 
-\section{Podsumowanie}
-\subsection{Porównanie zaimplementowanych algorytmów}
-% Porównanie wszystkich zaimplementowanych algorytmów pod kątem jakości rozwiązań i czasu obliczeń
+\paragraph{Porównanie czasów obliczeń}
+Poniższa tabela przedstawia porównanie czasów obliczeń przed i po modyfikacjach:
+
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Scenariusz} & \textbf{Przed modyfikacjami [s]} & \textbf{Po modyfikacjach [s]} & \textbf{Zmiana (\%)} \\
+\hline
+Prosty & 0.98 & 1.15 & +17.35\% \\
+Średni & 14.52 & 7.55 & -48.00\% \\
+Złożony & 258.55 & 45.23 & -82.51\% \\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Analiza wyników}
+\begin{itemize}
+    \item \textbf{Scenariusz prosty:} Czas obliczeń nieznacznie wzrósł (+17.35\%), co wynika z dodatkowych operacji związanych z dynamiczną długością listy tabu. Jakość rozwiązania pozostała bez zmian, a trasa była identyczna.
+    \item \textbf{Scenariusz średni:} Czas obliczeń zmniejszył się o 48\%, co wskazuje na skuteczność strategii próbkowania sąsiedztwa. Znalezione rozwiązanie było identyczne pod względem kosztu i trasy.
+    \item \textbf{Scenariusz złożony:} Największa poprawa wydajności (-82.51\%) została osiągnięta dzięki dynamicznej długości listy tabu i ograniczeniu liczby generowanych sąsiadów. Trasa i koszt pozostały bez zmian, co potwierdza skuteczność modyfikacji.
+\end{itemize}
+
+\paragraph{Dlaczego koszt trasy się nie zmienił?}
+Koszt trasy pozostał niezmieniony, ponieważ modyfikacje algorytmu Tabu Search dotyczyły zarówno funkcji kosztu, jak i optymalizacji rozwiązania. Funkcja kosztu została zachowana w taki sposób, aby nadal oceniać trasy według tych samych kryteriów (np. czas przejazdu), a zmiany w strategii optymalizacji poprawiły efektywność przeszukiwania przestrzeni rozwiązań. Dzięki temu algorytm nadal znajdował optymalne trasy, ale w krótszym czasie.
+
+\paragraph{Wnioski z analizy}
+Modyfikacje algorytmu Tabu Search znacząco poprawiły jego efektywność obliczeniową, szczególnie dla bardziej złożonych scenariuszy. Kluczowe zmiany, takie jak dynamiczna długość listy tabu, kryterium aspiracji i strategia próbkowania sąsiedztwa, pozwoliły na redukcję czasu obliczeń bez wpływu na jakość rozwiązań. Algorytm jest teraz bardziej skalowalny i lepiej nadaje się do zastosowań w czasie rzeczywistym.
+
+\section{Podsumowanie i wnioski}
 
 \subsection{Napotkane problemy implementacyjne}
-% Opis problemów napotkanych podczas implementacji oraz sposobów ich rozwiązania
+
+W trakcie implementacji algorytmów napotkano szereg problemów, między innymi:
+\begin{itemize}
+    \item Długi czas testowania i debugowania, wynikający z wieloetapowej weryfikacji poprawności działania algorytmów.
+    \item Problemy z optymalizacją ładowania grafu – początkowa implementacja ładowała dane z pliku bardzo długo, co zmusiło nas do optymalizacji parsowania i budowy struktury grafu.
+    \item W miarę dodawania kolejnych modyfikacji (takich jak dynamiczne dostosowywanie długości listy tabu, kryterium aspiracji czy zaawansowane strategie próbkowania sąsiedztwa) kod stawał się coraz bardziej złożony, dlatego konieczne było stworzenie dedykowanych testów jednostkowych.
+    \item Problemy ze zarządzaniem pamięcią przy obsłudze dużych zbiorów danych oraz rosnąca złożoność obliczeniowa przy skalowaniu algorytmów.
+    \item Trudności w debugowaniu złożonych struktur danych, takich jak grafy i kolejki priorytetowe, co wymagało dodatkowego logowania i analizy.
+    \item Problemy związane z poprawnym przeliczaniem godzin w cyklu 24-godzinnym, co wpływało na dokładność obliczeń czasu przejazdu.
+\end{itemize}
 
 \subsection{Wnioski}
 % Ogólne wnioski dotyczące efektywności algorytmów w kontekście planowania tras w komunikacji miejskiej
