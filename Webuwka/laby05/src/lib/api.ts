@@ -245,6 +245,8 @@ export interface components {
             /** Format: int32 */
             pages?: number;
             available?: boolean;
+            /** Format: int32 */
+            lendingId?: number;
         };
         /** @description Data Transfer Object for creating a new author */
         CreateAuthorDTO: {

@@ -10,7 +10,6 @@ from astar_time_przesiadki import build_graph, load_data
 from utils import get_time_in_seconds
 
 
-# Mock data for testing
 @pytest.fixture
 def sample_data():
     return pd.DataFrame(
@@ -56,7 +55,6 @@ def sample_data():
     )
 
 
-# More complex data for more realistic tests
 @pytest.fixture
 def complex_data():
     return pd.DataFrame(
@@ -128,7 +126,6 @@ def test_calculate_route_cost_basic(sample_data):
     """Test basic route cost calculation for a simple sequence."""
     graph, station_coordinates = build_graph(sample_data)
 
-    # Test a simple route: A -> B -> C -> A
     cost, path, is_valid = calculate_route_cost(
         "StationA",
         ["StationB", "StationC"],
@@ -142,8 +139,7 @@ def test_calculate_route_cost_basic(sample_data):
     assert cost != inf
     assert len(path) > 0
 
-    # Check if the path includes travel from A to B, B to C, and C back to A
-    stations_visited = ["StationA"]  # Starting station
+    stations_visited = ["StationA"]
 
     for ride in path:
         line, board_stop, _, alight_stop, _ = ride
@@ -157,7 +153,6 @@ def test_calculate_route_cost_time_vs_transfers(complex_data):
     """Test that different criteria produce different route costs."""
     graph, station_coordinates = build_graph(complex_data)
 
-    # Get time-optimized cost
     time_cost, time_path, is_valid_time = calculate_route_cost(
         "StationA",
         ["StationC", "StationE"],
@@ -167,7 +162,6 @@ def test_calculate_route_cost_time_vs_transfers(complex_data):
         station_coordinates,
     )
 
-    # Get transfers-optimized cost
     transfers_cost, transfers_path, is_valid_transfers = calculate_route_cost(
         "StationA",
         ["StationC", "StationE"],
@@ -180,16 +174,12 @@ def test_calculate_route_cost_time_vs_transfers(complex_data):
     assert is_valid_time
     assert is_valid_transfers
 
-    # Calculate actual transfers for both paths
     time_transfers = len(set(ride[0] for ride in time_path)) - 1
     transfers_transfers = len(set(ride[0] for ride in transfers_path)) - 1
 
-    # Check if time-optimized path takes less time or same time
     time_total_time = time_path[-1][4] - get_time_in_seconds("07:30:00")
     transfers_total_time = transfers_path[-1][4] - get_time_in_seconds("07:30:00")
 
-    # Either time-optimized is faster or transfers-optimized has fewer transfers
-    # If they're equal, both should be the optimal solution
     if time_total_time != transfers_total_time:
         assert time_total_time <= transfers_total_time
     if time_transfers != transfers_transfers:
@@ -200,7 +190,6 @@ def test_tabu_search_basic(sample_data):
     """Test basic tabu search functionality."""
     graph, station_coordinates = build_graph(sample_data)
 
-    # Find route that visits stations B and C starting from A
     cost, path = tabu_search(
         "StationA",
         ["StationB", "StationC"],
@@ -216,7 +205,6 @@ def test_tabu_search_basic(sample_data):
     assert cost != inf
     assert len(path) > 0
 
-    # Verify that the path visits all required stations
     visited_stations = set()
 
     for ride in path:
@@ -257,10 +245,8 @@ def test_tabu_search_parameters(complex_data):
     """Test tabu search with different parameter values."""
     graph, station_coordinates = build_graph(complex_data)
 
-    # Set random seed for reproducibility
     random.seed(42)
 
-    # Run with small parameters
     cost_small, path_small = tabu_search(
         "StationA",
         ["StationC", "StationE"],
@@ -273,10 +259,8 @@ def test_tabu_search_parameters(complex_data):
         neighborhood_size=5,
     )
 
-    # Reset seed
     random.seed(42)
 
-    # Run with larger parameters
     cost_large, path_large = tabu_search(
         "StationA",
         ["StationC", "StationE"],
@@ -292,9 +276,6 @@ def test_tabu_search_parameters(complex_data):
     assert cost_small != inf
     assert cost_large != inf
 
-    # Larger parameters should generally give better or equal solutions
-    # But due to randomness, this might not always be true
-    # So we just check that both found valid solutions
     assert len(path_small) > 0
     assert len(path_large) > 0
 
@@ -303,10 +284,8 @@ def test_time_vs_transfers_optimization(complex_data):
     """Test that different optimization criteria produce different results."""
     graph, station_coordinates = build_graph(complex_data)
 
-    # Set random seed for reproducibility
     random.seed(42)
 
-    # Time optimization
     time_cost, time_path = tabu_search(
         "StationA",
         ["StationC", "StationE"],
@@ -317,10 +296,8 @@ def test_time_vs_transfers_optimization(complex_data):
         max_iterations=50,
     )
 
-    # Reset seed
     random.seed(42)
 
-    # Transfers optimization
     transfers_cost, transfers_path = tabu_search(
         "StationA",
         ["StationC", "StationE"],
@@ -334,15 +311,12 @@ def test_time_vs_transfers_optimization(complex_data):
     assert time_cost != inf
     assert transfers_cost != inf
 
-    # Calculate actual metrics for both solutions
     time_actual_time = time_path[-1][4] - get_time_in_seconds("07:30:00")
     transfers_actual_time = transfers_path[-1][4] - get_time_in_seconds("07:30:00")
 
     time_actual_transfers = len(set(ride[0] for ride in time_path)) - 1
     transfers_actual_transfers = len(set(ride[0] for ride in transfers_path)) - 1
 
-    # Either time optimization is better for time, or transfer optimization is better for transfers
-    # Or they found the same optimal solution
     if (
         time_actual_time != transfers_actual_time
         and time_actual_transfers != transfers_actual_transfers
@@ -355,38 +329,32 @@ def test_time_vs_transfers_optimization(complex_data):
 
 def test_main_function(monkeypatch, sample_data, capfd):
     """Test the main function with mocked input and data loading."""
-    # Mock the input
+
     input_values = [
-        "StationA",  # start station
-        "StationB;StationC",  # stations to visit
-        "t",  # criteria
-        "07:30:00",  # start time
+        "StationA",
+        "StationB;StationC",
+        "t",
+        "07:30:00",
     ]
     input_mock = lambda: input_values.pop(0)
     monkeypatch.setattr("builtins.input", input_mock)
 
-    # Mock load_data to return our sample data
     monkeypatch.setattr("run_tabu.load_data", lambda: sample_data)
 
-    # Capture stderr separately
     old_stderr = sys.stderr
     captured_stderr = StringIO()
     sys.stderr = captured_stderr
 
     try:
-        # Run main function
         main()
 
-        # Capture stdout and stderr
         captured_stdout, _ = capfd.readouterr()
         stderr_output = captured_stderr.getvalue()
 
-        # Check that output contains essential information
-        assert "Line" in captured_stdout  # Should contain line information
-        assert "Cost:" in stderr_output  # Should show cost in stderr
-        assert "Computation time:" in stderr_output  # Should show computation time
+        assert "Line" in captured_stdout
+        assert "Cost:" in stderr_output
+        assert "Computation time:" in stderr_output
     finally:
-        # Restore stderr
         sys.stderr = old_stderr
 
 
@@ -394,11 +362,9 @@ def test_different_visit_sequences(complex_data):
     """Test that different visit sequences have different costs."""
     graph, station_coordinates = build_graph(complex_data)
 
-    # Try different sequences of the same stations
     stations = ["StationB", "StationC", "StationD", "StationE"]
     sequence1 = stations.copy()
 
-    # Create a different sequence
     sequence2 = stations.copy()
     if len(sequence2) >= 2:
         sequence2[0], sequence2[-1] = sequence2[-1], sequence2[0]
@@ -411,25 +377,19 @@ def test_different_visit_sequences(complex_data):
         "StationA", sequence2, "t", "07:30:00", graph, station_coordinates
     )
 
-    # Both should find valid paths
     assert is_valid1
     assert is_valid2
 
-    # The costs are likely different since the sequence is different
-    # But they could be the same if both sequences happen to be optimal
-    # So we just check they're both valid
     assert cost1 != inf
     assert cost2 != inf
 
 
-# Run with real data test - only if connection_graph.csv exists
 def test_with_real_data():
     """Test with real data from connection_graph.csv if available."""
     try:
         df = load_data()
         graph, station_coordinates = build_graph(df)
 
-        # Get a few random stations from the graph
         all_stations = list(graph.keys())
         if len(all_stations) < 3:
             pytest.skip("Not enough stations in the data")
@@ -439,7 +399,6 @@ def test_with_real_data():
             all_stations[1:], min(2, len(all_stations) - 1)
         )
 
-        # Run a small tabu search
         cost, path = tabu_search(
             start_station,
             stations_to_visit,
@@ -452,7 +411,6 @@ def test_with_real_data():
             neighborhood_size=5,
         )
 
-        # Just check if the algorithm runs
         assert isinstance(cost, (int, float))
 
     except FileNotFoundError:
