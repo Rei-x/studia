@@ -47,7 +47,6 @@ const formSchema = toTypedSchema(
   }),
 )
 
-console.log('running!!', props.bookTitle)
 const form = useForm({
   validationSchema: formSchema,
   initialValues: {
@@ -60,7 +59,6 @@ const form = useForm({
 watch(
   () => props.bookId,
   () => {
-    console.log('setting values')
     if (props.isEdit && props.bookId) {
       form.setValues({
         title: props.bookTitle || '',
