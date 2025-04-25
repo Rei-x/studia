@@ -58,7 +58,6 @@ const resolvers = {
   },
 };
 
-// Create and export the schema
 export const schema = createSchema({
   typeDefs,
   resolvers,

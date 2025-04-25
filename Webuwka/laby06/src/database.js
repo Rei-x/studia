@@ -12,9 +12,7 @@ const db = new Database(join(__dirname, "../data.sqlite"), {
   verbose: console.log,
 });
 
-// Create tables if they don't exist
 function initializeDatabase() {
-  // Create users table
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
@@ -24,7 +22,6 @@ function initializeDatabase() {
     )
   `);
 
-  // Create todos table
   db.exec(`
     CREATE TABLE IF NOT EXISTS todos (
       id INTEGER PRIMARY KEY,
@@ -35,11 +32,9 @@ function initializeDatabase() {
     )
   `);
 
-  // Check if we need to populate initial data
   const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get();
 
   if (userCount.count === 0) {
-    // Insert some initial users
     const initialUsers = [
       {
         id: 1,
@@ -68,7 +63,6 @@ function initializeDatabase() {
       insertUser.run(user.id, user.name, user.email, user.login);
     });
 
-    // Insert some initial todos
     const initialTodos = [
       { id: 1, title: "Naprawić samochód", completed: 0, user_id: 3 },
       { id: 2, title: "Posprzątać garaż", completed: 1, user_id: 3 },
@@ -87,10 +81,8 @@ function initializeDatabase() {
   }
 }
 
-// Initialize database
 initializeDatabase();
 
-// User CRUD operations
 export const userOperations = {
   getAllUsers: () => {
     return db.prepare("SELECT * FROM users").all();
