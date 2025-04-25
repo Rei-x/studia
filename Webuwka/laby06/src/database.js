@@ -3,11 +3,9 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import axios from "axios";
 
-// Get current directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Initialize SQLite database
 const db = new Database(join(__dirname, "../data.sqlite"), {
   verbose: console.log,
 });

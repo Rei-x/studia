@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "Meeting Service API",
+    "description": "Collection for testing the Meeting Service API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Meeting",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Creates a new meeting with the provided details",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Weekly Team Sync\",\n  \"description\": \"Regular team sync to discuss project progress\",\n  \"startTime\": \"2025-04-26T09:00:00.000Z\",\n  \"participants\": [\"john@example.com\", \"jane@example.com\", \"sam@example.com\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List All Meetings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Retrieves a list of all meetings"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Meeting (Alternative Example)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Creates a new meeting with different details",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Project Planning Session\",\n  \"description\": \"Planning the next quarter's project milestones\",\n  \"startTime\": \"2025-04-27T14:30:00.000Z\",\n  \"participants\": [\"director@example.com\", \"manager@example.com\", \"tech-lead@example.com\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Meeting (Invalid - Missing Required Fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Attempt to create a meeting with missing required fields - should return validation errors",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"This request is missing required fields\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Meeting (Invalid - Invalid Email Format)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Attempt to create a meeting with invalid email formats - should return validation errors",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Invalid Participants Test\",\n  \"startTime\": \"2025-04-28T10:00:00.000Z\",\n  \"participants\": [\"not-an-email\", \"also-not-an-email\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Meeting (Invalid - Invalid Date Format)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/meetings",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["meetings"]
+        },
+        "description": "Attempt to create a meeting with invalid date format - should return validation errors",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Invalid Date Test\",\n  \"startTime\": \"not-a-date\",\n  \"participants\": [\"valid@example.com\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    }
+  ]
+}

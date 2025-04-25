@@ -1,0 +1,17 @@
+{
+  "name": "laby02",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:meeting-service": "cd meeting-service  && npm run start:dev -- --preserveWatchOutput",
+    "start": "concurrently -c auto npm:start:*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
