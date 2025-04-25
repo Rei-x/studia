@@ -44,7 +44,6 @@ const formatDate = (dateString?: string) => {
   }).format(date)
 }
 
-// Combine books with lending information
 const booksWithLendingInfo = computed(() => {
   if (!books.data.value) return []
 
@@ -61,7 +60,6 @@ const booksWithLendingInfo = computed(() => {
   })
 })
 
-// Pagination
 const itemsPerPage = 5
 const currentPage = ref(1)
 
