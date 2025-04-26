@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
-import { MeetingEndedEvent } from 'src/domain/MeetingEndedEvent';
+import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -25,7 +25,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [process.env.RABBIT_MQ_URL ?? ''],
-      queue: MeetingEndedEvent.name,
+      queue: MeetingCreatedEvent.name,
     },
   });
 

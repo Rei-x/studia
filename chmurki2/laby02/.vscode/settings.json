@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "name": "prod",
+      "connectString": "${env:DB_CONNECTION_STRING}"
+    }
+  ]
+}
