@@ -5,6 +5,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { databaseConfig } from './config/database.config';
 import { SendNotificationHandler } from './handlers/send-notification.handler';
 import { Participant } from '../domain/entities/participant.entity';
+import { EventsController } from 'src/app/controllers/events.controller';
 
 const CommandHandlers = [SendNotificationHandler];
 
@@ -22,6 +23,7 @@ const CommandHandlers = [SendNotificationHandler];
     TypeOrmModule.forFeature([Participant]),
     CqrsModule,
   ],
+  controllers: [EventsController],
   providers: [...CommandHandlers],
 })
 export class AppModule {}

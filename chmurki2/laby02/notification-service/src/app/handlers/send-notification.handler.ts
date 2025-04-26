@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
-import { SendNotificationCommand } from '../commands/send-notification.command';
+import { SendNotificationCommand } from '../../domain/commands/send-notification.command';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Participant } from '../../domain/entities/participant.entity';

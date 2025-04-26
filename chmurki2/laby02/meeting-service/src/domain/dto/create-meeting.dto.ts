@@ -1,10 +1,11 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
-  IsDateString,
   IsOptional,
   IsArray,
   IsEmail,
+  IsDate,
 } from 'class-validator';
 
 export class CreateMeetingDto {
@@ -16,9 +17,10 @@ export class CreateMeetingDto {
   @IsOptional()
   description?: string;
 
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   @IsNotEmpty({ message: 'Start time is required' })
-  startTime: Date;
+  startTime: string;
 
   @IsArray()
   @IsOptional()

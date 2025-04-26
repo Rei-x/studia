@@ -3,7 +3,7 @@ import { CreateMeetingCommand } from '../../domain/commands/create-meeting.comma
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meeting } from 'src/domain/entities/meeting.entity';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
 
@@ -11,6 +11,7 @@ import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
 export class CreateMeetingHandler
   implements ICommandHandler<CreateMeetingCommand>
 {
+  private readonly logger = new Logger(CreateMeetingHandler.name);
   constructor(
     @InjectRepository(Meeting)
     private meetingRepository: Repository<Meeting>,
@@ -20,7 +21,7 @@ export class CreateMeetingHandler
 
   async execute(command: CreateMeetingCommand): Promise<Meeting> {
     const { title, startTime, participants } = command;
-
+    this.logger.log(`Creating meeting with title: ${title}`);
     const meeting = this.meetingRepository.create({
       title,
       startTime,
@@ -40,6 +41,7 @@ export class CreateMeetingHandler
     this.eventBus.publish(event);
     this.client.emit(MeetingCreatedEvent.name, event.serialize());
 
+    this.logger.log(`Meeting created with ID: ${savedMeeting.id}`);
     return savedMeeting;
   }
 }

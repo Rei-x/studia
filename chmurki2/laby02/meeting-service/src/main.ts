@@ -1,7 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
-import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -15,21 +13,11 @@ async function bootstrap() {
       transform: true, // Transform payloads to DTO instances
       forbidNonWhitelisted: true, // Throw errors if non-whitelisted properties are present
       transformOptions: {
-        enableImplicitConversion: true, // Attempt to convert primitive types
+        enableImplicitConversion: true,
       },
     }),
   );
 
-  // Connect to RabbitMQ as a microservice
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [process.env.RABBIT_MQ_URL ?? ''],
-      queue: MeetingCreatedEvent.name,
-    },
-  });
-
-  // Start both the microservice and HTTP application
   await app.startAllMicroservices();
   await app.listen(3000);
 
