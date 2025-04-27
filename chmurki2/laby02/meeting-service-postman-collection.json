@@ -1,175 +1,598 @@
 {
   "info": {
-    "name": "Meeting Service API",
-    "description": "Collection for testing the Meeting Service API endpoints",
+    "name": "Meeting System API",
+    "description": "Collection for testing all microservices in the meeting system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Create Meeting",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
-        },
-        "description": "Creates a new meeting with the provided details",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Weekly Team Sync\",\n  \"description\": \"Regular team sync to discuss project progress\",\n  \"startTime\": \"2025-04-26T09:00:00.000Z\",\n  \"participants\": [\"john@example.com\", \"jane@example.com\", \"sam@example.com\"]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Meeting Service",
+      "item": [
+        {
+          "name": "Create Meeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Creates a new meeting with the provided details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Weekly Team Sync\",\n  \"description\": \"Regular team sync to discuss project progress\",\n  \"startTime\": \"2025-04-26T09:00:00.000Z\",\n  \"participants\": [\"john@example.com\", \"jane@example.com\", \"sam@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Meetings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Retrieves a list of all meetings"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Meeting (Alternative Example)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Creates a new meeting with different details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Project Planning Session\",\n  \"description\": \"Planning the next quarter's project milestones\",\n  \"startTime\": \"2025-04-27T14:30:00.000Z\",\n  \"participants\": [\"director@example.com\", \"manager@example.com\", \"tech-lead@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Meeting (Invalid - Missing Required Fields)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Attempt to create a meeting with missing required fields - should return validation errors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"This request is missing required fields\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Meeting (Invalid - Invalid Email Format)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Attempt to create a meeting with invalid email formats - should return validation errors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Invalid Participants Test\",\n  \"startTime\": \"2025-04-28T10:00:00.000Z\",\n  \"participants\": [\"not-an-email\", \"also-not-an-email\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Meeting (Invalid - Invalid Date Format)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Attempt to create a meeting with invalid date format - should return validation errors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Invalid Date Test\",\n  \"startTime\": \"not-a-date\",\n  \"participants\": [\"valid@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "List All Meetings",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
+      "name": "Summary Service",
+      "item": [
+        {
+          "name": "List All Summaries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/summaries",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["summaries"]
+            },
+            "description": "Retrieves a list of all generated meeting summaries"
+          },
+          "response": []
         },
-        "description": "Retrieves a list of all meetings"
-      },
-      "response": []
+        {
+          "name": "Get Summary by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/summaries/{{summaryId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["summaries", "{{summaryId}}"]
+            },
+            "description": "Retrieves a specific summary by its ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Summaries by Meeting ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/summaries/meeting/{{meetingId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["summaries", "meeting", "{{meetingId}}"]
+            },
+            "description": "Retrieves all summaries for a specific meeting"
+          },
+          "response": []
+        }
+      ]
     },
     {
-      "name": "Create Meeting (Alternative Example)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
+      "name": "Transcription Service",
+      "item": [
+        {
+          "name": "List All Transcriptions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/transcriptions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["transcriptions"]
+            },
+            "description": "Retrieves a list of all transcriptions"
+          },
+          "response": []
         },
-        "description": "Creates a new meeting with different details",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Project Planning Session\",\n  \"description\": \"Planning the next quarter's project milestones\",\n  \"startTime\": \"2025-04-27T14:30:00.000Z\",\n  \"participants\": [\"director@example.com\", \"manager@example.com\", \"tech-lead@example.com\"]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+        {
+          "name": "Get Transcription by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/transcriptions/{{transcriptionId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["transcriptions", "{{transcriptionId}}"]
+            },
+            "description": "Retrieves a specific transcription by its ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transcriptions by Meeting ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/transcriptions/meeting/{{meetingId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["transcriptions", "meeting", "{{meetingId}}"]
+            },
+            "description": "Retrieves all transcriptions for a specific meeting"
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Create Meeting (Invalid - Missing Required Fields)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
+      "name": "Recording Service",
+      "item": [
+        {
+          "name": "List All Recordings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/recordings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["recordings"]
+            },
+            "description": "Retrieves a list of all meeting recordings"
+          },
+          "response": []
         },
-        "description": "Attempt to create a meeting with missing required fields - should return validation errors",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"description\": \"This request is missing required fields\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+        {
+          "name": "Get Recording by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/recordings/{{recordingId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["recordings", "{{recordingId}}"]
+            },
+            "description": "Retrieves a specific recording by its ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Recordings by Meeting ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/recordings/meeting/{{meetingId}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["recordings", "meeting", "{{meetingId}}"]
+            },
+            "description": "Retrieves all recordings for a specific meeting"
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Create Meeting (Invalid - Invalid Email Format)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
-        },
-        "description": "Attempt to create a meeting with invalid email formats - should return validation errors",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Invalid Participants Test\",\n  \"startTime\": \"2025-04-28T10:00:00.000Z\",\n  \"participants\": [\"not-an-email\", \"also-not-an-email\"]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "End-to-End Tests",
+      "item": [
+        {
+          "name": "Create Meeting and Check Workflow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Creates a new meeting with the current time as start time to trigger the entire workflow",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Immediate Testing Meeting\",\n  \"description\": \"This meeting starts immediately to test the full workflow\",\n  \"startTime\": \"{{$isoTimestamp}}\",\n  \"participants\": [\"test@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Meeting Flow Test",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Store meeting ID from response",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"meetingId\", jsonData);",
+                  "",
+                  "// Wait for events to propagate through the system",
+                  "setTimeout(function() {",
+                  "    // Continue with next request",
+                  "    postman.setNextRequest(\"Check for Recording\");",
+                  "}, 3000);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/meetings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["meetings"]
+            },
+            "description": "Test the complete flow with tests that verify each step",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Full Flow Test Meeting\",\n  \"description\": \"Tests the complete meeting system flow\",\n  \"startTime\": \"{{$isoTimestamp}}\",\n  \"participants\": [\"test@example.com\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check for Recording",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Check if a recording was created",
+                  "var jsonData = pm.response.json();",
+                  "var found = false;",
+                  "",
+                  "for (var i = 0; i < jsonData.length; i++) {",
+                  "    if (jsonData[i].meetingId === pm.environment.get(\"meetingId\")) {",
+                  "        found = true;",
+                  "        pm.environment.set(\"recordingId\", jsonData[i].id);",
+                  "        break;",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Recording was created\", function() {",
+                  "    pm.expect(found).to.be.true;",
+                  "});",
+                  "",
+                  "// Continue with next request",
+                  "setTimeout(function() {",
+                  "    postman.setNextRequest(\"Check for Transcription\");",
+                  "}, 3000);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/recordings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3002",
+              "path": ["recordings"]
+            },
+            "description": "Check if recording was created for the meeting"
+          },
+          "response": []
+        },
+        {
+          "name": "Check for Transcription",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Check if a transcription was created",
+                  "var jsonData = pm.response.json();",
+                  "var found = false;",
+                  "",
+                  "for (var i = 0; i < jsonData.length; i++) {",
+                  "    if (jsonData[i].meetingId === pm.environment.get(\"meetingId\")) {",
+                  "        found = true;",
+                  "        pm.environment.set(\"transcriptionId\", jsonData[i].id);",
+                  "        break;",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Transcription was created\", function() {",
+                  "    pm.expect(found).to.be.true;",
+                  "});",
+                  "",
+                  "// Continue with next request",
+                  "setTimeout(function() {",
+                  "    postman.setNextRequest(\"Check for Summary\");",
+                  "}, 3000);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/transcriptions",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3003",
+              "path": ["transcriptions"]
+            },
+            "description": "Check if transcription was created for the meeting"
+          },
+          "response": []
+        },
+        {
+          "name": "Check for Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Check if a summary was created",
+                  "var jsonData = pm.response.json();",
+                  "var found = false;",
+                  "",
+                  "for (var i = 0; i < jsonData.length; i++) {",
+                  "    if (jsonData[i].meetingId === pm.environment.get(\"meetingId\")) {",
+                  "        found = true;",
+                  "        pm.environment.set(\"summaryId\", jsonData[i].id);",
+                  "        break;",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Summary was created\", function() {",
+                  "    pm.expect(found).to.be.true;",
+                  "});",
+                  "",
+                  "postman.setNextRequest(null);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3004/summaries",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3004",
+              "path": ["summaries"]
+            },
+            "description": "Check if summary was created for the meeting"
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     },
     {
-      "name": "Create Meeting (Invalid - Invalid Date Format)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/meetings",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["meetings"]
-        },
-        "description": "Attempt to create a meeting with invalid date format - should return validation errors",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"title\": \"Invalid Date Test\",\n  \"startTime\": \"not-a-date\",\n  \"participants\": [\"valid@example.com\"]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Environment Setup",
+      "item": [
+        {
+          "name": "Create Test Environment Variables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Set initial environment variables",
+                  "pm.environment.set(\"meetingId\", \"\");",
+                  "pm.environment.set(\"recordingId\", \"\");",
+                  "pm.environment.set(\"transcriptionId\", \"\");",
+                  "pm.environment.set(\"summaryId\", \"\");",
+                  "",
+                  "pm.test(\"Environment variables initialized\", function() {",
+                  "    pm.expect(pm.environment.get(\"meetingId\")).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
             }
-          }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": [""]
+            },
+            "description": "Initialize environment variables for testing"
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
     }
   ]
 }

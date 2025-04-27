@@ -5,7 +5,7 @@
       "server": "localhost",
       "driver": "PostgreSQL",
       "name": "prod",
-      "connectString": "${env:DB_CONNECTION_STRING}"
+      "connectString": "postgres://postgres:qUVQIrSPh8pAiRXss1gmtvRXHTYitV6cBMouSpp1LXwVFzpB01YBnKSBfieD0wyd@49.13.124.254:9997/postgres"
     }
   ]
 }

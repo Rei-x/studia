@@ -1,176 +1,325 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1lr2jgv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.3.1">
-  <bpmn:process id="Process_11wvoh4" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_11pnv3l" name="Utworzenie spotkania">
-      <bpmn:outgoing>Flow_1ym9gc3</bpmn:outgoing>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Microservices_Business" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_Main">
+    <bpmn:participant id="Pool_MeetingService" name="Meeting Coordination" processRef="Process_MeetingService" />
+    <bpmn:participant id="Pool_NotificationService" name="Participant Notification" processRef="Process_NotificationService" />
+    <bpmn:participant id="Pool_RecordingService" name="Meeting Recording" processRef="Process_RecordingService" />
+    <bpmn:participant id="Pool_TranscriptionService" name="Content Transcription" processRef="Process_TranscriptionService" />
+    <bpmn:participant id="Pool_SummaryService" name="Meeting Summarization" processRef="Process_SummaryService" />
+    <bpmn:messageFlow id="Flow_Msg_MS_to_NS" name="Meeting Details" sourceRef="Event_ThrowMeetingDetails" targetRef="Event_CatchMeetingScheduled" messageRef="Message_MeetingDetails" />
+    <bpmn:messageFlow id="Flow_Msg_MS_to_RS" sourceRef="Event_ThrowMeetingStarting" targetRef="Event_CatchMeetingStarted" messageRef="Message_MeetingStartSignal" />
+    <bpmn:messageFlow id="Flow_Msg_RS_to_TS" sourceRef="Event_ThrowRecordingReady" targetRef="Event_CatchMeetingRecorded" messageRef="Message_RecordingReady" />
+    <bpmn:messageFlow id="Flow_Msg_TS_to_SS" sourceRef="Event_ThrowTranscriptReady" targetRef="Event_CatchTranscriptionGenerated" messageRef="Message_TranscriptReady" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_MeetingService" isExecutable="false">
+    <bpmn:startEvent id="Event_StartMeetingRequest" name="Meeting Requested">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_Start" messageRef="Message_CreateMeetingRequest" />
     </bpmn:startEvent>
-    <bpmn:task id="Activity_1n1cfw3" name="Wysłanie powiadomienia do uczestników">
-      <bpmn:incoming>Flow_1ym9gc3</bpmn:incoming>
-      <bpmn:outgoing>Flow_19dpwnk</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1ym9gc3" sourceRef="StartEvent_11pnv3l" targetRef="Activity_1n1cfw3" />
-    <bpmn:task id="Activity_0umbue0" name="Nagrywanie spotkania">
-      <bpmn:incoming>Flow_0xrz7ik</bpmn:incoming>
-      <bpmn:outgoing>Flow_1rffbi2</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:parallelGateway id="Gateway_0fq9jlp">
-      <bpmn:incoming>Flow_0seoidf</bpmn:incoming>
-      <bpmn:incoming>Flow_15aaw31</bpmn:incoming>
-      <bpmn:outgoing>Flow_1jqm88f</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1w4yqve</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:task id="Activity_0fruv9j" name="Transkrypcja spotkania">
-      <bpmn:incoming>Flow_1jqm88f</bpmn:incoming>
-      <bpmn:outgoing>Flow_18lrpq8</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1jqm88f" sourceRef="Gateway_0fq9jlp" targetRef="Activity_0fruv9j" />
-    <bpmn:task id="Activity_1s7m440" name="Generowanie miniaturki">
-      <bpmn:incoming>Flow_1w4yqve</bpmn:incoming>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1w4yqve" sourceRef="Gateway_0fq9jlp" targetRef="Activity_1s7m440" />
-    <bpmn:task id="Activity_1igb4w1" name="Generacja podsumowania">
-      <bpmn:incoming>Flow_18lrpq8</bpmn:incoming>
-      <bpmn:outgoing>Flow_1dihssw</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_18lrpq8" sourceRef="Activity_0fruv9j" targetRef="Activity_1igb4w1" />
-    <bpmn:task id="Activity_0i2umzw" name="Wysłanie podsumowań do uczestników">
-      <bpmn:incoming>Flow_1dihssw</bpmn:incoming>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_1dihssw" sourceRef="Activity_1igb4w1" targetRef="Activity_0i2umzw" />
-    <bpmn:sequenceFlow id="Flow_19dpwnk" sourceRef="Activity_1n1cfw3" targetRef="Event_0ki8j1o" />
-    <bpmn:intermediateCatchEvent id="Event_0ki8j1o" name="Godzina rozpoczęcia spotkania">
-      <bpmn:incoming>Flow_19dpwnk</bpmn:incoming>
-      <bpmn:outgoing>Flow_0xrz7ik</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_0b9hg7o" />
+    <bpmn:task id="Task_CreateMeeting" name="Schedule Meeting" />
+    <bpmn:intermediateThrowEvent id="Event_ThrowMeetingDetails" name="Announce Schedule">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ThrowMeetingDetails" messageRef="Message_MeetingDetails" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateCatchEvent id="Event_WaitForStartTime" name="Await Meeting Start Time">
+      <bpmn:timerEventDefinition id="TimerEventDefinition_WaitForStart" />
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_0xrz7ik" sourceRef="Event_0ki8j1o" targetRef="Activity_0umbue0" />
-    <bpmn:eventBasedGateway id="Gateway_02nvdr5">
-      <bpmn:incoming>Flow_1rffbi2</bpmn:incoming>
-      <bpmn:outgoing>Flow_1afaw4k</bpmn:outgoing>
-      <bpmn:outgoing>Flow_06x25wi</bpmn:outgoing>
-    </bpmn:eventBasedGateway>
-    <bpmn:sequenceFlow id="Flow_1rffbi2" sourceRef="Activity_0umbue0" targetRef="Gateway_02nvdr5" />
-    <bpmn:intermediateCatchEvent id="Event_1jiqzk6" name="Timeout - spotkanie trwa ponad 24 godziny">
-      <bpmn:incoming>Flow_1afaw4k</bpmn:incoming>
-      <bpmn:outgoing>Flow_0seoidf</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_0qohnmt" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_1afaw4k" sourceRef="Gateway_02nvdr5" targetRef="Event_1jiqzk6" />
-    <bpmn:sequenceFlow id="Flow_0seoidf" sourceRef="Event_1jiqzk6" targetRef="Gateway_0fq9jlp" />
-    <bpmn:intermediateCatchEvent id="Event_0n1musm" name="Zakończenie spotkania">
-      <bpmn:incoming>Flow_06x25wi</bpmn:incoming>
-      <bpmn:outgoing>Flow_15aaw31</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1iatb09" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_06x25wi" sourceRef="Gateway_02nvdr5" targetRef="Event_0n1musm" />
-    <bpmn:sequenceFlow id="Flow_15aaw31" sourceRef="Event_0n1musm" targetRef="Gateway_0fq9jlp" />
+    <bpmn:intermediateThrowEvent id="Event_ThrowMeetingStarting" name="Signal Meeting Start">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ThrowMeetingStart" messageRef="Message_MeetingStartSignal" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="Event_EndMeetingService" name="Meeting Initiated" />
+    <bpmn:sequenceFlow id="Flow_MS_1" sourceRef="Event_StartMeetingRequest" targetRef="Task_CreateMeeting" />
+    <bpmn:sequenceFlow id="Flow_MS_2" sourceRef="Task_CreateMeeting" targetRef="Event_ThrowMeetingDetails" />
+    <bpmn:sequenceFlow id="Flow_MS_Wait" sourceRef="Event_ThrowMeetingDetails" targetRef="Event_WaitForStartTime" />
+    <bpmn:sequenceFlow id="Flow_MS_3" sourceRef="Event_WaitForStartTime" targetRef="Event_ThrowMeetingStarting" />
+    <bpmn:sequenceFlow id="Flow_MS_4" sourceRef="Event_ThrowMeetingStarting" targetRef="Event_EndMeetingService" />
   </bpmn:process>
+  <bpmn:process id="Process_NotificationService" isExecutable="false">
+    <bpmn:intermediateCatchEvent id="Event_CatchMeetingScheduled" name="Meeting Scheduled">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_NewMeeting" messageRef="Message_MeetingDetails" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="Event_EndNotificationService" name="Participants Notified" />
+    <bpmn:task id="Task_NotifyRecipients" name="Notify Participants" />
+    <bpmn:sequenceFlow id="Flow_NS_1" sourceRef="Event_CatchMeetingScheduled" targetRef="Task_NotifyRecipients" />
+    <bpmn:sequenceFlow id="Flow_NS_2" sourceRef="Task_NotifyRecipients" targetRef="Event_EndNotificationService" />
+  </bpmn:process>
+  <bpmn:process id="Process_RecordingService" isExecutable="false">
+    <bpmn:intermediateCatchEvent id="Event_CatchMeetingStarted" name="Start Signal Received">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_MeetingStarted" messageRef="Message_MeetingStartSignal" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_StartRecording" name="Record Meeting" />
+    <bpmn:task id="Task_SaveRecording" name="Finalize Recording" />
+    <bpmn:intermediateThrowEvent id="Event_ThrowRecordingReady" name="Announce Recording Availability">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ThrowRecordingReady" messageRef="Message_RecordingReady" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="Event_EndRecordingService" name="Recording Produced" />
+    <bpmn:sequenceFlow id="Flow_RS_1" sourceRef="Event_CatchMeetingStarted" targetRef="Task_StartRecording" />
+    <bpmn:sequenceFlow id="Flow_RS_2" sourceRef="Task_StartRecording" targetRef="Task_SaveRecording" />
+    <bpmn:sequenceFlow id="Flow_RS_3" sourceRef="Task_SaveRecording" targetRef="Event_ThrowRecordingReady" />
+    <bpmn:sequenceFlow id="Flow_RS_4" sourceRef="Event_ThrowRecordingReady" targetRef="Event_EndRecordingService" />
+  </bpmn:process>
+  <bpmn:process id="Process_TranscriptionService" isExecutable="false">
+    <bpmn:intermediateCatchEvent id="Event_CatchMeetingRecorded" name="Recording Received">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_MeetingRecorded" messageRef="Message_RecordingReady" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:task id="Task_TranscribeVideo" name="Generate Transcript" />
+    <bpmn:intermediateThrowEvent id="Event_ThrowTranscriptReady" name="Announce Transcript Availability">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_ThrowTranscriptReady" messageRef="Message_TranscriptReady" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="Event_EndTranscriptionService" name="Transcript Generated" />
+    <bpmn:sequenceFlow id="Flow_TS_1" sourceRef="Event_CatchMeetingRecorded" targetRef="Task_TranscribeVideo" />
+    <bpmn:sequenceFlow id="Flow_TS_2" sourceRef="Task_TranscribeVideo" targetRef="Event_ThrowTranscriptReady" />
+    <bpmn:sequenceFlow id="Flow_TS_3" sourceRef="Event_ThrowTranscriptReady" targetRef="Event_EndTranscriptionService" />
+  </bpmn:process>
+  <bpmn:process id="Process_SummaryService" isExecutable="false">
+    <bpmn:intermediateCatchEvent id="Event_CatchTranscriptionGenerated" name="Transcript Received">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_TranscriptionGenerated" messageRef="Message_TranscriptReady" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="Event_EndSummaryService" name="Summary Done">
+      <bpmn:incoming>Flow_SS_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_SummarizeTranscription" name="Generate Meeting Summary" />
+    <bpmn:sequenceFlow id="Flow_SS_1" sourceRef="Event_CatchTranscriptionGenerated" targetRef="Task_SummarizeTranscription" />
+    <bpmn:sequenceFlow id="Flow_SS_2" sourceRef="Task_SummarizeTranscription" targetRef="Event_EndSummaryService" />
+  </bpmn:process>
+  <bpmn:message id="Message_CreateMeetingRequest" name="MeetingCreationRequest" />
+  <bpmn:message id="Message_MeetingDetails" name="MeetingDetails" />
+  <bpmn:message id="Message_MeetingStartSignal" name="MeetingStartSignal" />
+  <bpmn:message id="Message_RecordingReady" name="RecordingReady" />
+  <bpmn:message id="Message_TranscriptReady" name="TranscriptReady" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_11wvoh4">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_11pnv3l">
-        <dc:Bounds x="162" y="222" width="36" height="36" />
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Main">
+      <bpmndi:BPMNShape id="Pool_MeetingService_di" bpmnElement="Pool_MeetingService" isHorizontal="true">
+        <dc:Bounds x="600" y="80" width="600" height="250" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_StartMeetingRequest_di" bpmnElement="Event_StartMeetingRequest">
+        <dc:Bounds x="652" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="151" y="265" width="59" height="27" />
+          <dc:Bounds x="644" y="225" width="54" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1n1cfw3_di" bpmnElement="Activity_1n1cfw3">
-        <dc:Bounds x="290" y="200" width="100" height="80" />
+      <bpmndi:BPMNShape id="Task_CreateMeeting_di" bpmnElement="Task_CreateMeeting">
+        <dc:Bounds x="740" y="160" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0gj0g7i_di" bpmnElement="Event_0ki8j1o">
-        <dc:Bounds x="432" y="222" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_ThrowMeetingDetails_di" bpmnElement="Event_ThrowMeetingDetails">
+        <dc:Bounds x="890" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="419" y="180" width="62" height="40" />
+          <dc:Bounds x="881" y="144.5" width="53" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0umbue0_di" bpmnElement="Activity_0umbue0">
-        <dc:Bounds x="540" y="200" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_02nvdr5_di" bpmnElement="Gateway_02nvdr5">
-        <dc:Bounds x="685" y="215" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0fq9jlp_di" bpmnElement="Gateway_0fq9jlp">
-        <dc:Bounds x="945" y="215" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1jiqzk6_di" bpmnElement="Event_1jiqzk6">
-        <dc:Bounds x="812" y="222" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_WaitForStartTime_di" bpmnElement="Event_WaitForStartTime">
+        <dc:Bounds x="970" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="786" y="172" width="87" height="40" />
+          <dc:Bounds x="952" y="225" width="72" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0fruv9j_di" bpmnElement="Activity_0fruv9j">
-        <dc:Bounds x="1050" y="200" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1igb4w1_di" bpmnElement="Activity_1igb4w1">
-        <dc:Bounds x="1220" y="200" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0i2umzw_di" bpmnElement="Activity_0i2umzw">
-        <dc:Bounds x="1400" y="200" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1s7m440_di" bpmnElement="Activity_1s7m440">
-        <dc:Bounds x="1050" y="310" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0n1musm_di" bpmnElement="Event_0n1musm">
-        <dc:Bounds x="812" y="82" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_ThrowMeetingStarting_di" bpmnElement="Event_ThrowMeetingStarting">
+        <dc:Bounds x="1052" y="182" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="797" y="125" width="66" height="27" />
+          <dc:Bounds x="1032" y="144.5" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1ym9gc3_di" bpmnElement="Flow_1ym9gc3">
-        <di:waypoint x="198" y="240" />
-        <di:waypoint x="290" y="240" />
+      <bpmndi:BPMNShape id="Event_EndMeetingService_di" bpmnElement="Event_EndMeetingService">
+        <dc:Bounds x="1142" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1120" y="225" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_MS_1_di" bpmnElement="Flow_MS_1">
+        <di:waypoint x="688" y="200" />
+        <di:waypoint x="740" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19dpwnk_di" bpmnElement="Flow_19dpwnk">
-        <di:waypoint x="390" y="240" />
-        <di:waypoint x="432" y="240" />
+      <bpmndi:BPMNEdge id="Flow_MS_2_di" bpmnElement="Flow_MS_2">
+        <di:waypoint x="840" y="200" />
+        <di:waypoint x="890" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jqm88f_di" bpmnElement="Flow_1jqm88f">
-        <di:waypoint x="995" y="240" />
-        <di:waypoint x="1050" y="240" />
+      <bpmndi:BPMNEdge id="Flow_MS_Wait_di" bpmnElement="Flow_MS_Wait">
+        <di:waypoint x="926" y="200" />
+        <di:waypoint x="970" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w4yqve_di" bpmnElement="Flow_1w4yqve">
-        <di:waypoint x="970" y="265" />
-        <di:waypoint x="970" y="350" />
-        <di:waypoint x="1050" y="350" />
+      <bpmndi:BPMNEdge id="Flow_MS_3_di" bpmnElement="Flow_MS_3">
+        <di:waypoint x="1006" y="200" />
+        <di:waypoint x="1052" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18lrpq8_di" bpmnElement="Flow_18lrpq8">
-        <di:waypoint x="1150" y="240" />
-        <di:waypoint x="1220" y="240" />
+      <bpmndi:BPMNEdge id="Flow_MS_4_di" bpmnElement="Flow_MS_4">
+        <di:waypoint x="1088" y="200" />
+        <di:waypoint x="1142" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1dihssw_di" bpmnElement="Flow_1dihssw">
-        <di:waypoint x="1320" y="240" />
-        <di:waypoint x="1400" y="240" />
+      <bpmndi:BPMNShape id="Pool_RecordingService_di" bpmnElement="Pool_RecordingService" isHorizontal="true">
+        <dc:Bounds x="600" y="460" width="630" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReceiveMeetingStarted_di" bpmnElement="Event_CatchMeetingStarted">
+        <dc:Bounds x="652" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="640" y="585" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StartRecording_di" bpmnElement="Task_StartRecording">
+        <dc:Bounds x="740" y="520" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveRecording_di" bpmnElement="Task_SaveRecording">
+        <dc:Bounds x="890" y="520" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ThrowRecordingReady_di" bpmnElement="Event_ThrowRecordingReady">
+        <dc:Bounds x="1042" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1033" y="492" width="54" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_EndRecordingService_di" bpmnElement="Event_EndRecordingService">
+        <dc:Bounds x="1162" y="542" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1154" y="585" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_RS_1_di" bpmnElement="Flow_RS_1">
+        <di:waypoint x="688" y="560" />
+        <di:waypoint x="740" y="560" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0xrz7ik_di" bpmnElement="Flow_0xrz7ik">
-        <di:waypoint x="468" y="240" />
-        <di:waypoint x="540" y="240" />
+      <bpmndi:BPMNEdge id="Flow_RS_2_di" bpmnElement="Flow_RS_2">
+        <di:waypoint x="840" y="560" />
+        <di:waypoint x="890" y="560" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1rffbi2_di" bpmnElement="Flow_1rffbi2">
-        <di:waypoint x="640" y="240" />
-        <di:waypoint x="685" y="240" />
+      <bpmndi:BPMNEdge id="Flow_RS_3_di" bpmnElement="Flow_RS_3">
+        <di:waypoint x="990" y="560" />
+        <di:waypoint x="1042" y="560" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1afaw4k_di" bpmnElement="Flow_1afaw4k">
-        <di:waypoint x="735" y="240" />
-        <di:waypoint x="812" y="240" />
+      <bpmndi:BPMNEdge id="Flow_RS_4_di" bpmnElement="Flow_RS_4">
+        <di:waypoint x="1078" y="560" />
+        <di:waypoint x="1162" y="560" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0seoidf_di" bpmnElement="Flow_0seoidf">
-        <di:waypoint x="848" y="240" />
-        <di:waypoint x="945" y="240" />
+      <bpmndi:BPMNShape id="Pool_TransriptionService_di" bpmnElement="Pool_TranscriptionService" isHorizontal="true">
+        <dc:Bounds x="600" y="720" width="600" height="180" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReceiveMeetingRecorded_di" bpmnElement="Event_CatchMeetingRecorded">
+        <dc:Bounds x="652" y="792" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="643" y="835" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TranscribeVideo_di" bpmnElement="Task_TranscribeVideo">
+        <dc:Bounds x="740" y="770" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ThrowTranscriptReady_di" bpmnElement="Event_ThrowTranscriptReady">
+        <dc:Bounds x="890" y="792" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="881" y="742" width="53" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_EndTranscriptionService_di" bpmnElement="Event_EndTranscriptionService">
+        <dc:Bounds x="1042" y="792" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1035" y="835" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_TS_1_di" bpmnElement="Flow_TS_1">
+        <di:waypoint x="688" y="810" />
+        <di:waypoint x="740" y="810" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_06x25wi_di" bpmnElement="Flow_06x25wi">
-        <di:waypoint x="710" y="215" />
-        <di:waypoint x="710" y="100" />
-        <di:waypoint x="812" y="100" />
+      <bpmndi:BPMNEdge id="Flow_TS_2_di" bpmnElement="Flow_TS_2">
+        <di:waypoint x="840" y="810" />
+        <di:waypoint x="890" y="810" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15aaw31_di" bpmnElement="Flow_15aaw31">
-        <di:waypoint x="848" y="100" />
-        <di:waypoint x="970" y="100" />
-        <di:waypoint x="970" y="215" />
+      <bpmndi:BPMNEdge id="Flow_TS_3_di" bpmnElement="Flow_TS_3">
+        <di:waypoint x="926" y="810" />
+        <di:waypoint x="1042" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Pool_SummaryService_di" bpmnElement="Pool_SummaryService" isHorizontal="true">
+        <dc:Bounds x="600" y="970" width="600" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReceiveTranscriptionGenerated_di" bpmnElement="Event_CatchTranscriptionGenerated">
+        <dc:Bounds x="652" y="1052" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="644" y="1095" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_EndSummaryService_di" bpmnElement="Event_EndSummaryService">
+        <dc:Bounds x="1042" y="1052" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1022" y="1095" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SummarizeTranscription_di" bpmnElement="Task_SummarizeTranscription">
+        <dc:Bounds x="810" y="1030" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_SS_1_di" bpmnElement="Flow_SS_1">
+        <di:waypoint x="688" y="1070" />
+        <di:waypoint x="810" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SS_2_di" bpmnElement="Flow_SS_2">
+        <di:waypoint x="910" y="1070" />
+        <di:waypoint x="1042" y="1070" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Pool_NotificationService_di" bpmnElement="Pool_NotificationService" isHorizontal="true">
+        <dc:Bounds x="160" y="460" width="400" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_ReceiveNewMeeting_di" bpmnElement="Event_CatchMeetingScheduled">
+        <dc:Bounds x="212" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="204" y="575" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_EndNotificationService_di" bpmnElement="Event_EndNotificationService">
+        <dc:Bounds x="452" y="532" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="440" y="575" width="61" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_NotifyRecipients_di" bpmnElement="Task_NotifyRecipients">
+        <dc:Bounds x="310" y="510" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_NS_1_di" bpmnElement="Flow_NS_1">
+        <di:waypoint x="248" y="550" />
+        <di:waypoint x="310" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NS_2_di" bpmnElement="Flow_NS_2">
+        <di:waypoint x="410" y="550" />
+        <di:waypoint x="452" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Msg_MS_to_NS_di" bpmnElement="Flow_Msg_MS_to_NS">
+        <di:waypoint x="908" y="218" />
+        <di:waypoint x="908" y="370" />
+        <di:waypoint x="230" y="370" />
+        <di:waypoint x="230" y="532" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="880" y="291" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Msg_MS_to_RS_di" bpmnElement="Flow_Msg_MS_to_RS">
+        <di:waypoint x="1070" y="218" />
+        <di:waypoint x="1070" y="410" />
+        <di:waypoint x="670" y="410" />
+        <di:waypoint x="670" y="542" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="400" y="394" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Msg_RS_to_TS_di" bpmnElement="Flow_Msg_RS_to_TS">
+        <di:waypoint x="1060" y="578" />
+        <di:waypoint x="1060" y="680" />
+        <di:waypoint x="670" y="680" />
+        <di:waypoint x="670" y="792" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="400" y="693" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Msg_TS_to_SS_di" bpmnElement="Flow_Msg_TS_to_SS">
+        <di:waypoint x="908" y="828" />
+        <di:waypoint x="908" y="930" />
+        <di:waypoint x="670" y="930" />
+        <di:waypoint x="670" y="1052" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="320" y="963" width="80" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

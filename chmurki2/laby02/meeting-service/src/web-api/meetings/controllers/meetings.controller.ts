@@ -24,7 +24,9 @@ export class MeetingsController {
 
     const savedMeeting = await this.commandBus.execute(command);
 
-    return savedMeeting;
+    return {
+      id: savedMeeting,
+    };
   }
 
   @Get()
