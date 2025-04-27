@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { MeetingCreatedEvent } from '../../domain/MeetingCreatedEvent';
+import { MeetingCreatedEvent } from '../../domain/events/meeting-created.event';
 import { SendNotificationCommand } from '../../domain/commands/send-notification.command';
 
 @Controller()

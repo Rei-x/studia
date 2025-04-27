@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Meeting } from 'src/domain/entities/meeting.entity';
 import { Inject, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
+import { MeetingCreatedEvent } from 'src/domain/events/meeting-created.event';
 
 @CommandHandler(CreateMeetingCommand)
 export class CreateMeetingHandler
@@ -19,7 +19,7 @@ export class CreateMeetingHandler
     private readonly eventBus: EventBus,
   ) {}
 
-  async execute(command: CreateMeetingCommand): Promise<Meeting> {
+  async execute(command: CreateMeetingCommand): Promise<string> {
     const { title, startTime, participants } = command;
     this.logger.log(`Creating meeting with title: ${title}`);
     const meeting = this.meetingRepository.create({
@@ -42,6 +42,6 @@ export class CreateMeetingHandler
     this.client.emit(MeetingCreatedEvent.name, event.serialize());
 
     this.logger.log(`Meeting created with ID: ${savedMeeting.id}`);
-    return savedMeeting;
+    return savedMeeting.id;
   }
 }

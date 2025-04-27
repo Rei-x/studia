@@ -11,6 +11,10 @@ import { CreateMeetingHandler } from 'src/app/handlers/create-meeting.handler';
 import { GetAllMeetingsHandler } from 'src/app/handlers/get-all-meetings.handler';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MeetingStarter } from 'src/app/services/meeting-starter';
+import { DispatchMeetingStartedHandler } from 'src/app/handlers/dispatch-meeting-started.handler';
+import { GetMeetingsToStartHandler } from 'src/app/handlers/get-meetings-to-start.handler';
 
 @Module({
   imports: [
@@ -35,12 +39,18 @@ import { MeetingCreatedEvent } from 'src/domain/meeting-created.event';
         inject: [ConfigService],
       },
     ]),
-
+    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([Meeting]),
     CqrsModule,
     MeetingsModule,
   ],
-  providers: [CreateMeetingHandler, GetAllMeetingsHandler],
+  providers: [
+    CreateMeetingHandler,
+    GetAllMeetingsHandler,
+    DispatchMeetingStartedHandler,
+    GetMeetingsToStartHandler,
+    MeetingStarter,
+  ],
   exports: [],
 })
 export class AppModule {}

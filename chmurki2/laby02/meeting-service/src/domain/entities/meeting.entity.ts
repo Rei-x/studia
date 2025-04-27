@@ -23,6 +23,9 @@ export class Meeting {
   @Column('simple-array', { nullable: true })
   participantEmails: string[];
 
+  @Column({ default: false })
+  startEventSent: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
