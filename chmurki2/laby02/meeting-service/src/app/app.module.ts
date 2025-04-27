@@ -15,6 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MeetingStarter } from 'src/app/services/meeting-starter';
 import { DispatchMeetingStartedHandler } from 'src/app/handlers/dispatch-meeting-started.handler';
 import { GetMeetingsToStartHandler } from 'src/app/handlers/get-meetings-to-start.handler';
+import { MeetingStartedEvent } from 'src/domain/events/meeting-started.event';
 
 @Module({
   imports: [
@@ -28,12 +29,26 @@ import { GetMeetingsToStartHandler } from 'src/app/handlers/get-meetings-to-star
     ClientsModule.registerAsync([
       {
         imports: [ConfigModule],
-        name: 'RABBIT_MQ_SERVICE',
+        name: 'NOTIFICATION_SERVICE',
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
             urls: [configService.getOrThrow<string>('RABBIT_MQ_URL')],
             queue: MeetingCreatedEvent.name,
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
+        imports: [ConfigModule],
+        name: 'RECORDING_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.getOrThrow<string>('RABBIT_MQ_URL')],
+            queue: MeetingStartedEvent.name,
           },
         }),
         inject: [ConfigService],

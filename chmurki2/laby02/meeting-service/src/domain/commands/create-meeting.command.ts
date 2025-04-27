@@ -1,7 +1,6 @@
 import { Command } from '@nestjs/cqrs';
-import type { Meeting } from 'src/domain/entities/meeting.entity';
 
-export class CreateMeetingCommand extends Command<Meeting> {
+export class CreateMeetingCommand extends Command<string> {
   constructor(
     public readonly title: string,
     public readonly startTime: Date,

@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:meeting-service": "cd meeting-service  && npm run start:dev -- --preserveWatchOutput",
+    "start:notification-service": "cd notification-service && npm run start:dev -- --preserveWatchOutput",
+    "start:recording-service": "cd recording-service && npm run start:dev -- --preserveWatchOutput",
     "start": "concurrently -c auto npm:start:*"
   },
   "keywords": [],

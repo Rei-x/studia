@@ -15,7 +15,7 @@ export class CreateMeetingHandler
   constructor(
     @InjectRepository(Meeting)
     private meetingRepository: Repository<Meeting>,
-    @Inject('RABBIT_MQ_SERVICE') private readonly client: ClientProxy,
+    @Inject('NOTIFICATION_SERVICE') private readonly client: ClientProxy,
     private readonly eventBus: EventBus,
   ) {}
 

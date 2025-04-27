@@ -17,7 +17,7 @@ export class DispatchMeetingStartedHandler
   constructor(
     @InjectRepository(Meeting)
     private meetingRepository: Repository<Meeting>,
-    @Inject('RABBIT_MQ_SERVICE') private readonly client: ClientProxy,
+    @Inject('RECORDING_SERVICE') private readonly client: ClientProxy,
     private readonly eventBus: EventBus,
   ) {}
 
