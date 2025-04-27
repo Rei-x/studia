@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app/app.module';
-import { MeetingStartedEvent } from 'src/domain/events/meeting-started.event';
+import { RecordingCompletedEvent } from './domain/events/recording-completed.event';
 
 async function bootstrap() {
   const logger = new Logger('Main');
@@ -16,14 +16,17 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [rabbitMqUrl],
-      queue: MeetingStartedEvent.name,
+      queue: RecordingCompletedEvent.name,
+      queueOptions: {
+        durable: true,
+      },
     },
   });
 
   await app.startAllMicroservices();
 
-  await app.listen(3002);
-  logger.log(`Notification service is running on port 3002`);
+  await app.listen(3003);
+  logger.log(`Transcription service is running on port 3003`);
 }
 
 bootstrap();

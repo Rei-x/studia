@@ -4,11 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { databaseConfig } from './config/database.config';
-import { Recording } from '../domain/entities/recording.entity';
-import { StartRecordingHandler } from './handlers/start-recording.handler';
 
+import { Transcription } from 'src/domain/entities/transcription.entity';
+import { ProcessRecordingHandler } from './handlers/process-recording.handler';
 import { EventsController } from './controllers/events.controller';
-import { RecordingCompletedEvent } from 'src/domain/events/recording-completed.event';
+import { TranscriptionGeneratedEvent } from 'src/domain/events/transcription-generated.event';
+
+const CommandHandlers = [ProcessRecordingHandler];
+const Controllers = [EventsController];
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { RecordingCompletedEvent } from 'src/domain/events/recording-completed.e
       useFactory: (configService: ConfigService) =>
         databaseConfig(configService.getOrThrow<string>('DATABASE_URL')),
     }),
+    TypeOrmModule.forFeature([Transcription]),
     ClientsModule.registerAsync([
       {
         imports: [ConfigModule],
@@ -27,7 +31,7 @@ import { RecordingCompletedEvent } from 'src/domain/events/recording-completed.e
           transport: Transport.RMQ,
           options: {
             urls: [configService.getOrThrow<string>('RABBIT_MQ_URL')],
-            queue: RecordingCompletedEvent.name,
+            queue: TranscriptionGeneratedEvent.name,
             queueOptions: {
               durable: true,
             },
@@ -36,10 +40,9 @@ import { RecordingCompletedEvent } from 'src/domain/events/recording-completed.e
         inject: [ConfigService],
       },
     ]),
-    TypeOrmModule.forFeature([Recording]),
     CqrsModule,
   ],
-  controllers: [EventsController],
-  providers: [StartRecordingHandler],
+  controllers: [...Controllers],
+  providers: [...CommandHandlers],
 })
 export class AppModule {}

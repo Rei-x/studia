@@ -1,8 +1,8 @@
 import { Controller, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { EventPattern } from '@nestjs/microservices';
-import { MeetingStartedEvent } from 'src/domain/events/meeting-started.event';
-import { StartRecordingCommand } from 'src/domain/commands/start-recording.command';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { RecordingCompletedEvent } from 'src/domain/events/recording-completed.event';
+import { ProcessRecordingCommand } from 'src/domain/commands/process-recording.command';
 
 @Controller()
 export class EventsController {
@@ -10,20 +10,21 @@ export class EventsController {
 
   constructor(private readonly commandBus: CommandBus) {}
 
-  @EventPattern(MeetingStartedEvent.name)
-  async handleMeetingStarted(data: string): Promise<void> {
-    this.logger.log(`Received meeting started event: ${data}`);
-
-    const meetingStartedEvent = MeetingStartedEvent.deserialize(data);
+  @EventPattern(RecordingCompletedEvent.name)
+  async handleRecordingCompleted(@Payload() data: string) {
+    this.logger.log(`Recording completed event received`);
+    const event = RecordingCompletedEvent.deserialize(data);
 
     this.logger.log(
-      `Processing meeting started event for meeting: ${meetingStartedEvent.title} (${meetingStartedEvent.meetingId})`,
+      `Processing recording for meeting ${event.meetingId}, recording ID: ${event.recordingId}`,
     );
 
     await this.commandBus.execute(
-      new StartRecordingCommand(
-        meetingStartedEvent.meetingId,
-        meetingStartedEvent.title,
+      new ProcessRecordingCommand(
+        event.recordingId,
+        event.meetingId,
+        event.recordingUrl,
+        event.durationSeconds,
       ),
     );
   }

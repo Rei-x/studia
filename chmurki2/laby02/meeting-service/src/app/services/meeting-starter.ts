@@ -20,7 +20,13 @@ export class MeetingStarter {
       new GetMeetingsToStartQuery(),
     );
 
-    this.logger.debug(`Found ${startingMeetings.length} meetings starting now`);
+    if (startingMeetings.length > 0) {
+      this.logger.log(
+        `Found ${startingMeetings.length} meetings to start: ${startingMeetings
+          .map((meeting) => meeting.title)
+          .join(', ')}`,
+      );
+    }
 
     // Use command bus to dispatch start events
     for (const meeting of startingMeetings) {

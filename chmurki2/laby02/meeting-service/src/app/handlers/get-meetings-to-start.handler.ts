@@ -3,14 +3,11 @@ import { GetMeetingsToStartQuery } from '../../domain/queries/get-meetings-to-st
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meeting } from 'src/domain/entities/meeting.entity';
-import { Logger } from '@nestjs/common';
 
 @QueryHandler(GetMeetingsToStartQuery)
 export class GetMeetingsToStartHandler
   implements IQueryHandler<GetMeetingsToStartQuery>
 {
-  private readonly logger = new Logger(GetMeetingsToStartHandler.name);
-
   constructor(
     @InjectRepository(Meeting)
     private meetingRepository: Repository<Meeting>,
@@ -18,8 +15,6 @@ export class GetMeetingsToStartHandler
 
   async execute(): Promise<Meeting[]> {
     const now = new Date();
-
-    this.logger.debug('Querying for meetings that need to be started');
 
     return this.meetingRepository
       .createQueryBuilder('meeting')

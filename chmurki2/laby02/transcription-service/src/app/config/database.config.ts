@@ -7,6 +7,6 @@ export const databaseConfig = (url: string): TypeOrmModuleOptions => ({
   synchronize: process.env.NODE_ENV !== 'production', // Auto-synchronize in development only
   logging: process.env.NODE_ENV !== 'production',
   ssl: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // Needed for some hosted PostgreSQL providers
   },
 });

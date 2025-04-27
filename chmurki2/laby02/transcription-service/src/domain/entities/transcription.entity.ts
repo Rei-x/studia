@@ -6,22 +6,22 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('recordings')
-export class Recording {
+@Entity('transcriptions')
+export class Transcription {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 255 })
-  meetingId: string;
-
-  @Column({ length: 255 })
-  recordingUrl: string;
+  @Column()
+  recordingId: string;
 
   @Column()
-  durationSeconds: number;
+  meetingId: string;
 
-  @Column({ length: 255 })
-  status: 'in_progress' | 'completed' | 'failed';
+  @Column()
+  transcriptionUrl: string;
+
+  @Column({ nullable: true, type: 'text' })
+  content: string;
 
   @CreateDateColumn()
   createdAt: Date;
