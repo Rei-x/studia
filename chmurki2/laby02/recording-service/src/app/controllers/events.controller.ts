@@ -20,7 +20,6 @@ export class EventsController {
       `Processing meeting started event for meeting: ${meetingStartedEvent.title} (${meetingStartedEvent.meetingId})`,
     );
 
-    // Start recording the meeting
     await this.commandBus.execute(
       new StartRecordingCommand(
         meetingStartedEvent.meetingId,
