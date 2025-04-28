@@ -129,15 +129,6 @@ export const todoOperations = {
   },
 
   createTodo: (title, completed, userId) => {
-    if (userId) {
-      const userExists = db
-        .prepare("SELECT 1 FROM users WHERE id = ?")
-        .get(userId);
-      if (!userExists) {
-        return null;
-      }
-    }
-
     const stmt = db.prepare(
       "INSERT INTO todos (title, completed, user_id) VALUES (?, ?, ?) RETURNING *"
     );
@@ -145,15 +136,6 @@ export const todoOperations = {
   },
 
   updateTodo: (id, title, completed, userId) => {
-    if (userId) {
-      const userExists = db
-        .prepare("SELECT 1 FROM users WHERE id = ?")
-        .get(userId);
-      if (!userExists) {
-        return null;
-      }
-    }
-
     const stmt = db.prepare(
       "UPDATE todos SET title = ?, completed = ?, user_id = ? WHERE id = ? RETURNING *"
     );
