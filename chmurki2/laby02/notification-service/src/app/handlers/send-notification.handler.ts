@@ -23,9 +23,7 @@ export class SendNotificationHandler
       `Processing notifications for meeting ${meetingId}: ${title}`,
     );
 
-    // For each recipient, find if they exist in our system and send notification
     for (const email of recipientEmails) {
-      // Find or create a participant record in our system
       let participant = await this.participantRepository.findOne({
         where: { email },
       });
@@ -37,8 +35,6 @@ export class SendNotificationHandler
       }
 
       if (participant.notificationsEnabled) {
-        // In a real application, this would send an actual notification
-        // For now, we just log that we would have sent a notification
         this.logger.log(
           `Sending notification to ${email} about meeting "${title}" ` +
             `starting at ${startTime.toLocaleString()}` +
