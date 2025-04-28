@@ -15,7 +15,6 @@ export class MeetingStarter {
 
   @Cron('*/5 * * * * *')
   async checkForStartingMeetings() {
-    // Use query bus to get meetings that need to start
     const startingMeetings = await this.queryBus.execute(
       new GetMeetingsToStartQuery(),
     );
@@ -28,7 +27,6 @@ export class MeetingStarter {
       );
     }
 
-    // Use command bus to dispatch start events
     for (const meeting of startingMeetings) {
       await this.commandBus.execute(
         new DispatchMeetingStartedCommand(meeting.id),

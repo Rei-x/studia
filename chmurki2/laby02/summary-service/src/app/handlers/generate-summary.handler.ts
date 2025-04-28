@@ -25,42 +25,35 @@ export class GenerateSummaryHandler
     const { meetingId, recordingId, transcriptionUrl, transcriptionContent } =
       command;
 
-    // Instead of directly accessing transcription entity, we use the URL provided in the event
     this.logger.log(`Fetching transcription from ${transcriptionUrl}...`);
-    await this.delay(800); // Mock delay to simulate fetching
+    await this.delay(800);
 
-    // Generate a mock summary
     this.logger.log('Generating AI summary...');
-    await this.delay(1500); // Mock AI processing time
+    await this.delay(1500);
     const summaryContent = this.generateMockSummary(transcriptionContent);
     this.logger.log('Summary generated successfully');
 
-    // Simulate saving summary to a cloud storage
     this.logger.log('Uploading summary to storage...');
     await this.delay(500);
     const summaryUrl = `https://example-storage.com/summaries/${meetingId}.txt`;
     this.logger.log(`Summary uploaded to ${summaryUrl}`);
 
-    // Save summary to database - only using the Summary entity from this service
     const summary = this.summaryRepository.create({
       meetingId,
       recordingId,
-      // Use a reference ID but don't try to directly access the transcription entity
-      transcriptionId: recordingId, // Just storing the reference ID
+      transcriptionId: recordingId,
       content: summaryContent,
       summaryUrl,
     });
 
     const savedSummary = await this.summaryRepository.save(summary);
 
-    // Create and emit event
     const event = new SummaryGeneratedEvent(
       meetingId,
       savedSummary.id,
       summaryUrl,
     );
 
-    // Publish event internally and to message queue
     this.eventBus.publish(event);
     await firstValueFrom(
       this.client.emit(SummaryGeneratedEvent.name, event.serialize()),
@@ -76,7 +69,6 @@ export class GenerateSummaryHandler
   }
 
   private generateMockSummary(transcriptionContent?: string): string {
-    // If we have transcription content, create a summary based on it
     if (transcriptionContent) {
       const paragraphs = transcriptionContent.split('\n\n');
       if (paragraphs.length > 0) {
@@ -84,7 +76,6 @@ export class GenerateSummaryHandler
       }
     }
 
-    // Otherwise create a generic mock summary
     const summaryTemplates = [
       'The meeting focused on project updates and upcoming deadlines. Team members reported progress on their assigned tasks.',
       'The team discussed the latest product features and customer feedback. Several action items were identified for follow-up.',

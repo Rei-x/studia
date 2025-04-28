@@ -49,13 +49,11 @@ export class DispatchMeetingStartedHandler
       meeting.participantEmails,
     );
 
-    // Publish event internally and to message queue
     this.eventBus.publish(event);
     await firstValueFrom(
       this.client.emit(MeetingStartedEvent.name, event.serialize()),
     );
 
-    // Update the meeting to mark that the start event has been sent
     meeting.startEventSent = true;
     await this.meetingRepository.save(meeting);
   }
