@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+
+
+  meeting-service:
+    build:
+      context: ./meeting-service
+      dockerfile: Dockerfile
+    container_name: meeting-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./meeting-service/.env
+    networks:
+      - app-network
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    env_file:
+      - ./notification-service/.env
+    ports:
+      - "3001:3001"
+
+    networks:
+      - app-network
+
+  recording-service:
+    build:
+      context: ./recording-service
+      dockerfile: Dockerfile
+    container_name: recording-service
+    env_file:
+      - ./recording-service/.env
+    ports:
+      - "3002:3002"
+
+
+    networks:
+      - app-network
+
+  summary-service:
+    build:
+      context: ./summary-service
+      dockerfile: Dockerfile
+    container_name: summary-service
+    env_file:
+      - ./summary-service/.env
+    ports:
+      - "3003:3003"
+
+    networks:
+      - app-network
+
+  transcription-service:
+    build:
+      context: ./transcription-service
+      dockerfile: Dockerfile
+    container_name: transcription-service
+    env_file:
+      - ./transcription-service/.env
+    ports:
+      - "3004:3004"
+
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
