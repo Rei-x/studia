@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region to deploy resources"
+  description = "AWS region to deploy resources to"
   type        = string
   default     = "us-east-1"
 }
@@ -17,21 +17,16 @@ variable "vpc_cidr" {
 }
 
 variable "availability_zones" {
-  description = "List of availability zones to use"
+  description = "List of availability zones to use for subnets"
   type        = list(string)
-  default     = ["eu-west-1a", "eu-west-1b"]
-}
-
-variable "database_url" {
-  description = "Connection string for the existing PostgreSQL database"
-  type        = string
-  sensitive   = true
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "rabbitmq_url" {
   description = "Connection string for the existing RabbitMQ server"
   type        = string
   sensitive   = true
+  default     = "amqp://guest:guest@localhost:5672"
 }
 
 variable "services" {
@@ -42,6 +37,7 @@ variable "services" {
     cpu            = number
     memory         = number
     image          = string
+    database_url   = optional(string)
   }))
   default = {
     "meeting-service" = {
@@ -50,6 +46,7 @@ variable "services" {
       cpu            = 256
       memory         = 512
       image          = "meeting-service:latest"
+      database_url   = "postgresql://postgres:postgres@localhost:5432/meeting_service_db"
     },
     "notification-service" = {
       container_port = 3001
@@ -57,6 +54,7 @@ variable "services" {
       cpu            = 256
       memory         = 512
       image          = "notification-service:latest"
+      database_url   = "postgresql://postgres:postgres@localhost:5432/notification_service_db"
     },
     "recording-service" = {
       container_port = 3002
@@ -64,6 +62,7 @@ variable "services" {
       cpu            = 256
       memory         = 512
       image          = "recording-service:latest"
+      database_url   = "postgresql://postgres:postgres@localhost:5432/recording_service_db"
     },
     "summary-service" = {
       container_port = 3003
@@ -71,6 +70,7 @@ variable "services" {
       cpu            = 256
       memory         = 512
       image          = "summary-service:latest"
+      database_url   = "postgresql://postgres:postgres@localhost:5432/summary_service_db"
     },
     "transcription-service" = {
       container_port = 3004
@@ -78,6 +78,7 @@ variable "services" {
       cpu            = 256
       memory         = 512
       image          = "transcription-service:latest"
+      database_url   = "postgresql://postgres:postgres@localhost:5432/transcription_service_db"
     }
   }
 }

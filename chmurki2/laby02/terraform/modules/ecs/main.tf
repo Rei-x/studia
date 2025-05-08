@@ -41,7 +41,7 @@ resource "aws_lb" "service" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.lb_security_group_id]
-  subnets            = [var.public_subnet_id]
+  subnets            = var.public_subnet_ids # Using all public subnets across AZs
 
   enable_deletion_protection = false
 
@@ -74,7 +74,6 @@ resource "aws_lb_target_group" "service" {
   }
 }
 
-# Create a listener for each service's load balancer
 resource "aws_lb_listener" "service" {
   for_each = var.services
 
@@ -144,7 +143,7 @@ resource "aws_ecs_task_definition" "service" {
       environment = [
         {
           name  = "DATABASE_URL"
-          value = var.database_url
+          value = lookup(each.value, "database_url", "")
         },
         {
           name  = "RABBIT_MQ_URL"
@@ -187,7 +186,7 @@ resource "aws_ecs_service" "service" {
   force_new_deployment              = true
 
   network_configuration {
-    subnets          = [var.private_subnet_id]
+    subnets          = var.private_subnet_ids
     security_groups  = [var.ecs_tasks_security_group_id]
     assign_public_ip = false
   }

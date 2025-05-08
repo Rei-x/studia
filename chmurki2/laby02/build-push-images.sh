@@ -55,7 +55,7 @@ for SERVICE in "${SERVICES[@]}"; do
   echo -e "${YELLOW}Processing service: ${SERVICE}${NC}"
   SERVICE_DIR="./${SERVICE}"
 
-  REPO_URI="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/meeting-app-${SERVICE}-repo"
+  REPO_URI="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/meeting-app-${SERVICE}-repo-v2"
 
   echo -e "${YELLOW}Building Docker image for ${SERVICE}...${NC}"
   TAG="latest"

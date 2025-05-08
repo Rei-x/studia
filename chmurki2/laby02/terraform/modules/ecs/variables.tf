@@ -8,20 +8,14 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "The ID of the public subnet"
-  type        = string
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  type        = list(string)
 }
 
-variable "private_subnet_id" {
-  description = "The ID of the private subnet"
-  type        = string
-}
-
-variable "database_url" {
-  description = "Connection string for the existing PostgreSQL database"
-  type        = string
-  sensitive   = true
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  type        = list(string)
 }
 
 variable "rabbitmq_url" {
@@ -38,6 +32,7 @@ variable "services" {
     cpu            = number
     memory         = number
     image          = string
+    database_url   = optional(string)
   }))
   default = {
     "meeting-service" = {
