@@ -1,2 +1,5 @@
 node_modules
 .env
+terraform/terraform.tfvars
+terraform/terraform.tfstate
+terraform/.terraform
