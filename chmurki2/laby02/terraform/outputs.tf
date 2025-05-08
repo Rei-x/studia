@@ -23,7 +23,3 @@ output "ecs_service_names" {
   value       = module.ecs.service_names
 }
 
-output "ecr_repository_urls" {
-  description = "Map of service names to their ECR repository URLs"
-  value       = module.ecs.ecr_repository_urls
-}

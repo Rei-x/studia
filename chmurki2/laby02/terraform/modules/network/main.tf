@@ -10,7 +10,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 8, 1)
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, 0)
   map_public_ip_on_launch = true
 
   tags = {
@@ -18,10 +18,9 @@ resource "aws_subnet" "public" {
   }
 }
 
-# Private subnets for ECS tasks and database
 resource "aws_subnet" "private" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = cidrsubnet(var.vpc_cidr, 8, 2)
+  cidr_block = cidrsubnet(var.vpc_cidr, 8, 1)
 
 
   tags = {
@@ -29,7 +28,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-# Internet Gateway for public subnets
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -38,7 +36,6 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-# NAT Gateway for private subnet internet access
 resource "aws_eip" "nat" {
   domain = "vpc"
 
@@ -49,7 +46,7 @@ resource "aws_eip" "nat" {
 
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
+  subnet_id     = aws_subnet.public.id
 
   tags = {
     Name = "${var.project_name}-nat"
@@ -58,7 +55,6 @@ resource "aws_nat_gateway" "main" {
   depends_on = [aws_internet_gateway.main]
 }
 
-# Route tables
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -85,20 +81,16 @@ resource "aws_route_table" "private" {
   }
 }
 
-# Route table associations
 resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.public)
-  subnet_id      = aws_subnet.public[count.index].id
+  subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "private" {
-  count          = length(aws_subnet.private)
-  subnet_id      = aws_subnet.private[count.index].id
+  subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
 }
 
-# Security group for the load balancer
 resource "aws_security_group" "lb" {
   name        = "${var.project_name}-lb-sg"
   description = "Security group for the load balancer"
@@ -130,7 +122,6 @@ resource "aws_security_group" "lb" {
   }
 }
 
-# Security group for ECS tasks
 resource "aws_security_group" "ecs_tasks" {
   name        = "${var.project_name}-ecs-tasks-sg"
   description = "Security group for ECS tasks"

@@ -19,7 +19,7 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_ecr_repository" "service" {
   for_each = var.services
 
-  name                 = "${var.project_name}-${each.key}-repo"
+  name                 = "${var.project_name}-${each.key}-repo-v2"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -27,7 +27,7 @@ resource "aws_ecr_repository" "service" {
   }
 
   tags = {
-    Name = "${var.project_name}-${each.key}-repo"
+    Name = "${var.project_name}-${each.key}-repo-v2"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_lb" "service" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.lb_security_group_id]
-  subnets            = var.public_subnet_ids
+  subnets            = [var.public_subnet_id]
 
   enable_deletion_protection = false
 
@@ -187,7 +187,7 @@ resource "aws_ecs_service" "service" {
   force_new_deployment              = true
 
   network_configuration {
-    subnets          = var.private_subnet_ids
+    subnets          = [var.private_subnet_id]
     security_groups  = [var.ecs_tasks_security_group_id]
     assign_public_ip = false
   }

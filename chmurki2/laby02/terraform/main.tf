@@ -12,13 +12,11 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Load modules
 module "network" {
   source = "./modules/network"
 
-  project_name       = var.project_name
-  vpc_cidr           = var.vpc_cidr
-  availability_zones = var.availability_zones
+  project_name = var.project_name
+  vpc_cidr     = var.vpc_cidr
 }
 
 module "ecs" {
@@ -26,8 +24,8 @@ module "ecs" {
 
   project_name                = var.project_name
   vpc_id                      = module.network.vpc_id
-  public_subnet_ids           = module.network.public_subnet_ids
-  private_subnet_ids          = module.network.private_subnet_ids
+  public_subnet_id            = module.network.public_subnet_id
+  private_subnet_id           = module.network.private_subnet_id
   lb_security_group_id        = module.network.lb_security_group_id
   ecs_tasks_security_group_id = module.network.ecs_tasks_security_group_id
 
