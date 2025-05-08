@@ -1,11 +1,11 @@
-output "cluster_name" {
-  description = "Name of the ECS cluster"
-  value       = aws_ecs_cluster.main.name
+output "cluster_id" {
+  description = "The ID of the ECS cluster"
+  value       = aws_ecs_cluster.main.id
 }
 
-output "load_balancer_dns" {
-  description = "The DNS name of the load balancer"
-  value       = aws_lb.main.dns_name
+output "cluster_name" {
+  description = "The name of the ECS cluster"
+  value       = aws_ecs_cluster.main.name
 }
 
 output "service_names" {
@@ -13,7 +13,23 @@ output "service_names" {
   value       = [for svc in aws_ecs_service.service : svc.name]
 }
 
-output "ecr_repository_url" {
-  description = "URL of the ECR repository"
-  value       = aws_ecr_repository.app_repository.repository_url
+output "ecr_repository_urls" {
+  description = "The URLs of the ECR repositories"
+  value = {
+    for key, repo in aws_ecr_repository.service : key => repo.repository_url
+  }
+}
+
+output "service_load_balancer_dns" {
+  description = "The DNS names of each service's load balancer"
+  value = {
+    for key, lb in aws_lb.service : key => lb.dns_name
+  }
+}
+
+output "service_load_balancer_urls" {
+  description = "HTTP URLs for each service"
+  value = {
+    for key, lb in aws_lb.service : key => "http://${lb.dns_name}"
+  }
 }

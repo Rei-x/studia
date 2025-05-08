@@ -50,69 +50,17 @@ SERVICES=(
   "transcription-service"
 )
 
-# Create .env files with database and RabbitMQ connection info if they don't exist
-echo -e "${YELLOW}Checking/creating environment files...${NC}"
-
-# Get DATABASE_URL and RABBIT_MQ_URL from terraform.tfvars if available
-if [ -f "./terraform/terraform.tfvars" ]; then
-  DATABASE_URL=$(grep "database_url" ./terraform/terraform.tfvars | cut -d'=' -f2 | tr -d ' "')
-  # Remove any trailing comments if present
-  DATABASE_URL=$(echo $DATABASE_URL | cut -d'#' -f1 | tr -d ' ')
-
-  RABBIT_MQ_URL=$(grep "rabbitmq_url" ./terraform/terraform.tfvars | cut -d'=' -f2 | tr -d ' "')
-  # Remove any trailing comments if present
-  RABBIT_MQ_URL=$(echo $RABBIT_MQ_URL | cut -d'#' -f1 | tr -d ' ')
-else
-  # If not found in terraform.tfvars, prompt for them
-  if [ -z "$DATABASE_URL" ]; then
-    read -p "Enter DATABASE_URL: " DATABASE_URL
-  fi
-
-  if [ -z "$RABBIT_MQ_URL" ]; then
-    read -p "Enter RABBIT_MQ_URL: " RABBIT_MQ_URL
-  fi
-fi
-
-# Function to create environment file if it doesn't exist
-create_env_file() {
-  SERVICE_DIR=$1
-  ENV_FILE="${SERVICE_DIR}/.env"
-
-  if [ ! -f "$ENV_FILE" ]; then
-    echo -e "${YELLOW}Creating .env file for ${SERVICE_DIR}...${NC}"
-    cat >"$ENV_FILE" <<EOL
-DATABASE_URL=${DATABASE_URL}
-RABBIT_MQ_URL=${RABBIT_MQ_URL}
-EOL
-    echo -e "${GREEN}Created .env file for ${SERVICE_DIR}${NC}"
-  else
-    echo -e "${GREEN}.env file already exists for ${SERVICE_DIR}${NC}"
-  fi
-}
-
-# Create .env files for all services
-for SERVICE in "${SERVICES[@]}"; do
-  create_env_file "./${SERVICE}"
-done
-
 # Build and push each service to the same repository but with different tags
 for SERVICE in "${SERVICES[@]}"; do
   echo -e "${YELLOW}Processing service: ${SERVICE}${NC}"
   SERVICE_DIR="./${SERVICE}"
 
-  # Check if Dockerfile exists in the service directory
-  if [ ! -f "${SERVICE_DIR}/Dockerfile" ]; then
-    echo -e "${RED}Dockerfile not found for ${SERVICE}. Skipping.${NC}"
-    continue
-  fi
+  REPO_URI="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/meeting-app-${SERVICE}-repo"
 
-  # Build Docker image with service-specific tag
   echo -e "${YELLOW}Building Docker image for ${SERVICE}...${NC}"
-  # Tag format: repository-url:service-name-latest
-  TAG="${SERVICE}-latest"
+  TAG="latest"
 
-  # Build using the correct context and Dockerfile
-  docker build -t $ECR_URI:$TAG -f ${SERVICE_DIR}/Dockerfile ${SERVICE_DIR}
+  docker build -t $REPO_URI:$TAG -f ${SERVICE_DIR}/Dockerfile ${SERVICE_DIR}
 
   if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to build Docker image for ${SERVICE}.${NC}"
@@ -121,7 +69,7 @@ for SERVICE in "${SERVICES[@]}"; do
 
   # Push the image to ECR
   echo -e "${YELLOW}Pushing Docker image for ${SERVICE} to ECR...${NC}"
-  docker push $ECR_URI:$TAG
+  docker push $REPO_URI:$TAG
 
   if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to push Docker image for ${SERVICE}.${NC}"
@@ -129,7 +77,7 @@ for SERVICE in "${SERVICES[@]}"; do
   fi
 
   echo -e "${GREEN}Successfully built and pushed ${SERVICE} to ECR.${NC}"
-  echo -e "${GREEN}Image URI: ${ECR_URI}:${TAG}${NC}"
+  echo -e "${GREEN}Image URI: ${REPO_URI}:${TAG}${NC}"
 done
 
 echo -e "${GREEN}All services processed.${NC}"

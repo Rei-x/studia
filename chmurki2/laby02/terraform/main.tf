@@ -34,4 +34,8 @@ module "ecs" {
   # Pass your existing database and RabbitMQ connections as environment variables
   database_url = var.database_url
   rabbitmq_url = var.rabbitmq_url
+
+  # Use existing ECS Task Execution Role in education account
+  execution_role_arn = "arn:aws:iam::091492946242:role/LabRole"
+  task_role_arn      = "arn:aws:iam::091492946242:role/LabRole"
 }

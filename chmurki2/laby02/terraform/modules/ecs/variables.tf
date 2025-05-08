@@ -87,3 +87,15 @@ variable "ecs_tasks_security_group_id" {
   description = "The ID of the security group for ECS tasks"
   type        = string
 }
+
+variable "execution_role_arn" {
+  description = "ARN of an existing IAM role that the ECS service can use as an execution role"
+  type        = string
+  default     = ""
+}
+
+variable "task_role_arn" {
+  description = "ARN of an existing IAM role that the ECS tasks can use"
+  type        = string
+  default     = ""
+}

@@ -13,11 +13,13 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-############### ECR Repository ###############
+############### ECR Repositories ###############
 
-# Create a single ECR repository for all services
-resource "aws_ecr_repository" "app_repository" {
-  name                 = "${var.project_name}-repo"
+# Create a separate ECR repository for each service
+resource "aws_ecr_repository" "service" {
+  for_each = var.services
+
+  name                 = "${var.project_name}-${each.key}-repo"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -25,97 +27,17 @@ resource "aws_ecr_repository" "app_repository" {
   }
 
   tags = {
-    Name = "${var.project_name}-repo"
+    Name = "${var.project_name}-${each.key}-repo"
   }
 }
 
-############### IAM Roles ###############
+############### Load Balancers ###############
 
-# ECS task execution role
-resource "aws_iam_role" "ecs_execution_role" {
-  name = "${var.project_name}-ecs-execution-role"
+# Create a separate load balancer for each service
+resource "aws_lb" "service" {
+  for_each = var.services
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.project_name}-ecs-execution-role"
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
-  role       = aws_iam_role.ecs_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# ECS task role
-resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.project_name}-ecs-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "${var.project_name}-ecs-task-role"
-  }
-}
-
-resource "aws_iam_policy" "task_policy" {
-  name        = "${var.project_name}-task-policy"
-  description = "Policy for ECS tasks"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents",
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ssm:GetParameters",
-          "secretsmanager:GetSecretValue",
-          "kms:Decrypt"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "task_role_policy" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.task_policy.arn
-}
-
-############### Load Balancer ###############
-
-resource "aws_lb" "main" {
-  name               = "${var.project_name}-alb"
+  name               = "${substr(var.project_name, 0, 16)}-${substr(each.key, 0, 16)}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.lb_security_group_id]
@@ -124,7 +46,7 @@ resource "aws_lb" "main" {
   enable_deletion_protection = false
 
   tags = {
-    Name = "${var.project_name}-alb"
+    Name = "${var.project_name}-${each.key}-alb"
   }
 }
 
@@ -138,14 +60,13 @@ resource "aws_lb_target_group" "service" {
   target_type = "ip"
 
   health_check {
-    enabled             = true
-    interval            = 30
-    path                = "/health"
-    port                = "traffic-port"
     healthy_threshold   = 3
-    unhealthy_threshold = 3
-    timeout             = 5
+    interval            = 30
+    protocol            = "HTTP"
     matcher             = "200"
+    timeout             = 5
+    path                = "/health"
+    unhealthy_threshold = 3
   }
 
   tags = {
@@ -153,46 +74,21 @@ resource "aws_lb_target_group" "service" {
   }
 }
 
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
+# Create a listener for each service's load balancer
+resource "aws_lb_listener" "service" {
+  for_each = var.services
+
+  load_balancer_arn = aws_lb.service[each.key].arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type = "fixed-response"
-
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Welcome to our service"
-      status_code  = "200"
-    }
-  }
-
-  tags = {
-    Name = "${var.project_name}-http-listener"
-  }
-}
-
-# Create listener rules for each service
-resource "aws_lb_listener_rule" "service_rule" {
-  for_each = var.services
-
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 100 + index(keys(var.services), each.key)
-
-  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.service[each.key].arn
   }
 
-  condition {
-    path_pattern {
-      values = ["/${each.key}*"]
-    }
-  }
-
   tags = {
-    Name = "${var.project_name}-${each.key}-rule"
+    Name = "${var.project_name}-${each.key}-listener"
   }
 }
 
@@ -211,6 +107,16 @@ resource "aws_cloudwatch_log_group" "service" {
 
 ############### ECS Task Definitions ###############
 
+# Use locals to determine role ARNs based on provided variables or default to the AmazonECSTaskExecutionRolePolicy
+locals {
+  # Default execution role ARN if none provided (using AWS-managed role)
+  default_execution_role_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+  # Use provided role ARNs or defaults
+  execution_role_arn = var.execution_role_arn != "" ? var.execution_role_arn : local.default_execution_role_arn
+  task_role_arn      = var.task_role_arn != "" ? var.task_role_arn : local.default_execution_role_arn
+}
+
 resource "aws_ecs_task_definition" "service" {
   for_each = var.services
 
@@ -219,13 +125,13 @@ resource "aws_ecs_task_definition" "service" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = each.value.cpu
   memory                   = each.value.memory
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  execution_role_arn       = local.execution_role_arn
+  task_role_arn            = local.task_role_arn
 
   container_definitions = jsonencode([
     {
       name      = each.key
-      image     = "${aws_ecr_repository.app_repository.repository_url}:${each.key}-latest"
+      image     = "${aws_ecr_repository.service[each.key].repository_url}:latest"
       essential = true
 
       portMappings = [
@@ -293,7 +199,7 @@ resource "aws_ecs_service" "service" {
   }
 
   depends_on = [
-    aws_lb_listener.http
+    aws_lb_listener.service
   ]
 
   tags = {
