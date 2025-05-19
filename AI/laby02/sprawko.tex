@@ -1,4 +1,4 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[polish]{babel}
@@ -14,34 +14,31 @@
 \usepackage{xcolor}   % For colored text, if needed
 \usepackage{multicol} % For multi-column layout if needed for tables
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,
-    pdftitle={Raport z laboratoriów nr 2},
-    pdfpagemode=FullScreen,
-}
-
-\lstset{
-    language=Python,
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
     basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue},
-    commentstyle=\color{green!40!black},
-    stringstyle=\color{purple},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
     showstringspaces=false,
-    breaklines=true,
-    frame=single,
-    numbers=left,
-    numberstyle=\tiny\color{gray},
-    upquote=true % Ensures ' and ` are rendered correctly in listings
+    showtabs=false,                  
+    tabsize=2
 }
+\lstset{style=mystyle}
 
 \newcommand{\code}[1]{\texttt{#1}} % Helper command for inline code
 
-\title{Lista 2}
-\author{Bartosz Gotowski \\ 272647}
-\date{\today}
+\title{\LARGE \textbf{Sztuczna inteligencja i inżynieria wiedzy}\\
+\large Lista 2}
+\author{Bartosz Gotowski}
 
 \begin{document}
 
@@ -289,7 +286,7 @@ Zaimplementowany system stanowi dobrą bazę do dalszych badań, np. nad bardzie
 
 \section*{Materiały Źródłowe}
 \begin{itemize}
-    \item Materiały wykładowe i ćwiczeniowe z kursu "Sztuczna Inteligencja i Inżynieria Wiedzy".
+    \item Materiały wykładowe z kursu "Sztuczna Inteligencja i Inżynieria Wiedzy".
     \item Russell, S. J., \& Norvig, P. (2020). \textit{Artificial Intelligence: A Modern Approach} (4th ed.). Pearson. (Ogólna wiedza o Minimax i Alfa-Beta). % Użycie \textit dla tytułu, \& dla "and"
     \item Dokumentacja języka Python oraz wykorzystanych bibliotek.
 \end{itemize}
