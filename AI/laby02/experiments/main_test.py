@@ -3,7 +3,7 @@ import unittest
 
 # If main.py is in the same directory, this direct import should work.
 # If you run tests from a different directory or structure, sys.path adjustments might be needed.
-from main import (
+from laby02.main_v0 import (
     ClobberGame,
     PLAYER_B,
     PLAYER_W,
@@ -19,7 +19,7 @@ from main import (
 )
 
 # It's cleaner to import the module itself to manage globals like VISITED_NODES
-import main as main_module
+import laby02.main_v0 as main_module
 
 
 class TestClobberGame(unittest.TestCase):

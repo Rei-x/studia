@@ -1,0 +1,45 @@
+ExperimentID,ExperimentName,GameNum,P1_Algo,P1_Heuristic,P1_Depth,P2_Algo,P2_Heuristic,P2_Depth,Winner,Rounds,PlyCount,P1_TotalNodes,P2_TotalNodes,P1_TotalTime_s,P2_TotalTime_s
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),1,minimax,combined,2,minimax,combined,2,B,12,23,6317,5224,0.2253,0.1785
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),2,minimax,combined,2,minimax,combined,2,B,12,23,6317,5224,0.2215,0.1773
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),1,alphabeta,combined,2,alphabeta,combined,2,B,12,23,653,577,0.0180,0.0154
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),2,alphabeta,combined,2,alphabeta,combined,2,B,12,23,653,577,0.0180,0.0153
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),1,minimax,combined,2,alphabeta,combined,2,B,12,23,6317,577,0.2222,0.0160
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),2,minimax,combined,2,alphabeta,combined,2,B,12,23,6317,577,0.2231,0.0154
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),1,alphabeta,combined,2,minimax,combined,2,B,12,23,653,5224,0.0179,0.1790
+E1_Algo_Compare,Experiment 1: Algorithm Comparison (Minimax vs Alpha-Beta),2,alphabeta,combined,2,minimax,combined,2,B,12,23,653,5224,0.0180,0.1776
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),1,alphabeta,combined,3,alphabeta,combined,5,W,11,22,6403,113731,0.2109,3.5095
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),2,alphabeta,combined,3,alphabeta,combined,5,W,11,22,6403,113731,0.2099,3.4928
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),1,alphabeta,combined,4,alphabeta,combined,5,W,10,20,16573,113723,0.4618,3.5665
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),2,alphabeta,combined,4,alphabeta,combined,5,W,10,20,16573,113723,0.4563,3.5042
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),1,alphabeta,combined,5,alphabeta,combined,5,B,10,19,147441,113314,4.6936,3.5009
+E2_Depth_Impact,Experiment 2: Impact of Search Depth (P1 AlphaBeta vs P2 Fixed),2,alphabeta,combined,5,alphabeta,combined,5,B,10,19,147441,113314,4.6932,3.5436
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),1,alphabeta,piece_diff,5,alphabeta,combined,5,B,10,19,147441,113314,2.4265,3.5379
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),2,alphabeta,piece_diff,5,alphabeta,combined,5,B,10,19,147441,113314,2.4197,3.5277
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),1,alphabeta,mobility_diff,5,alphabeta,combined,5,B,10,19,147441,113314,4.3913,3.5008
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),2,alphabeta,mobility_diff,5,alphabeta,combined,5,B,10,19,147441,113314,4.3918,3.5092
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),1,alphabeta,combined,5,alphabeta,combined,5,B,10,19,147441,113314,4.6530,3.4786
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),2,alphabeta,combined,5,alphabeta,combined,5,B,10,19,147441,113314,4.6587,3.5009
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),1,alphabeta,adaptive,5,alphabeta,combined,5,B,10,19,147441,113314,7.2084,3.4995
+E3_Heuristic_Perf,Experiment 3: Heuristic Performance (P1 Heuristics vs P2 Fixed Combined),2,alphabeta,adaptive,5,alphabeta,combined,5,B,10,19,147441,113314,7.2611,3.5758
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,adaptive,5,alphabeta,piece_diff,5,B,10,19,147441,113314,7.2381,1.8267
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,adaptive,5,alphabeta,piece_diff,5,B,10,19,147441,113314,7.1911,1.8260
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,piece_diff,5,alphabeta,adaptive,5,B,10,19,147441,113314,2.4080,5.4088
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,piece_diff,5,alphabeta,adaptive,5,B,10,19,147441,113314,2.3843,5.3748
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,adaptive,5,alphabeta,mobility_diff,5,B,10,19,147441,113314,7.2053,3.2795
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,adaptive,5,alphabeta,mobility_diff,5,B,10,19,147441,113314,7.2127,3.2713
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,mobility_diff,5,alphabeta,adaptive,5,B,10,19,147441,113314,4.3851,5.3639
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,mobility_diff,5,alphabeta,adaptive,5,B,10,19,147441,113314,4.4370,5.5139
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,adaptive,5,alphabeta,combined,5,B,10,19,147441,113314,7.2491,3.5240
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,adaptive,5,alphabeta,combined,5,B,10,19,147441,113314,7.2850,3.5372
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,combined,5,alphabeta,adaptive,5,B,10,19,147441,113314,4.7081,5.4555
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,combined,5,alphabeta,adaptive,5,B,10,19,147441,113314,4.7132,5.4526
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,1,alphabeta,adaptive,5,alphabeta,adaptive,5,B,10,19,147441,113314,7.2257,5.4059
+E4_Adaptive_Deep_Dive,Experiment 4: Adaptive Heuristic Deep Dive,2,alphabeta,adaptive,5,alphabeta,adaptive,5,B,10,19,147441,113314,7.2574,5.3916
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,1,alphabeta,combined,3,alphabeta,combined,2,B,10,19,6385,566,0.2126,0.0153
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,2,alphabeta,combined,3,alphabeta,combined,2,B,10,19,6385,566,0.2138,0.0152
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,1,alphabeta,adaptive,2,minimax,piece_diff,2,B,12,23,653,5224,0.0268,0.0863
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,2,alphabeta,adaptive,2,minimax,piece_diff,2,B,12,23,653,5224,0.0276,0.0871
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,1,alphabeta,mobility_diff,3,alphabeta,piece_diff,2,B,10,19,6385,566,0.2095,0.0090
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,2,alphabeta,mobility_diff,3,alphabeta,piece_diff,2,B,10,19,6385,566,0.1976,0.0091
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,1,alphabeta,adaptive,3,alphabeta,combined,3,B,10,19,6385,5288,0.3403,0.1717
+E5_Asymmetric_Configs,Experiment 5: Asymmetric Configurations,2,alphabeta,adaptive,3,alphabeta,combined,3,B,10,19,6385,5288,0.3407,0.1748

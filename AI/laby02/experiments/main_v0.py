@@ -1,4 +1,3 @@
-# filepath: /home/rei/projects/studia/AI/laby02/main.py
 import time
 import sys
 
@@ -411,6 +410,28 @@ W B W B W"""
     else:
         print("Using Minimax.")
 
+    # Ask user if they want to play
+    play_against_ai = (
+        input("\nDo you want to play against the AI? (yes/no): ").strip().lower()
+    )
+    human_player = None
+    if play_against_ai == "yes":
+        while human_player not in [PLAYER_B, PLAYER_W]:
+            human_player_choice = (
+                input(
+                    f"Do you want to be Player {PLAYER_B} (Black, goes first) or Player {PLAYER_W} (White)? Enter B or W: "
+                )
+                .strip()
+                .upper()
+            )
+            if human_player_choice == PLAYER_B:
+                human_player = PLAYER_B
+            elif human_player_choice == PLAYER_W:
+                human_player = PLAYER_W
+            else:
+                print("Invalid choice. Please enter B or W.")
+        print(f"You are Player {human_player}.")
+
     # --- Game Loop (Basic Version) ---
     # Player 1 (AI, Black) vs Player 2 (Optimal, White)
     # Both use the same heuristic and depth for Player 2's "optimal" moves.
@@ -434,25 +455,52 @@ W B W B W"""
         VISITED_NODES = 0  # Reset for each move decision
         move_start_time = time.time()
 
-        ai_player_for_this_turn = (
-            current_game_state.current_player
-        )  # The player whose turn it is
+        best_move_for_current_player = None
 
-        # In the basic version, both players play "optimally" using the chosen algorithm
-        if use_alpha_beta:
-            best_move_for_current_player = get_best_move_alphabeta(
-                current_game_state,
-                depth_limit,
-                ai_player_for_this_turn,
-                chosen_heuristic_func,
-            )
+        if human_player and current_game_state.current_player == human_player:
+            # Human player's turn
+            possible_moves = current_game_state.get_possible_moves(human_player)
+            if not possible_moves:
+                print(f"Player {human_player} has no moves.")
+                break
+            print("Possible moves:")
+            for i, move in enumerate(possible_moves):
+                print(f"{i + 1}. {move}")
+
+            chosen_move_idx = -1
+            while chosen_move_idx < 0 or chosen_move_idx >= len(possible_moves):
+                try:
+                    move_choice = input(
+                        f"Enter your move number (1-{len(possible_moves)}): "
+                    ).strip()
+                    chosen_move_idx = int(move_choice) - 1
+                    if chosen_move_idx < 0 or chosen_move_idx >= len(possible_moves):
+                        print("Invalid move number.")
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+            best_move_for_current_player = possible_moves[chosen_move_idx]
+
         else:
-            best_move_for_current_player = get_best_move_minimax(
-                current_game_state,
-                depth_limit,
-                ai_player_for_this_turn,
-                chosen_heuristic_func,
-            )
+            # AI player's turn
+            ai_player_for_this_turn = (
+                current_game_state.current_player
+            )  # The player whose turn it is
+
+            # In the basic version, both players play "optimally" using the chosen algorithm
+            if use_alpha_beta:
+                best_move_for_current_player = get_best_move_alphabeta(
+                    current_game_state,
+                    depth_limit,
+                    ai_player_for_this_turn,
+                    chosen_heuristic_func,
+                )
+            else:
+                best_move_for_current_player = get_best_move_minimax(
+                    current_game_state,
+                    depth_limit,
+                    ai_player_for_this_turn,
+                    chosen_heuristic_func,
+                )
 
         move_end_time = time.time()
         time_taken_for_move = move_end_time - move_start_time

@@ -1,0 +1,297 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs} % For professional looking tables
+\usepackage{xcolor}   % For colored text, if needed
+\usepackage{multicol} % For multi-column layout if needed for tables
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Raport z laboratoriów nr 2},
+    pdfpagemode=FullScreen,
+}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!40!black},
+    stringstyle=\color{purple},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    upquote=true % Ensures ' and ` are rendered correctly in listings
+}
+
+\newcommand{\code}[1]{\texttt{#1}} % Helper command for inline code
+
+\title{Lista 2}
+\author{Bartosz Gotowski \\ 272647}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\clearpage
+
+\section{Wprowadzenie}
+Celem niniejszego projektu było praktyczne zapoznanie się z algorytmami przeszukiwania drzewa gry stosowanymi w sztucznej inteligencji, w szczególności z algorytmem Minimax oraz jego optymalizacją – cięciami Alfa-Beta. Zadanie polegało na implementacji agenta grającego w grę dwuosobową Clobber o sumie zerowej. Program miał umożliwiać konfigurację parametrów takich jak maksymalna głębokość przeszukiwania oraz wybór heurystyki oceny stanu gry. Raport przedstawia teoretyczne podstawy zastosowanych metod, opis implementacji, przeprowadzone eksperymenty oraz analizę uzyskanych wyników.
+
+\section{Podstawy Teoretyczne}
+\subsection{Algorytm Minimax}
+Algorytm Minimax jest podstawową strategią decyzyjną dla gier dwuosobowych o sumie zerowej z pełną informacją, takich jak szachy, warcaby czy Clobber. Jego celem jest wybór ruchu, który maksymalizuje minimalną możliwą korzyść (lub minimalizuje maksymalną możliwą stratę) gracza, przy założeniu, że przeciwnik również gra optymalnie.
+
+Algorytm działa rekurencyjnie, budując drzewo gry:
+\begin{itemize}
+    \item Węzły typu MAX reprezentują tury gracza, dla którego algorytm jest uruchamiany. W tych węzłach wybierany jest ruch prowadzący do stanu o maksymalnej wartości.
+    \item Węzły typu MIN reprezentują tury przeciwnika. Zakłada się, że przeciwnik wybierze ruch prowadzący do stanu o minimalnej wartości (z perspektywy gracza MAX).
+    \item Wartości liści drzewa (stany końcowe gry lub stany na zadanej głębokości przeszukiwania) są obliczane za pomocą funkcji oceny (heurystyki).
+\end{itemize}
+Wartość każdego węzła jest propagowana w górę drzewa zgodnie z typem węzła (MAX lub MIN). Złożoność obliczeniowa Minimax wynosi $O(b^d)$, gdzie $b$ to średni współczynnik rozgałęzienia (liczba możliwych ruchów), a $d$ to głębokość przeszukiwania.
+
+\subsection{Cięcia Alfa-Beta (Alpha-Beta Pruning)}
+Cięcia Alfa-Beta to optymalizacja algorytmu Minimax, która pozwala na znaczne zredukowanie liczby węzłów drzewa gry, które muszą zostać przeanalizowane, bez wpływu na ostateczną decyzję. Działa poprzez eliminowanie gałęzi, które z pewnością nie wpłyną na wybór najlepszego ruchu.
+
+Algorytm utrzymuje dwie wartości:
+\begin{itemize}
+    \item \textbf{Alfa ($\alpha$):} Najlepsza (najwyższa) wartość znaleziona dotychczas dla gracza MAX na ścieżce od korzenia do bieżącego węzła.
+    \item \textbf{Beta ($\beta$):} Najlepsza (najniższa) wartość znaleziona dotychczas dla gracza MIN na ścieżce od korzenia do bieżącego węzła.
+\end{itemize}
+Przeszukiwanie gałęzi jest przerywane (następuje cięcie), gdy:
+\begin{itemize}
+    \item W węźle MIN, obliczona wartość staje się mniejsza lub równa $\alpha$ (cięcie beta). Dalsze przeszukiwanie tej gałęzi nie ma sensu, ponieważ gracz MAX ma już lepszą alternatywę.
+    \item W węźle MAX, obliczona wartość staje się większa lub równa $\beta$ (cięcie alfa). Dalsze przeszukiwanie tej gałęzi nie ma sensu, ponieważ gracz MIN ma już lepszą alternatywę (pozwalającą ograniczyć korzyść MAX).
+\end{itemize}
+W najlepszym przypadku (przy optymalnym uporządkowaniu ruchów) cięcia Alfa-Beta mogą zredukować efektywny współczynnik rozgałęzienia do $\sqrt{b}$, co daje złożoność $O(b^{d/2})$.
+
+\section{Sformułowanie Problemu}
+\subsection{Gra Clobber}
+Clobber to gra planszowa dla dwóch graczy (Czarny i Biały) rozgrywana na prostokątnej planszy (w tym projekcie domyślnie 5x6).
+\begin{itemize}
+    \item \textbf{Początek gry:} Plansza jest całkowicie pokryta pionkami. Czarne pionki na czarnych polach, białe na białych (lub w innej ustalonej konfiguracji startowej, np. BWBW...). Grę rozpoczyna Czarny.
+    \item \textbf{Ruchy:} Gracze wykonują ruchy naprzemiennie. Ruch polega na przesunięciu swojego pionka na sąsiednie (prostopadle) pole zajmowane przez pionek przeciwnika. Pionek przeciwnika jest zbijany (usuwany z planszy), a pionek gracza zajmuje jego miejsce.
+    \item \textbf{Koniec gry:} Gra kończy się, gdy żaden z graczy nie może wykonać ruchu.
+    \item \textbf{Zwycięzca:} Wygrywa gracz, który wykonał ostatni ruch.
+\end{itemize}
+Jest to gra o sumie zerowej, ponieważ wygrana jednego gracza oznacza przegraną drugiego.
+
+\subsection{Reprezentacja Stanu Gry}
+Stan gry jest reprezentowany przez dwuwymiarową tablicę (listę list w Pythonie) o wymiarach $m \times n$, gdzie $m$ to liczba wierszy, a $n$ to liczba kolumn planszy. Każda komórka tablicy może przyjmować jedną z trzech wartości:
+\begin{itemize}
+    \item \code{B}: pionek gracza Czarnego (pierwszego).
+    \item \code{W}: pionek gracza Białego (drugiego).
+    \item \code{\_} (podkreślenie): puste pole. % Poprawka tutaj
+\end{itemize}
+Dodatkowo, do pełnego opisu stanu potrzebna jest informacja, który gracz ma aktualnie wykonać ruch.
+
+\subsection{Drzewo Decyzyjne}
+Drzewo decyzyjne dla gry Clobber modeluje wszystkie możliwe sekwencje ruchów:
+\begin{itemize}
+    \item \textbf{Węzły:} Reprezentują stany gry (konfiguracje planszy). Korzeń drzewa to początkowy stan gry.
+    \item \textbf{Krawędzie:} Reprezentują możliwe ruchy, które transformują jeden stan gry w drugi.
+    \item \textbf{Poziomy drzewa:} Odpowiadają kolejnym turom graczy (naprzemiennie MAX i MIN).
+    \item \textbf{Liście drzewa:} Stany końcowe gry (wygrana, przegrana) lub stany osiągnięte po osiągnięciu maksymalnej głębokości przeszukiwania.
+\end{itemize}
+Stopień każdego wierzchołka (liczba możliwych ruchów z danego stanu) nie jest stały i zależy od konfiguracji planszy.
+
+\section{Opis Implementacji i Rozwiązania}
+\subsection{Idea Rozwiązania}
+Zaimplementowany agent AI podejmuje decyzje o ruchu, wykorzystując algorytm Minimax lub Alfa-Beta do przeszukiwania drzewa gry do określonej głębokości $d$. W liściach drzewa (lub na granicy głębokości) stany gry są oceniane za pomocą wybranej funkcji heurystycznej. Agent wybiera ruch prowadzący do stanu potomnego o najlepszej (maksymalnej dla agenta) wartości heurystycznej, przy założeniu optymalnej gry przeciwnika.
+
+Przykładowy, uproszczony fragment drzewa dla gracza MAX (głębokość 2):
+\begin{verbatim}
+      MAX (korzeń, stan S0)
+       / | \
+      /  |  \
+MIN (S1) (S2) (S3)  <- możliwe ruchy MAX
+    / \  / \  / \
+MAX L1 L2 L3 L4 L5 L6 <- możliwe ruchy MIN
+    (5)(3)(6)(2)(9)(4) <- wartości heurystyczne liści
+
+Propagacja wartości:
+MIN (S1) = min(5,3) = 3
+MIN (S2) = min(6,2) = 2
+MIN (S3) = min(9,4) = 4
+
+MAX (S0) = max(3,2,4) = 4. Agent MAX wybierze ruch do S3.
+\end{verbatim}
+
+\subsection{Zaimplementowane Heurystyki}
+W programie zaimplementowano następujące funkcje heurystyczne oceniające stan gry z perspektywy bieżącego gracza:
+\begin{itemize}
+    \item \textbf{Różnica w liczbie pionków (\code{h\_piece\_difference}):} Oblicza różnicę między liczbą pionków gracza a liczbą pionków przeciwnika. Prosta, ale często skuteczna.
+    \item \textbf{Różnica w mobilności (\code{h\_mobility\_difference}):} Oblicza różnicę między liczbą możliwych ruchów gracza a liczbą możliwych ruchów przeciwnika. Mobilność jest kluczowa w Clobber, zwłaszcza w końcowej fazie gry.
+    \item \textbf{Połączona heurystyka (\code{h\_combined}):} Ważona suma powyższych dwóch heurystyk, np. $1 \times \text{piece\_diff} + 3 \times \text{mobility\_diff}$. Wagi można dostosowywać.
+    \item \textbf{Heurystyka adaptacyjna (\code{h\_adaptive\_strategy}):} Zmienia strategię w zależności od fazy gry (np. początkowa, środkowa, końcowa) oraz aktualnej sytuacji na planszy (np. przewaga/strata pionków). W implementacji, heurystyka ta różnicuje ocenę w zależności od tego, czy gra jest w fazie końcowej (priorytet dla mobilności) oraz czy gracz ma przewagę, jest w równowadze, czy traci pionki (dynamiczne dostosowanie wag dla różnicy pionków i mobilności).
+\end{itemize}
+
+\subsection{Wykorzystane Biblioteki}
+Implementacja została wykonana w języku Python. Wykorzystano następujące moduły standardowe:
+\begin{itemize}
+    \item \code{sys}: Dostęp do parametrów systemowych (np. stdin, stdout, stderr).
+    \item \code{time}: Pomiar czasu wykonania algorytmów.
+    \item \code{math}: Funkcje matematyczne (np. \code{ceil}).
+    \item \code{csv}: Zapis i odczyt danych w formacie CSV na potrzeby eksperymentów.
+    \item \code{os}: Interakcja z systemem operacyjnym (np. sprawdzanie istnienia plików).
+\end{itemize}
+Do interaktywnego wyboru opcji przez użytkownika (w wersji rozszerzonej, nie w skrypcie testującym) można było wykorzystać bibliotekę \code{questionary}, która jednak nie jest wymagana do działania rdzenia algorytmów. Skrypt testujący nie korzysta z bibliotek zewnętrznych poza standardowymi.
+
+\section{Konfiguracja Eksperymentów}
+Eksperymenty zostały przeprowadzone automatycznie za pomocą dedykowanego skryptu w języku Python. Dla każdej zdefiniowanej konfiguracji agentów (P1 i P2) rozegrano ustaloną liczbę partii (w dostarczonych danych: 2 partie na konfigurację). Domyślna plansza startowa to Clobber 5x6.
+Zbierano następujące dane dla każdej partii:
+\begin{itemize}
+    \item Konfiguracja Agenta 1 (Algorytm, Heurystyka, Głębokość).
+    \item Konfiguracja Agenta 2 (Algorytm, Heurystyka, Głębokość).
+    \item Zwycięzca partii.
+    \item Liczba rund i całkowita liczba ruchów (plies).
+    \item Całkowita liczba odwiedzonych węzłów przez Agenta 1 i Agenta 2.
+    \item Całkowity czas podejmowania decyzji przez Agenta 1 i Agenta 2.
+\end{itemize}
+Wyniki zapisano do pliku CSV w celu dalszej analizy. W przedstawionych wynikach głębokość przeszukiwania dla P2 w Eksperymencie 2 była stała i wynosiła 5 (a nie 2 jak pierwotnie zakładano w opisie eksperymentu), co zostało uwzględnione w analizie. Podobnie, w Eksperymencie 3, P1 i P2 grali z głębokością 5.
+
+\section{Analiza Wyników Eksperymentów}
+Na podstawie dostarczonych danych CSV przeprowadzono analizę wyników.
+
+\subsection{Eksperyment 1: Porównanie Algorytmów (Minimax vs Alfa-Beta)}
+\textbf{Konfiguracja:} Heurystyka \code{combined}, głębokość $d=2$.
+\begin{table}[H]
+    \centering
+    \caption{Podsumowanie Eksperymentu 1 (średnie wartości dla P1/P2).}
+    \begin{tabular}{lrrrr}
+        \toprule
+        Scenariusz (P1 vs P2) & P1 Węzły & P2 Węzły & P1 Czas (s) & P2 Czas (s) \\
+        \midrule
+        Mini(d2) vs Mini(d2)     & $\approx$6317 & $\approx$5224 & $\approx$0.223 & $\approx$0.178 \\
+        AlphaBeta(d2) vs AB(d2)  & $\approx$653  & $\approx$577  & $\approx$0.018 & $\approx$0.015 \\
+        Mini(d2) vs AB(d2)       & $\approx$6317 & $\approx$577  & $\approx$0.222 & $\approx$0.016 \\
+        AlphaBeta(d2) vs Mini(d2)& $\approx$653  & $\approx$5224 & $\approx$0.018 & $\approx$0.178 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:e1_summary}
+\end{table}
+\textbf{Obserwacje:}
+\begin{itemize}
+    \item We wszystkich scenariuszach tej grupy wygrywał Gracz 1 (Czarny, B) po 12 rundach (23 ruchach). Jest to oczekiwane, gdyż przy identycznych, deterministycznych strategiach i tej samej głębokości, wynik gry powinien być spójny.
+    \item Algorytm Alfa-Beta znacząco redukuje liczbę odwiedzonych węzłów (np. P1: 653 z Alfa-Beta vs 6317 z Minimax, około 10-krotna redukcja) oraz czas podejmowania decyzji (P1: 0.018s vs 0.223s).
+    \item Potwierdza to teoretyczną przewagę Alfa-Beta nad naiwnym Minimaxem. Optymalizacja nie zmienia wyniku gry (wybranego ruchu), ale znacząco przyspiesza jego znalezienie.
+\end{itemize}
+
+\subsection{Eksperyment 2: Wpływ Głębokości Przeszukiwania}
+\textbf{Konfiguracja:} P1 (Alfa-Beta, \code{combined}, $d \in \{3,4,5\}$) vs P2 (Alfa-Beta, \code{combined}, $d=5$).
+\begin{table}[H]
+    \centering
+    \caption{Podsumowanie Eksperymentu 2.}
+    \begin{tabular}{crrcrr}
+        \toprule
+        P1 Głęb. & P1 Węzły & P1 Czas (s) & Zwycięzca & P2 Węzły & P2 Czas (s) \\
+        \midrule
+        3 & $\approx$6403  & $\approx$0.210 & W (P2) & $\approx$113731 & $\approx$3.50 \\
+        4 & $\approx$16573 & $\approx$0.459 & W (P2) & $\approx$113723 & $\approx$3.53 \\
+        5 & $\approx$147441& $\approx$4.693 & B (P1) & $\approx$113314 & $\approx$3.52 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:e2_summary}
+\end{table}
+\textbf{Obserwacje:}
+\begin{itemize}
+    \item Wzrost głębokości przeszukiwania dla P1 prowadzi do znaczącego, wykładniczego wzrostu liczby odwiedzanych węzłów i czasu obliczeń.
+    \item P1 z głębokością 3 i 4 przegrywał z P2 grającym na głębokości 5.
+    \item Dopiero przy równej głębokości $d=5$, P1 (Czarny, rozpoczynający) był w stanie wygrać. To pokazuje, jak kluczowa jest głębokość przeszukiwania dla "siły" gracza AI.
+    \item Przeciwnik P2 (d=5) konsekwentnie przeszukiwał podobną liczbę węzłów ($\approx$113k) w podobnym czasie ($\approx$3.5s), co stanowi dobrą bazę odniesienia.
+\end{itemize}
+
+\subsection{Eksperyment 3: Porównanie Wydajności Heurystyk}
+\textbf{Konfiguracja:} P1 (Alfa-Beta, różne heurystyki, $d=5$) vs P2 (Alfa-Beta, \code{combined}, $d=5$).
+\begin{table}[H]
+    \centering
+    \caption{Podsumowanie Eksperymentu 3 (wszystkie gry wygrał P1 - B).}
+    \begin{tabular}{lrr}
+        \toprule
+        P1 Heurystyka & P1 Śr. Czas (s) & P1 Śr. Węzły \\ % P1 Węzły były identyczne
+        \midrule
+        \code{piece\_diff}   & $\approx$2.423 & 147441 \\
+        \code{mobility\_diff}& $\approx$4.392 & 147441 \\
+        \code{combined}      & $\approx$4.656 & 147441 \\
+        \code{adaptive}      & $\approx$7.235 & 147441 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:e3_summary}
+\end{table}
+\textbf{Obserwacje:}
+\begin{itemize}
+    \item We wszystkich scenariuszach P1 (Czarny) wygrywał. Przy równej głębokości (d=5) i algorytmie Alfa-Beta, gracz rozpoczynający zdaje się mieć przewagę na tej planszy i przy tych heurystykach.
+    \item Liczba odwiedzonych węzłów przez P1 (147441) oraz P2 ($\approx$113314) była praktycznie identyczna we wszystkich tych grach. Oznacza to, że dla tych konkretnych przebiegów gier, różne heurystyki P1 prowadziły do tej samej sekwencji "optymalnych" ruchów z perspektywy drzewa gry do głębokości 5, a zatem struktura przeszukiwanego drzewa (po cięciach) była taka sama.
+    \item Główna różnica widoczna jest w czasie podejmowania decyzji przez P1. Heurystyka \code{piece\_diff} jest najszybsza obliczeniowo. Heurystyka \code{adaptive} jest wyraźnie najwolniejsza, co wynika z jej bardziej złożonej logiki. \code{mobility\_diff} i \code{combined} plasują się pośrodku.
+    \item Ten eksperyment, w tej konfiguracji (P1 zawsze wygrywa), nie pozwala jednoznacznie stwierdzić, która heurystyka jest "silniejsza" strategicznie, ale pokazuje różnice w ich koszcie obliczeniowym.
+\end{itemize}
+
+\subsection{Eksperyment 4: Analiza Heurystyki Adaptacyjnej}
+\textbf{Konfiguracja:} P1 i P2 (Alfa-Beta, $d=5$), różne kombinacje heurystyk z udziałem \code{adaptive}.
+\textbf{Obserwacje:}
+\begin{itemize}
+    \item Ponownie, we wszystkich tych scenariuszach P1 (Czarny) wygrywał. Wynika to z przewagi startowej przy równej, dużej głębokości przeszukiwania.
+    \item Potwierdza się, że heurystyka \code{adaptive} jest obliczeniowo droższa. Gdy P1 używał \code{adaptive}, jego czas wynosił $\approx$7.2s. Gdy P2 używał \code{adaptive} (a P1 inną), czas P2 wynosił $\approx$5.4s (różnica może wynikać z tego, że P2 ma mniej ruchów do przeanalizowania w trakcie gry).
+        \begin{itemize}
+            \item P1(\code{adaptive}, $\approx$7.2s) vs P2(\code{piece\_diff}, $\approx$1.8s)
+            \item P1(\code{piece\_diff}, $\approx$2.4s) vs P2(\code{adaptive}, $\approx$5.4s)
+            \item P1(\code{adaptive}, $\approx$7.2s) vs P2(\code{adaptive}, $\approx$5.4s)
+        \end{itemize}
+    \item Podobnie jak w E3, ten zestaw danych przy $d=5$ nie pozwala wykazać przewagi strategicznej \code{adaptive} pod kątem współczynnika wygranych, ale podkreśla jej większy koszt. Aby ocenić jej strategiczną wartość, potrzebne byłyby testy przy niższych głębokościach lub przeciwko słabszym strategiom, gdzie subtelności heurystyki mogłyby mieć większe znaczenie.
+\end{itemize}
+
+\subsection{Eksperyment 5: Konfiguracje Asymetryczne}
+\textbf{Obserwacje:}
+\begin{itemize}
+    \item \textbf{P1(AB, \code{combined}, d3) vs P2(AB, \code{combined}, d2):} P1 wygrywa. Gracz z większą głębokością przeszukiwania ma przewagę. P1: $\approx$6.4k węzłów, 0.21s; P2: $\approx$0.6k węzłów, 0.015s.
+    \item \textbf{P1(AB, \code{adaptive}, d2) vs P2(Mini, \code{piece\_diff}, d2):} P1 wygrywa. Pokazuje to siłę Alfa-Beta (P1: $\approx$0.65k węzłów, 0.027s) nad Minimaxem (P2: $\approx$5.2k węzłów, 0.087s) nawet przy tej samej głębokości i potencjalnie bardziej złożonej heurystyce P1.
+    \item \textbf{P1(AB, \code{mobility\_diff}, d3) vs P2(AB, \code{piece\_diff}, d2):} P1 wygrywa, co jest oczekiwane ze względu na większą głębokość P1.
+    \item \textbf{P1(AB, \code{adaptive}, d3) vs P2(AB, \code{combined}, d3):} P1 wygrywa. Heurystyka \code{adaptive} u P1 (0.34s) jest wolniejsza niż \code{combined} u P2 (0.17s) przy tej samej głębokości. Ponownie, przewaga gracza rozpoczynającego przy równej "sile" AI.
+\end{itemize}
+Eksperymenty te potwierdzają intuicyjne założenia: większa głębokość i lepszy algorytm (Alfa-Beta) prowadzą do silniejszej gry.
+
+\section{Napotkane Problemy Implementacyjne}
+Podczas realizacji projektu napotkano kilka typowych wyzwań:
+\begin{itemize}
+    \item \textbf{Poprawność logiki gry:} Zapewnienie prawidłowej implementacji zasad gry Clobber, w tym generowania wszystkich możliwych ruchów oraz warunków zakończenia gry (kto wygrywa, kiedy nie ma ruchów).
+    \item \textbf{Rekurencja Minimax/Alfa-Beta:} Debugowanie algorytmów rekurencyjnych bywa trudne. Kluczowe było zapewnienie poprawnego przekazywania wartości alfa i beta, właściwego przełączania między graczem maksymalizującym i minimalizującym oraz prawidłowej oceny w liściach.
+    \item \textbf{Zarządzanie stanem planszy:} Konieczność tworzenia kopii planszy przy eksploracji kolejnych ruchów, aby uniknąć modyfikacji oryginalnego stanu w wyższych węzłach drzewa.
+    \item \textbf{Globalny licznik węzłów:} W skrypcie testującym, gdzie wiele gier jest rozgrywanych sekwencyjnie, ważne było, aby globalny licznik odwiedzonych węzłów (\code{visited\_nodes\_count}) był resetowany przed każdym wywołaniem funkcji \code{find\_best\_move\_...} dla danego gracza, aby statystyki dotyczyły pojedynczej decyzji o ruchu.
+    \item \textbf{Projektowanie heurystyk:} Stworzenie heurystyk, które są zarówno informatywne (dobrze oceniają stan gry), jak i relatywnie szybkie obliczeniowo. Bardziej złożone heurystyki (np. adaptacyjna) mogą znacząco spowolnić działanie, co widać w wynikach.
+    \item \textbf{Automatyzacja testów:} Przygotowanie skryptu do systematycznego testowania wielu konfiguracji i zbierania wyników w ustrukturyzowany sposób (np. do pliku CSV) było samo w sobie małym projektem programistycznym, wymagającym starannego planowania.
+    \item \textbf{Czasochłonność eksperymentów:} Niektóre konfiguracje, zwłaszcza z większą głębokością lub algorytmem Minimax, wymagały znacznego czasu na obliczenia. Konieczne było rozsądne dobranie parametrów testowych (np. liczby gier na konfigurację, maksymalnej głębokości).
+\end{itemize}
+
+\section{Podsumowanie i Wnioski}
+Projekt pozwolił na praktyczne zastosowanie algorytmów Minimax i Alfa-Beta w kontekście gry Clobber. Implementacja oraz przeprowadzone eksperymenty potwierdziły kluczowe aspekty teoretyczne:
+\begin{itemize}
+    \item \textbf{Skuteczność Alfa-Beta:} Optymalizacja Alfa-Beta przynosi drastyczną redukcję liczby analizowanych stanów i czasu obliczeń w porównaniu do podstawowego algorytmu Minimax, nie wpływając na jakość podejmowanej decyzji. Jest to kluczowe dla umożliwienia przeszukiwania na większych głębokościach.
+    \item \textbf{Znaczenie głębokości przeszukiwania:} Zwiększanie głębokości przeszukiwania znacząco poprawia "siłę" gracza AI, ale wiąże się z wykładniczym wzrostem kosztów obliczeniowych. Należy znaleźć kompromis między jakością gry a dostępnym czasem.
+    \item \textbf{Rola heurystyk:} Jakość funkcji heurystycznej jest fundamentalna dla skuteczności AI, zwłaszcza przy ograniczonej głębokości przeszukiwania. Różne heurystyki mają także różny koszt obliczeniowy – bardziej złożone (jak \code{adaptive}) mogą być wolniejsze. W przeprowadzonych testach na głębokości 5, gracz rozpoczynający (P1) wygrywał niezależnie od użytej heurystyki (spośród testowanych), co sugeruje, że przy tej głębokości wszystkie heurystyki pozwalały na znalezienie wygrywającej ścieżki. Różnice w ich strategicznej "sile" mogłyby być bardziej widoczne przy mniejszych głębokościach lub na bardziej złożonych planszach.
+    \item \textbf{Przewaga gracza rozpoczynającego:} W wielu scenariuszach, gdzie obaj gracze AI mieli porównywalną "siłę" (np. ta sama głębokość i algorytm), gracz rozpoczynający (Czarny) częściej wygrywał, co jest typowe dla niektórych gier deterministycznych.
+\end{itemize}
+Zaimplementowany system stanowi dobrą bazę do dalszych badań, np. nad bardziej zaawansowanymi heurystykami, technikami takimi jak tablice transpozycji, czy adaptacją do plansz o innych rozmiarach. Projekt z powodzeniem zrealizował postawione cele edukacyjne.
+
+\section*{Materiały Źródłowe}
+\begin{itemize}
+    \item Materiały wykładowe i ćwiczeniowe z kursu "Sztuczna Inteligencja i Inżynieria Wiedzy".
+    \item Russell, S. J., \& Norvig, P. (2020). \textit{Artificial Intelligence: A Modern Approach} (4th ed.). Pearson. (Ogólna wiedza o Minimax i Alfa-Beta). % Użycie \textit dla tytułu, \& dla "and"
+    \item Dokumentacja języka Python oraz wykorzystanych bibliotek.
+\end{itemize}
+
+\end{document}
