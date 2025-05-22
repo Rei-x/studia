@@ -17,12 +17,6 @@ from .schema_setup_assets import (  # Adjust path if your schema assets are else
     create_dim_marketing_table_asset,
 )
 
-# Ensure your raw data assets are defined in another module (e.g., raw_data_assets.py)
-# and correctly imported into your Definitions object.
-# These dimension loaders will receive them as arguments from Dagster.
-
-# --- Helper Functions ---
-
 
 def _prepare_df_for_load(
     context: AssetExecutionContext,
