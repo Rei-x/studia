@@ -1,7 +1,12 @@
 # olist_etl/assets/fact_assets.py
 
 import pandas as pd
-from dagster import asset, Output, AssetExecutionContext
+from dagster import (
+    BackfillPolicy,
+    MaterializeResult,
+    asset,
+    AssetExecutionContext,
+)
 from sqlalchemy import text, Engine
 
 # Assuming your SQLAlchemyResource is correctly imported
@@ -24,7 +29,7 @@ def _delete_partition_and_append_fact_to_db(
     target_columns_for_metadata: list[str],
     partition_start_date: pd.Timestamp,  # This will be UTC-aware
     partition_end_date: pd.Timestamp,  # This will be UTC-aware and exclusive
-) -> Output[dict]:
+) -> MaterializeResult:
     rows_loaded = 0
 
     # For the DELETE statement, we need to ensure DIM_DATE.full_date comparison is correct.
@@ -79,14 +84,12 @@ def _delete_partition_and_append_fact_to_db(
                 f"No new data to append for partition {partition_start_date.strftime('%Y-%m')} to {schema_name}.{table_name}."
             )
 
-        return Output(
-            value={
+        return MaterializeResult(
+            metadata={
                 "table": f"{schema_name}.{table_name}",
                 "rows_loaded": rows_loaded,
                 "operation": "delete_partition_append",
                 "partition": partition_start_date.strftime("%Y-%m"),
-            },
-            metadata={
                 "num_rows": rows_loaded,
                 "columns": list(final_df.columns)
                 if not final_df.empty
@@ -94,7 +97,7 @@ def _delete_partition_and_append_fact_to_db(
                 "destination_table": f"{schema_name}.{table_name}",
                 "source": "olist_dwh",
                 "load_time": pd.Timestamp.now().isoformat(),
-                "partition_key": context.partition_key,
+                "partition_key": str(context.partition_keys),
                 "partition_window_start": partition_start_date.isoformat(),
                 "partition_window_end": partition_end_date.isoformat(),
             },
@@ -113,6 +116,7 @@ def _delete_partition_and_append_fact_to_db(
     deps=[apply_foreign_keys_asset],
     group_name="facts_loaders",
     key_prefix=["olist_dwh"],
+    backfill_policy=BackfillPolicy.single_run(),
     compute_kind="sqlalchemy",
     description="Builds and loads a partition of the FactOrderItem table to SQL Server.",
 )
@@ -122,15 +126,16 @@ def fact_order_item_load_asset(
     raw_order_items_df: pd.DataFrame,
     raw_orders_df: pd.DataFrame,
     raw_order_reviews_df: pd.DataFrame,
-) -> Output[dict]:
+):
     partition_time_window = context.partition_time_window
+
     partition_start_dt = (
         partition_time_window.start
     )  # This is tz-aware (UTC by default from Dagster)
     partition_end_dt = partition_time_window.end  # This is tz-aware and exclusive
 
     context.log.info(
-        f"Starting FactOrderItem processing for partition: {context.partition_key} "
+        f"Starting FactOrderItem processing for partition: {context.partition_keys} "
         f"(Window: {partition_start_dt.isoformat()} to {partition_end_dt.isoformat()})"
     )
 
@@ -177,29 +182,26 @@ def fact_order_item_load_asset(
 
     if orders_partition_df.empty:
         context.log.info(
-            f"No orders found for partition {context.partition_key}. Skipping fact load."
+            f"No orders found for partition {context.partition_keys}. Skipping fact load."
         )
-        return Output(
-            value={
+        return MaterializeResult(
+            metadata={
                 "table": "olist.FACT_ORDER_ITEM",
                 "rows_loaded": 0,
                 "operation": "delete_partition_append",
-                "partition": context.partition_key,
                 "status": "No data in partition",
-            },
-            metadata={
                 "num_rows": 0,
-                "columns": target_fact_cols_metadata,
+                "columns": str(target_fact_cols_metadata),  # Convert list to string
                 "destination_table": "olist.FACT_ORDER_ITEM",
                 "source": "olist_dwh",
                 "load_time": pd.Timestamp.now().isoformat(),
-                "partition_key": context.partition_key,
+                "partition_key": str(context.partition_keys),
                 "partition_window_start": partition_start_dt.isoformat(),
                 "partition_window_end": partition_end_dt.isoformat(),
             },
         )
     context.log.info(
-        f"Found {len(orders_partition_df)} orders for partition {context.partition_key}."
+        f"Found {len(orders_partition_df)} orders for partition {context.partition_keys}."
     )
 
     fact_df = pd.merge(
@@ -211,29 +213,26 @@ def fact_order_item_load_asset(
 
     if fact_df.empty:
         context.log.info(
-            f"No order items for partition {context.partition_key} after merge."
+            f"No order items for partition {context.partition_keys} after merge."
         )
-        return Output(
-            value={
+        return MaterializeResult(
+            metadata={
                 "table": "olist.FACT_ORDER_ITEM",
                 "rows_loaded": 0,
                 "operation": "delete_partition_append",
-                "partition": context.partition_key,
                 "status": "No order items in partition",
-            },
-            metadata={
                 "num_rows": 0,
                 "columns": target_fact_cols_metadata,
                 "destination_table": "olist.FACT_ORDER_ITEM",
                 "source": "olist_dwh",
                 "load_time": pd.Timestamp.now().isoformat(),
-                "partition_key": context.partition_key,
+                "partition_key": str(context.partition_keys),
                 "partition_window_start": partition_start_dt.isoformat(),
                 "partition_window_end": partition_end_dt.isoformat(),
             },
         )
     context.log.info(
-        f"Processing {len(fact_df)} order items for partition {context.partition_key}."
+        f"Processing {len(fact_df)} order items for partition {context.partition_keys}."
     )
 
     engine = sql_alchemy_resource.get_engine()
@@ -398,28 +397,25 @@ def fact_order_item_load_asset(
     rows_after_dropna = len(final_fact_df)
     if rows_before_dropna > rows_after_dropna:
         context.log.warning(
-            f"Dropped {rows_before_dropna - rows_after_dropna} fact rows due to missing essential foreign keys for partition {context.partition_key}."
+            f"Dropped {rows_before_dropna - rows_after_dropna} fact rows due to missing essential foreign keys for partition {context.partition_keys}."
         )
 
     if final_fact_df.empty:
         context.log.info(
-            f"No valid fact rows remain after FK checks for partition {context.partition_key}."
+            f"No valid fact rows remain after FK checks for partition {context.partition_keys}."
         )
-        return Output(
-            value={
-                "table": "olist.FACT_ORDER_ITEM",
-                "rows_loaded": 0,
-                "operation": "delete_partition_append",
-                "partition": context.partition_key,
-                "status": "No valid rows after FK checks",
-            },
+        return MaterializeResult(
             metadata={
                 "num_rows": 0,
+                "table": "olist.FACT_ORDER_ITEM",
+                "status": "No valid rows after FK checks",
+                "rows_loaded": 0,
+                "operation": "delete_partition_append",
                 "columns": target_fact_cols_metadata,
                 "destination_table": "olist.FACT_ORDER_ITEM",
                 "source": "olist_dwh",
                 "load_time": pd.Timestamp.now().isoformat(),
-                "partition_key": context.partition_key,
+                "partition_key": str(context.partition_keys),
                 "partition_window_start": partition_start_dt.isoformat(),
                 "partition_window_end": partition_end_dt.isoformat(),
             },

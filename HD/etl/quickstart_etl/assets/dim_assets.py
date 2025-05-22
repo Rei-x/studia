@@ -1,14 +1,17 @@
 # olist_etl/assets/dimension_assets.py
 
 import pandas as pd
-from dagster import asset, Output, AssetExecutionContext
-from sqlalchemy import text, Engine  # For executing TRUNCATE
+from dagster import (
+    asset,
+    Output,
+    AssetExecutionContext,
+    RetryPolicy,
+)  # Import RetryPolicy
+from sqlalchemy import text, Engine, inspect
 
-# Assuming your SQLAlchemyResource is correctly imported
-from quickstart_etl.resources.db_resource import SQLAlchemyResource  # Using your path
+from quickstart_etl.resources.db_resource import SQLAlchemyResource
 
-# Import the DDL assets that create the tables
-from .schema_setup_assets import (  # Adjust path if your schema assets are elsewhere
+from .schema_setup_assets import (
     create_dim_date_table_asset,
     create_dim_product_table_asset,
     create_dim_customer_table_asset,
@@ -17,6 +20,8 @@ from .schema_setup_assets import (  # Adjust path if your schema assets are else
     create_dim_marketing_table_asset,
 )
 
+# --- Helper Functions ---
+
 
 def _prepare_df_for_load(
     context: AssetExecutionContext,
@@ -24,10 +29,6 @@ def _prepare_df_for_load(
     target_columns: list[str],
     business_key_column: str | None = None,
 ) -> pd.DataFrame:
-    """
-    Ensures the DataFrame has all target columns, fills missing ones with NA,
-    and optionally drops rows where the business key is NA.
-    """
     final_df = pd.DataFrame(columns=target_columns)
     for col in target_columns:
         if col in df_merged.columns:
@@ -49,68 +50,151 @@ def _prepare_df_for_load(
     return final_df
 
 
-def _truncate_and_append_to_db(
+def _upsert_to_db_via_staging(
     context: AssetExecutionContext,
-    engine: Engine,  # Changed from SQLAlchemyResource to Engine for more direct use
-    final_df: pd.DataFrame,
-    table_name: str,
-    schema_name: str,
-    target_columns_for_metadata: list[str],  # For consistent metadata when df is empty
+    engine: Engine,
+    df_to_load: pd.DataFrame,
+    target_table_name: str,
+    target_schema_name: str,
+    business_key_cols: list[str],
+    all_target_cols_for_df: list[str],
 ) -> Output[dict]:
-    """
-    Truncates the specified table and appends the DataFrame.
-    Returns a Dagster Output object with load metadata.
-    """
-    rows_loaded = 0
+    if df_to_load.empty:
+        context.log.info(
+            f"No data to upsert into {target_schema_name}.{target_table_name}."
+        )
+        return Output(
+            value={
+                "table": f"{target_schema_name}.{target_table_name}",
+                "rows_inserted": 0,
+                "rows_updated": 0,
+                "operation": "upsert_skipped_empty_df",
+            },
+            metadata={
+                "num_rows_processed_in_df": 0,
+                "columns": all_target_cols_for_df,
+                "destination_table": f"{target_schema_name}.{target_table_name}",
+                "source": "olist_dwh",
+                "load_time": pd.Timestamp.now().isoformat(),
+            },
+        )
+
+    # More unique staging table name to minimize potential clashes if runs overlap slightly
+    # and cleanup fails, though concurrency control is the primary fix for deadlocks.
+    run_id_prefix = context.run_id.split("-")[0]  # Short prefix from run_id
+    staging_table_name = f"stg_{target_table_name}_{run_id_prefix}_{pd.Timestamp.now().strftime('%H%M%S%f')}".lower()
+
+    rows_affected_by_merge = 0
+
     try:
         with engine.connect() as connection:
-            truncate_statement = text(f"DELETE FROM {schema_name}.{table_name}")
-            connection.execute(truncate_statement)
-            connection.commit()
-            context.log.info(
-                f"Successfully truncated table {schema_name}.{table_name}."
-            )
+            # Check if staging table exists and drop it explicitly first to reduce to_sql's internal reflection work
+            # This is a small optimization, the main fix is concurrency control.
+            inspector = inspect(connection)
+            if inspector.has_table(staging_table_name, schema=target_schema_name):
+                context.log.info(
+                    f"Dropping existing staging table {target_schema_name}.{staging_table_name}"
+                )
+                connection.execute(
+                    text(f"DROP TABLE {target_schema_name}.{staging_table_name}")
+                )
+                # No commit needed for DROP TABLE usually, or it's part of the transaction
 
-        if not final_df.empty:
-            final_df.to_sql(
-                name=table_name,
-                con=engine,
-                schema=schema_name,
-                if_exists="append",
+            df_to_load.to_sql(
+                name=staging_table_name,
+                con=connection,
+                schema=target_schema_name,
                 index=False,
                 chunksize=1000,
             )
             context.log.info(
-                f"Successfully appended {len(final_df)} rows into {schema_name}.{table_name}."
+                f"Loaded {len(df_to_load)} rows into staging table {target_schema_name}.{staging_table_name}."
             )
-            rows_loaded = len(final_df)
-        else:
-            context.log.info(f"No data to append to {schema_name}.{table_name}.")
+
+            update_set_clauses = [
+                f"Target.{col} = Source.{col}"
+                for col in all_target_cols_for_df
+                if col not in business_key_cols
+            ]
+            insert_cols_target = ", ".join(all_target_cols_for_df)
+            insert_cols_source = ", ".join(
+                [f"Source.{col}" for col in all_target_cols_for_df]
+            )
+            join_conditions = " AND ".join(
+                [f"Target.{bk} = Source.{bk}" for bk in business_key_cols]
+            )
+
+            simple_merge_sql = f"""
+            MERGE {target_schema_name}.{target_table_name} AS Target
+            USING {target_schema_name}.{staging_table_name} AS Source
+            ON ({join_conditions})
+            WHEN MATCHED THEN
+                UPDATE SET {", ".join(update_set_clauses)}
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT ({insert_cols_target})
+                VALUES ({insert_cols_source});
+            """
+
+            result = connection.execute(text(simple_merge_sql))
+            rows_affected_by_merge = result.rowcount if result else 0
+            context.log.info(
+                f"Successfully executed MERGE into {target_schema_name}.{target_table_name}. Affected rows: {rows_affected_by_merge}"
+            )
+
+            connection.execute(
+                text(f"DROP TABLE {target_schema_name}.{staging_table_name}")
+            )
+            connection.commit()  # Commit all operations: staging load, merge, staging drop
+            context.log.info(
+                f"Dropped staging table {target_schema_name}.{staging_table_name} and committed transaction."
+            )
 
         return Output(
             value={
-                "table": f"{schema_name}.{table_name}",
-                "rows_loaded": rows_loaded,
-                "operation": "truncate_append",
+                "table": f"{target_schema_name}.{target_table_name}",
+                "rows_affected_by_merge": rows_affected_by_merge,
+                "operation": "upsert_via_staging",
             },
             metadata={
-                "num_rows": rows_loaded,
-                "columns": list(final_df.columns)
-                if not final_df.empty
-                else target_columns_for_metadata,
-                "destination_table": f"{schema_name}.{table_name}",
-                "source": "olist_dwh",  # Consistent metadata key
+                "num_rows_processed_in_df": len(df_to_load),
+                "columns": all_target_cols_for_df,
+                "destination_table": f"{target_schema_name}.{target_table_name}",
+                "source": "olist_dwh",
                 "load_time": pd.Timestamp.now().isoformat(),
             },
         )
     except Exception as e:
         context.log.error(
-            f"Failed to truncate/load data to {schema_name}.{table_name}: {e}"
+            f"Failed to upsert data to {target_schema_name}.{target_table_name}: {e}"
         )
+        # Attempt to drop staging table on error if it exists (outside the transaction that might have rolled back)
+        try:
+            with engine.connect() as conn_cleanup:  # New connection for cleanup
+                inspector = inspect(conn_cleanup)
+                if inspector.has_table(staging_table_name, schema=target_schema_name):
+                    conn_cleanup.execute(
+                        text(f"DROP TABLE {target_schema_name}.{staging_table_name}")
+                    )
+                    conn_cleanup.commit()
+                    context.log.info(
+                        f"Cleaned up staging table {target_schema_name}.{staging_table_name} after error."
+                    )
+        except Exception as cleanup_e:
+            context.log.error(
+                f"Failed to cleanup staging table {target_schema_name}.{staging_table_name}: {cleanup_e}"
+            )
         raise
 
 
 # --- Dimension Loader Assets ---
+# Define a common retry policy and concurrency tag
+DIM_LOADER_RETRY_POLICY = RetryPolicy(
+    max_retries=2, delay=60
+)  # Retry 2 times, 60s delay
+DIM_LOADER_CONCURRENCY_TAGS = {
+    "dagster/concurrency_key": "mssql_dimension_upsert",
+    "dagster/max_concurrent_runs": "1",
+}
 
 
 # --- DimDate ---
@@ -120,7 +204,9 @@ def _truncate_and_append_to_db(
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Generates, truncates, and loads the DimDate table to SQL Server.",
+    description="Generates and UPSERTS data into the DimDate table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_date_load_asset(
     context: AssetExecutionContext,
@@ -130,6 +216,7 @@ def dim_date_load_asset(
     raw_marketing_qualified_leads_df: pd.DataFrame,
     raw_closed_deals_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimDate logic remains the same, ending with call to _upsert_to_db_via_staging)
     all_dates = set()
 
     def extract_dates_from_column(df, column_name):
@@ -140,9 +227,7 @@ def dim_date_load_asset(
             for d in dates:
                 all_dates.add(d)
         else:
-            context.log.warning(
-                f"Column '{column_name}' not found for DimDate generation."
-            )
+            context.log.warning(f"Column '{column_name}' not found for DimDate.")
 
     order_date_cols = [
         "order_purchase_timestamp",
@@ -157,51 +242,6 @@ def dim_date_load_asset(
     extract_dates_from_column(raw_marketing_qualified_leads_df, "first_contact_date")
     extract_dates_from_column(raw_closed_deals_df, "won_date")
 
-    if not all_dates:
-        context.log.warning("No dates found for DimDate.")
-        # Return an Output consistent with _truncate_and_append_to_db for an empty load
-        return Output(
-            value={
-                "table": "olist.DIM_DATE",
-                "rows_loaded": 0,
-                "status": "No dates found",
-                "operation": "truncate_append",
-            },
-            metadata={
-                "num_rows": 0,
-                "columns": [  # Define expected columns for consistency
-                    "date_key",
-                    "full_date",
-                    "day",
-                    "month",
-                    "year",
-                    "quarter",
-                    "day_of_week",
-                    "day_name",
-                    "month_name",
-                    "is_weekend",
-                    "is_holiday",
-                ],
-                "destination_table": "olist.DIM_DATE",
-                "source": "olist_dwh",
-                "load_time": pd.Timestamp.now().isoformat(),
-                "status_detail": "No dates found in source",
-            },
-        )
-
-    unique_dates_df = pd.DataFrame({"full_date": sorted(list(all_dates))})
-    dim_df = pd.DataFrame()
-    dim_df["full_date"] = unique_dates_df["full_date"]
-    dim_df["date_key"] = dim_df["full_date"].dt.strftime("%Y%m%d").astype(int)
-    dim_df["day"] = dim_df["full_date"].dt.day
-    dim_df["month"] = dim_df["full_date"].dt.month
-    dim_df["year"] = dim_df["full_date"].dt.year
-    dim_df["quarter"] = dim_df["full_date"].dt.quarter
-    dim_df["day_of_week"] = dim_df["full_date"].dt.dayofweek + 1
-    dim_df["day_name"] = dim_df["full_date"].dt.strftime("%A")
-    dim_df["month_name"] = dim_df["full_date"].dt.strftime("%B")
-    dim_df["is_weekend"] = dim_df["day_of_week"].isin([6, 7])
-    dim_df["is_holiday"] = False
     target_dim_date_columns = [
         "date_key",
         "full_date",
@@ -215,26 +255,59 @@ def dim_date_load_asset(
         "is_weekend",
         "is_holiday",
     ]
-    final_df = dim_df[target_dim_date_columns].copy()
+    if not all_dates:
+        context.log.warning("No dates found for DimDate. Skipping UPSERT.")
+        return Output(
+            value={
+                "table": "olist.DIM_DATE",
+                "rows_inserted": 0,
+                "rows_updated": 0,
+                "status": "No dates found",
+                "operation": "upsert_skipped_empty_df",
+            },
+            metadata={
+                "num_rows_processed_in_df": 0,
+                "columns": target_dim_date_columns,
+                "destination_table": "olist.DIM_DATE",
+                "source": "olist_dwh",
+                "load_time": pd.Timestamp.now().isoformat(),
+            },
+        )
 
-    return _truncate_and_append_to_db(
+    unique_dates_df = pd.DataFrame({"full_date": sorted(list(all_dates))})
+    final_df = pd.DataFrame(columns=target_dim_date_columns)
+    final_df["full_date"] = unique_dates_df["full_date"]
+    final_df["date_key"] = final_df["full_date"].dt.strftime("%Y%m%d").astype(int)
+    final_df["day"] = final_df["full_date"].dt.day
+    final_df["month"] = final_df["full_date"].dt.month
+    final_df["year"] = final_df["full_date"].dt.year
+    final_df["quarter"] = final_df["full_date"].dt.quarter
+    final_df["day_of_week"] = final_df["full_date"].dt.dayofweek + 1
+    final_df["day_name"] = final_df["full_date"].dt.strftime("%A")
+    final_df["month_name"] = final_df["full_date"].dt.strftime("%B")
+    final_df["is_weekend"] = final_df["day_of_week"].isin([6, 7])
+    final_df["is_holiday"] = False
+
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_DATE",
         "olist",
+        ["date_key"],
         target_dim_date_columns,
     )
 
 
-# --- DimProduct ---
 @asset(
     name="dim_product_loader",
     deps=[create_dim_product_table_asset],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Transforms, truncates, and loads the DimProduct table.",
+    description="Transforms and UPSERTS data into the DimProduct table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_product_load_asset(
     context: AssetExecutionContext,
@@ -242,13 +315,14 @@ def dim_product_load_asset(
     raw_products_df: pd.DataFrame,
     raw_product_category_name_translation_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimProduct logic remains the same)
     dim_df_merged = pd.merge(
         raw_products_df,
         raw_product_category_name_translation_df,
         on="product_category_name",
         how="left",
     )
-    target_columns = [
+    target_cols_for_df = [
         "product_id",
         "product_category_name",
         "product_category_name_english",
@@ -259,26 +333,28 @@ def dim_product_load_asset(
         "product_photos_qty",
     ]
     final_df = _prepare_df_for_load(
-        context, dim_df_merged, target_columns, "product_id"
+        context, dim_df_merged, target_cols_for_df, "product_id"
     )
-    return _truncate_and_append_to_db(
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_PRODUCT",
         "olist",
-        target_columns,
+        ["product_id"],
+        target_cols_for_df,
     )
 
 
-# --- DimCustomer ---
 @asset(
     name="dim_customer_loader",
     deps=[create_dim_customer_table_asset],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Transforms, truncates, and loads the DimCustomer table.",
+    description="Transforms and UPSERTS data into the DimCustomer table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_customer_load_asset(
     context: AssetExecutionContext,
@@ -286,6 +362,7 @@ def dim_customer_load_asset(
     raw_customers_df: pd.DataFrame,
     raw_geolocation_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimCustomer logic remains the same)
     raw_geolocation_df["geolocation_zip_code_prefix"] = raw_geolocation_df[
         "geolocation_zip_code_prefix"
     ].astype(int)
@@ -307,7 +384,7 @@ def dim_customer_load_asset(
         right_on="geolocation_zip_code_prefix",
         how="left",
     )
-    target_columns = [
+    target_cols_for_df = [
         "customer_id",
         "customer_unique_id",
         "customer_zip_code_prefix",
@@ -317,26 +394,28 @@ def dim_customer_load_asset(
         "customer_geolocation_lng",
     ]
     final_df = _prepare_df_for_load(
-        context, dim_df_merged, target_columns, "customer_id"
+        context, dim_df_merged, target_cols_for_df, "customer_id"
     )
-    return _truncate_and_append_to_db(
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_CUSTOMER",
         "olist",
-        target_columns,
+        ["customer_id"],
+        target_cols_for_df,
     )
 
 
-# --- DimSeller ---
 @asset(
     name="dim_seller_loader",
     deps=[create_dim_seller_table_asset],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Transforms, truncates, and loads the DimSeller table.",
+    description="Transforms and UPSERTS data into the DimSeller table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_seller_load_asset(
     context: AssetExecutionContext,
@@ -344,6 +423,7 @@ def dim_seller_load_asset(
     raw_sellers_df: pd.DataFrame,
     raw_closed_deals_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimSeller logic remains the same)
     closed_deals_info = raw_closed_deals_df.sort_values("won_date").drop_duplicates(
         "seller_id", keep="first"
     )
@@ -367,11 +447,9 @@ def dim_seller_load_asset(
             "lead_behaviour_profile": "lead_behavior_profile",
         }
     )
-    dim_df_merged["has_company"] = (
-        pd.NA
-    )  # Assuming these columns are not in source, add as NA
+    dim_df_merged["has_company"] = pd.NA
     dim_df_merged["has_gtin"] = pd.NA
-    target_columns = [
+    target_cols_for_df = [
         "seller_id",
         "seller_zip_code_prefix",
         "seller_city",
@@ -383,25 +461,29 @@ def dim_seller_load_asset(
         "has_gtin",
         "closed_deal_date",
     ]
-    final_df = _prepare_df_for_load(context, dim_df_merged, target_columns, "seller_id")
-    return _truncate_and_append_to_db(
+    final_df = _prepare_df_for_load(
+        context, dim_df_merged, target_cols_for_df, "seller_id"
+    )
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_SELLER",
         "olist",
-        target_columns,
+        ["seller_id"],
+        target_cols_for_df,
     )
 
 
-# --- DimOrder ---
 @asset(
     name="dim_order_loader",
     deps=[create_dim_order_table_asset],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Transforms, truncates, and loads the DimOrder table.",
+    description="Transforms and UPSERTS data into the DimOrder table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_order_load_asset(
     context: AssetExecutionContext,
@@ -409,6 +491,7 @@ def dim_order_load_asset(
     raw_orders_df: pd.DataFrame,
     raw_order_payments_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimOrder logic remains the same)
     payments_agg = (
         raw_order_payments_df.groupby("order_id")
         .agg(
@@ -419,22 +502,38 @@ def dim_order_load_asset(
         .reset_index()
     )
     dim_df_merged = pd.merge(raw_orders_df, payments_agg, on="order_id", how="left")
-
-    target_columns = [
+    target_cols_for_df = [
         "order_id",
         "order_status",
+        "order_purchase_timestamp",
+        "order_approved_at",
+        "order_delivered_carrier_date",
+        "order_delivered_customer_date",
+        "order_estimated_delivery_date",
         "payment_type",
         "payment_installments",
         "payment_value",
     ]
-    final_df = _prepare_df_for_load(context, dim_df_merged, target_columns, "order_id")
-    return _truncate_and_append_to_db(
+    for col in [
+        "order_purchase_timestamp",
+        "order_approved_at",
+        "order_delivered_carrier_date",
+        "order_delivered_customer_date",
+        "order_estimated_delivery_date",
+    ]:
+        if col in dim_df_merged.columns:
+            dim_df_merged[col] = pd.to_datetime(dim_df_merged[col], errors="coerce")
+    final_df = _prepare_df_for_load(
+        context, dim_df_merged, target_cols_for_df, "order_id"
+    )
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_ORDER",
         "olist",
-        target_columns,
+        ["order_id"],
+        target_cols_for_df,
     )
 
 
@@ -444,7 +543,9 @@ def dim_order_load_asset(
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",
-    description="Transforms, truncates, and loads the DimMarketing table.",
+    description="Transforms and UPSERTS data into the DimMarketing table.",
+    retry_policy=DIM_LOADER_RETRY_POLICY,
+    tags=DIM_LOADER_CONCURRENCY_TAGS,
 )
 def dim_marketing_load_asset(
     context: AssetExecutionContext,
@@ -452,6 +553,7 @@ def dim_marketing_load_asset(
     raw_marketing_qualified_leads_df: pd.DataFrame,
     raw_closed_deals_df: pd.DataFrame,
 ) -> Output[dict]:
+    # ... (rest of DimMarketing logic remains the same)
     dim_df_merged = pd.merge(
         raw_marketing_qualified_leads_df,
         raw_closed_deals_df[["mql_id", "sdr_id", "sr_id", "won_date"]],
@@ -471,7 +573,7 @@ def dim_marketing_load_asset(
         "lead_conversion_time"
     ].astype("Float64")
     dim_df_merged = dim_df_merged.rename(columns={"origin": "traffic_source"})
-    target_columns = [
+    target_cols_for_df = [
         "mql_id",
         "first_contact_date",
         "landing_page_id",
@@ -480,12 +582,15 @@ def dim_marketing_load_asset(
         "sdr_id",
         "sr_id",
     ]
-    final_df = _prepare_df_for_load(context, dim_df_merged, target_columns, "mql_id")
-    return _truncate_and_append_to_db(
+    final_df = _prepare_df_for_load(
+        context, dim_df_merged, target_cols_for_df, "mql_id"
+    )
+    return _upsert_to_db_via_staging(
         context,
         sql_alchemy_resource.get_engine(),
         final_df,
         "DIM_MARKETING",
         "olist",
-        target_columns,
+        ["mql_id"],
+        target_cols_for_df,
     )
