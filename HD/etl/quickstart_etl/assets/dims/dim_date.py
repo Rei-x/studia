@@ -7,12 +7,12 @@ from quickstart_etl.assets.dims.utils import (
     _upsert_to_db_via_staging,
 )
 from quickstart_etl.resources.db_resource import SQLAlchemyResource
-from quickstart_etl.assets.schema_setup_assets import create_dim_date_table_asset
+from quickstart_etl.assets.schema_setup_assets import dim_date_table
 
 
 @asset(
     name="dim_date_loader",
-    deps=[create_dim_date_table_asset],
+    deps=[dim_date_table],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",

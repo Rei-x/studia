@@ -8,12 +8,12 @@ from quickstart_etl.assets.dims.utils import (
     _upsert_to_db_via_staging,
 )
 from quickstart_etl.resources.db_resource import SQLAlchemyResource
-from quickstart_etl.assets.schema_setup_assets import create_dim_product_table_asset
+from quickstart_etl.assets.schema_setup_assets import dim_product_table
 
 
 @asset(
     name="dim_product_loader",
-    deps=[create_dim_product_table_asset],
+    deps=[dim_product_table],
     group_name="dimensions_loaders",
     key_prefix=["olist_dwh"],
     compute_kind="sqlalchemy",

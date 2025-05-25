@@ -1,14 +1,13 @@
 import pandas as pd
 from dagster import (
-    BackfillPolicy,
     MaterializeResult,
     asset,
     AssetExecutionContext,
 )
 
 
+from quickstart_etl.assets.schema_setup_assets import foreign_key_constraints
 from quickstart_etl.resources.db_resource import SQLAlchemyResource
-from ..schema_setup_assets import apply_foreign_keys_asset
 from ...partitions import olist_monthly_partitions
 
 
@@ -21,15 +20,28 @@ from .data_transformations import (
     prepare_final_fact_dataframe,
     create_empty_partition_result,
 )
+from ..dims import (
+    dim_date_load_asset,
+    dim_product_load_asset,
+    dim_customer_load_asset,
+    dim_seller_load_asset,
+    dim_order_load_asset,
+)
 
 
 @asset(
     name="fact_order_item_loader",
     partitions_def=olist_monthly_partitions,
-    deps=[apply_foreign_keys_asset],
+    deps=[
+        foreign_key_constraints,
+        dim_date_load_asset,
+        dim_product_load_asset,
+        dim_customer_load_asset,
+        dim_seller_load_asset,
+        dim_order_load_asset,
+    ],
     group_name="facts_loaders",
     key_prefix=["olist_dwh"],
-    backfill_policy=BackfillPolicy.single_run(),
     compute_kind="sqlalchemy",
     description="Builds and loads a partition of the FactOrderItem table to SQL Server.",
 )

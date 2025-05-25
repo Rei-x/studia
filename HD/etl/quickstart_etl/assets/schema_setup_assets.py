@@ -148,6 +148,14 @@ FOREIGN KEY (order_key) REFERENCES {SCHEMA_NAME}.DIM_ORDER (order_key)
 """
 
 
+DROP_FACT_ORDER_ITEM_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.FACT_ORDER_ITEM"
+DROP_DIM_ORDER_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.DIM_ORDER"
+DROP_DIM_SELLER_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.DIM_SELLER"
+DROP_DIM_CUSTOMER_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.DIM_CUSTOMER"
+DROP_DIM_PRODUCT_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.DIM_PRODUCT"
+DROP_DIM_DATE_DDL = f"DROP TABLE IF EXISTS {SCHEMA_NAME}.DIM_DATE"
+
+
 def _execute_ddl(
     context: AssetExecutionContext,
     sql_alchemy_resource: SQLAlchemyResource,
@@ -167,13 +175,17 @@ def _execute_ddl(
             "already an object named" in error_message
             or "already exists" in error_message
             or "already has a primary key" in error_message
+            or "does not exist"
+            in error_message  # Handle DROP TABLE IF EXISTS for non-existent tables
+            or "could not drop" in error_message
+            and "does not exist" in error_message
             or "constraint" in error_message
             and (
                 "already exists" in error_message or "could not create" in error_message
             )
         ):
             context.log.warning(
-                f"DDL for '{statement_name}' likely already applied: {e}"
+                f"DDL for '{statement_name}' likely already applied or object doesn't exist: {e}"
             )
             return Output(
                 value={
@@ -187,26 +199,57 @@ def _execute_ddl(
 
 
 @asset(
-    name="create_olist_schema",
+    name="olist_schema",
     group_name="schema_setup",
     compute_kind="sql_ddl",
     description=f"Creates the '{SCHEMA_NAME}' schema if it doesn't exist.",
 )
-def create_olist_schema_asset(
+def olist_schema(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
+    tables_to_drop = {
+        "FACT_ORDER_ITEM": DROP_FACT_ORDER_ITEM_DDL,
+        "DIM_ORDER": DROP_DIM_ORDER_DDL,
+        "DIM_SELLER": DROP_DIM_SELLER_DDL,
+        "DIM_CUSTOMER": DROP_DIM_CUSTOMER_DDL,
+        "DIM_PRODUCT": DROP_DIM_PRODUCT_DDL,
+        "DIM_DATE": DROP_DIM_DATE_DDL,
+    }
+
+    results = []
+    all_successful = True
+
+    for table_name, ddl in tables_to_drop.items():
+        try:
+            output = _execute_ddl(
+                context, sql_alchemy_resource, ddl, f"Drop {table_name} Table"
+            )
+            results.append(output.value)
+            if (
+                output.value.get("status") != "Success"
+                and output.value.get("status") != "Already Exists or No-op"
+            ):
+                all_successful = False
+        except Exception as e:
+            context.log.error(f"Failed to drop table {table_name}: {e}")
+            results.append({"status": "Failed", "table": table_name, "error": str(e)})
+            all_successful = False
+
+    final_status = "Success" if all_successful else "Partial Success or Failure"
+    context.log.info(f"Schema cleanup status: {final_status}")
+
     return _execute_ddl(
         context, sql_alchemy_resource, CREATE_SCHEMA_DDL, f"Create Schema {SCHEMA_NAME}"
     )
 
 
 @asset(
-    name="create_dim_date_table",
+    name="dim_date_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_dim_date_table_asset(
+def dim_date_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -215,12 +258,12 @@ def create_dim_date_table_asset(
 
 
 @asset(
-    name="create_dim_product_table",
+    name="dim_product_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_dim_product_table_asset(
+def dim_product_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -232,12 +275,12 @@ def create_dim_product_table_asset(
 
 
 @asset(
-    name="create_dim_customer_table",
+    name="dim_customer_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_dim_customer_table_asset(
+def dim_customer_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -249,12 +292,12 @@ def create_dim_customer_table_asset(
 
 
 @asset(
-    name="create_dim_seller_table",
+    name="dim_seller_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_dim_seller_table_asset(
+def dim_seller_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -263,12 +306,12 @@ def create_dim_seller_table_asset(
 
 
 @asset(
-    name="create_dim_order_table",
+    name="dim_order_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_dim_order_table_asset(
+def dim_order_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -277,12 +320,12 @@ def create_dim_order_table_asset(
 
 
 @asset(
-    name="create_fact_order_item_table",
+    name="fact_order_item_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],
+    deps=[olist_schema],
     compute_kind="sql_ddl",
 )
-def create_fact_order_item_table_asset(
+def fact_order_item_table(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     return _execute_ddl(
@@ -294,20 +337,20 @@ def create_fact_order_item_table_asset(
 
 
 @asset(
-    name="apply_foreign_keys",
+    name="foreign_key_constraints",
     group_name="schema_setup",
     deps=[
-        create_dim_date_table_asset,
-        create_dim_product_table_asset,
-        create_dim_customer_table_asset,
-        create_dim_seller_table_asset,
-        create_dim_order_table_asset,
-        create_fact_order_item_table_asset,
+        dim_date_table,
+        dim_product_table,
+        dim_customer_table,
+        dim_seller_table,
+        dim_order_table,
+        fact_order_item_table,
     ],
     compute_kind="sql_ddl",
     description="Applies foreign key constraints to FACT_ORDER_ITEM.",
 )
-def apply_foreign_keys_asset(
+def foreign_key_constraints(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
     fks_to_apply = {
