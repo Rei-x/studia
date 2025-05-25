@@ -77,17 +77,6 @@ CREATE TABLE {SCHEMA_NAME}.DIM_ORDER (
     order_key INT IDENTITY(1,1) PRIMARY KEY,
     order_id NVARCHAR(50) NOT NULL,
     order_status NVARCHAR(30) NULL,
-    order_purchase_timestamp DATETIME NULL,
-    order_approved_at DATETIME NULL,
-    order_delivered_carrier_date DATETIME NULL,
-    order_delivered_customer_date DATETIME NULL,
-    order_estimated_delivery_date DATETIME NULL,
-    delivery_delay_days AS
-        CASE
-            WHEN order_delivered_customer_date IS NOT NULL AND order_estimated_delivery_date IS NOT NULL
-            THEN DATEDIFF(DAY, order_estimated_delivery_date, order_delivered_customer_date)
-            ELSE NULL
-        END PERSISTED,
     payment_type NVARCHAR(30) NULL,
     payment_installments INT NULL,
     payment_value DECIMAL(10, 2) NULL
@@ -336,23 +325,6 @@ def create_dim_order_table_asset(
 
 
 @asset(
-    name="create_dim_marketing_table",
-    group_name="schema_setup",
-    deps=[create_olist_schema_asset],
-    compute_kind="sql_ddl",
-)
-def create_dim_marketing_table_asset(
-    context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
-) -> Output[dict]:
-    return _execute_ddl(
-        context,
-        sql_alchemy_resource,
-        CREATE_DIM_MARKETING_DDL,
-        "Create DIM_MARKETING Table",
-    )
-
-
-@asset(
     name="create_fact_order_item_table",
     group_name="schema_setup",
     deps=[create_olist_schema_asset],  # Depends on schema
@@ -381,7 +353,6 @@ def create_fact_order_item_table_asset(
         create_dim_customer_table_asset,
         create_dim_seller_table_asset,
         create_dim_order_table_asset,
-        create_dim_marketing_table_asset,
         create_fact_order_item_table_asset,
     ],
     compute_kind="sql_ddl",
@@ -396,7 +367,6 @@ def apply_foreign_keys_asset(
         "FK_OrderItem_Customer": FK_ORDERITEM_CUSTOMER_DDL,
         "FK_OrderItem_Seller": FK_ORDERITEM_SELLER_DDL,
         "FK_OrderItem_Order": FK_ORDERITEM_ORDER_DDL,
-        "FK_OrderItem_Marketing": FK_ORDERITEM_MARKETING_DDL,
     }
     results = []
     all_successful = True
