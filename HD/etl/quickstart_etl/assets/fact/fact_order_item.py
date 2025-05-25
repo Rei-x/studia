@@ -1,7 +1,3 @@
-"""
-Fact Order Item asset for the Olist data warehouse.
-"""
-
 import pandas as pd
 from dagster import (
     BackfillPolicy,
@@ -10,12 +6,12 @@ from dagster import (
     AssetExecutionContext,
 )
 
-# Import resources and dependencies
+
 from quickstart_etl.resources.db_resource import SQLAlchemyResource
 from ..schema_setup_assets import apply_foreign_keys_asset
 from ...partitions import olist_monthly_partitions
 
-# Import modular utilities
+
 from .db_operations import delete_partition_and_append_fact_to_db
 from .dimension_lookups import fetch_dimension_keys
 from .data_transformations import (
@@ -50,31 +46,28 @@ def fact_order_item_load_asset(
     This asset processes order items for a specific partition, enriches them with
     dimension keys, and loads them into the fact table.
     """
-    # Get partition time window
+
     partition_time_window = context.partition_time_window
-    partition_start_dt = partition_time_window.start  # UTC-aware
-    partition_end_dt = partition_time_window.end  # UTC-aware and exclusive
+    partition_start_dt = partition_time_window.start
+    partition_end_dt = partition_time_window.end
 
     context.log.info(
         f"Starting FactOrderItem processing for partition: {context.partition_keys} "
         f"(Window: {partition_start_dt.isoformat()} to {partition_end_dt.isoformat()})"
     )
 
-    # Define target fact table columns
     target_fact_cols_metadata = [
         "order_key",
         "product_key",
         "seller_key",
         "customer_key",
         "date_key",
-        "marketing_key",
         "price",
         "freight_value",
         "delivery_days",
         "review_score",
     ]
 
-    # Step 1: Filter orders for the current partition
     orders_partition_df = filter_orders_by_partition(
         context, raw_orders_df, partition_start_dt, partition_end_dt
     )
@@ -95,7 +88,6 @@ def fact_order_item_load_asset(
         f"Found {len(orders_partition_df)} orders for partition {context.partition_keys}."
     )
 
-    # Step 2: Filter order items based on partition orders
     fact_df = pd.merge(
         raw_order_items_df,
         orders_partition_df[["order_id"]],
@@ -119,7 +111,6 @@ def fact_order_item_load_asset(
         f"Processing {len(fact_df)} order items for partition {context.partition_keys}."
     )
 
-    # Step 3: Merge additional order information
     fact_df = pd.merge(
         fact_df,
         orders_partition_df[
@@ -127,14 +118,13 @@ def fact_order_item_load_asset(
                 "order_id",
                 "customer_id",
                 "order_purchase_timestamp",
-                "order_delivered_customer_date",  # Add this column
+                "order_delivered_customer_date",
             ]
         ],
         on="order_id",
         how="left",
     )
 
-    # Step 4: Fetch dimension keys
     engine = sql_alchemy_resource.get_engine()
     schema_name = "olist"
 
@@ -144,13 +134,10 @@ def fact_order_item_load_asset(
         context.log.error(f"Error during dimension key lookup: {e}")
         raise
 
-    # Step 5: Process review scores
     fact_df = process_review_scores(orders_partition_df, raw_order_reviews_df, fact_df)
 
-    # Process delivery days
     fact_df = process_delivery_days(orders_partition_df, fact_df)
 
-    # Step 6: Prepare final fact DataFrame
     final_fact_df = prepare_final_fact_dataframe(
         context, fact_df, target_fact_cols_metadata
     )
@@ -167,7 +154,6 @@ def fact_order_item_load_asset(
             "No valid rows after FK checks",
         )
 
-    # Step 7: Load data to database
     return delete_partition_and_append_fact_to_db(
         context,
         engine,

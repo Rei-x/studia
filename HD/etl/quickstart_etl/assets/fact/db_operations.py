@@ -1,7 +1,3 @@
-"""
-Database operations utilities for fact table loading.
-"""
-
 import pandas as pd
 from dagster import AssetExecutionContext, MaterializeResult
 from sqlalchemy import text, Engine
@@ -14,36 +10,11 @@ def delete_partition_and_append_fact_to_db(
     table_name: str,
     schema_name: str,
     target_columns_for_metadata: list[str],
-    partition_start_date: pd.Timestamp,  # This will be UTC-aware
-    partition_end_date: pd.Timestamp,  # This will be UTC-aware and exclusive
+    partition_start_date: pd.Timestamp,
+    partition_end_date: pd.Timestamp,
 ) -> MaterializeResult:
-    """
-    Delete existing data for a partition and append new data to the fact table.
-
-    Args:
-        context: Dagster asset execution context
-        engine: SQLAlchemy engine
-        final_df: DataFrame to load
-        table_name: Target table name
-        schema_name: Target schema name
-        target_columns_for_metadata: List of expected columns for metadata
-        partition_start_date: Start of partition window (inclusive)
-        partition_end_date: End of partition window (exclusive)
-
-    Returns:
-        MaterializeResult with metadata about the operation
-    """
     rows_loaded = 0
 
-    # For the DELETE statement, we need to ensure DIM_DATE.full_date comparison is correct.
-    # If DIM_DATE.full_date is stored as a naive date, we might need to convert
-    # partition_start_date and partition_end_date to naive for the SQL query parameters,
-    # or ensure DIM_DATE also stores tz-aware dates (e.g., UTC).
-    # For now, let's assume DIM_DATE.full_date is a DATE type and comparison with
-    # timezone-aware timestamps passed as parameters will be handled correctly by the DB driver
-    # (often by converting the tz-aware timestamp to the DB's session timezone or UTC before comparison).
-    # It's safer if DIM_DATE also stores UTC dates if possible.
-    # We'll pass the tz-aware timestamps directly to the SQL query.
     sql_partition_start_dt = partition_start_date
     sql_partition_end_exclusive_dt = partition_end_date
 

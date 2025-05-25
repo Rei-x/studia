@@ -1,5 +1,3 @@
-# olist_etl/assets/schema_setup_assets.py
-
 from dagster import asset, AssetExecutionContext, Output
 from sqlalchemy import text
 
@@ -8,7 +6,6 @@ from quickstart_etl.resources.db_resource import SQLAlchemyResource
 
 SCHEMA_NAME = "olist"
 
-# --- DDL Statements (extracted from your document) ---
 
 CREATE_SCHEMA_DDL = f"IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = '{SCHEMA_NAME}') EXEC('CREATE SCHEMA {SCHEMA_NAME}')"
 
@@ -83,18 +80,6 @@ CREATE TABLE {SCHEMA_NAME}.DIM_ORDER (
 )
 """
 
-CREATE_DIM_MARKETING_DDL = f"""
-CREATE TABLE {SCHEMA_NAME}.DIM_MARKETING (
-    marketing_key INT IDENTITY(1,1) PRIMARY KEY,
-    mql_id NVARCHAR(50) NULL,
-    first_contact_date DATE NULL,
-    landing_page_id NVARCHAR(50) NULL,
-    traffic_source NVARCHAR(50) NULL,
-    lead_conversion_time INT NULL,
-    sdr_id NVARCHAR(50) NULL,
-    sr_id NVARCHAR(50) NULL
-)
-"""
 
 CREATE_FACT_ORDER_ITEM_DDL = f"""
 CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
@@ -112,7 +97,6 @@ CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
     seller_key INT NOT NULL,
     customer_key INT NOT NULL,
     date_key INT NOT NULL, -- Refers to a specific date (e.g. order purchase date)
-    marketing_key INT NULL,
 
     price DECIMAL(10, 2) NOT NULL,
     freight_value DECIMAL(10, 2) NOT NULL,
@@ -123,16 +107,8 @@ CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
     review_score FLOAT NULL -- This is better calculated in ETL or derived via DimOrder/DimReview
 )
 """
-# Note on FACT_ORDER_ITEM DDL:
-# Your original DDL for FACT_ORDER_ITEM has `order_item_id BIGINT IDENTITY(1,1) PRIMARY KEY`.
-# The source `olist_order_items_dataset.csv` has `order_id` and `order_item_id` (which is 1,2,3... per order).
-# For clarity, I've added `source_order_item_id` for the latter and kept `order_item_id` as the surrogate PK.
-# I also added business key columns (like `order_id`, `product_id`, `seller_id`) to the fact DDL stub above
-# as these are crucial for joining during the ETL to look up surrogate keys. The final FKs will point to surrogate keys.
-# The `date_key` in the fact table will relate to a specific event date (e.g., order purchase date, shipping date).
-# Your provided FK constraints use surrogate keys, so the DDL for FACT_ORDER_ITEM needs these `_key` columns.
 
-# The DDL for FACT_ORDER_ITEM from your document (page 24) which I will use:
+
 CREATE_FACT_ORDER_ITEM_DDL_DOC = f"""
 CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
     order_item_id BIGINT IDENTITY(1,1) PRIMARY KEY,
@@ -141,7 +117,6 @@ CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
     seller_key INT NOT NULL,
     customer_key INT NOT NULL,
     date_key INT NOT NULL,
-    marketing_key INT NULL,
     price DECIMAL(10, 2) NOT NULL,
     freight_value DECIMAL(10, 2) NOT NULL,
     total_value AS (price + freight_value) PERSISTED,
@@ -151,7 +126,6 @@ CREATE TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM (
 """
 
 
-# --- Foreign Key DDLs ---
 FK_ORDERITEM_DATE_DDL = f"""
 ALTER TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM ADD CONSTRAINT FK_OrderItem_Date
 FOREIGN KEY (date_key) REFERENCES {SCHEMA_NAME}.DIM_DATE (date_key)
@@ -172,13 +146,8 @@ FK_ORDERITEM_ORDER_DDL = f"""
 ALTER TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM ADD CONSTRAINT FK_OrderItem_Order
 FOREIGN KEY (order_key) REFERENCES {SCHEMA_NAME}.DIM_ORDER (order_key)
 """
-FK_ORDERITEM_MARKETING_DDL = f"""
-ALTER TABLE {SCHEMA_NAME}.FACT_ORDER_ITEM ADD CONSTRAINT FK_OrderItem_Marketing
-FOREIGN KEY (marketing_key) REFERENCES {SCHEMA_NAME}.DIM_MARKETING (marketing_key)
-"""
 
 
-# --- Helper function to execute DDL ---
 def _execute_ddl(
     context: AssetExecutionContext,
     sql_alchemy_resource: SQLAlchemyResource,
@@ -189,24 +158,10 @@ def _execute_ddl(
     try:
         with engine.connect() as connection:
             connection.execute(text(ddl_statement))
-            connection.commit()  # For some DDL, explicit commit might be needed or auto-committed
+            connection.commit()
         context.log.info(f"Successfully executed DDL: {statement_name}")
         return Output(value={"status": "Success", "ddl_statement": statement_name})
     except Exception as e:
-        # Check if error is because object already exists (common for CREATE statements)
-        # This depends on the specific error message from SQL Server.
-        # Example: SQL Server error code 2714 for "There is already an object named '...' in the database."
-        # Example: SQL Server error code 15005 for "The schema '...' already exists." (for CREATE SCHEMA)
-        # Example: SQL Server error code 1779 for "Table '...' already has a primary key defined on it."
-        # Example: SQL Server error code 1750 for "Could not create constraint. See previous errors."
-        # Example: SQL Server error code 547 for FK violation or 1785 for FK referencing non-existent PK
-
-        # For simplicity, we log the error. For more robust idempotency,
-        # you'd parse the error or use `IF NOT EXISTS` in DDLs.
-        # The CREATE_SCHEMA_DDL above already includes an IF NOT EXISTS check.
-        # For tables, SQL Server 2016+ supports `CREATE TABLE IF NOT EXISTS`.
-        # For older versions, you'd query sys.tables.
-
         error_message = str(e).lower()
         if (
             "already an object named" in error_message
@@ -216,7 +171,7 @@ def _execute_ddl(
             and (
                 "already exists" in error_message or "could not create" in error_message
             )
-        ):  # Be careful with generic "constraint"
+        ):
             context.log.warning(
                 f"DDL for '{statement_name}' likely already applied: {e}"
             )
@@ -231,7 +186,6 @@ def _execute_ddl(
             raise
 
 
-# --- Schema Creation Asset ---
 @asset(
     name="create_olist_schema",
     group_name="schema_setup",
@@ -246,8 +200,6 @@ def create_olist_schema_asset(
     )
 
 
-# --- Table Creation Assets ---
-# These depend on schema creation
 @asset(
     name="create_dim_date_table",
     group_name="schema_setup",
@@ -327,13 +279,12 @@ def create_dim_order_table_asset(
 @asset(
     name="create_fact_order_item_table",
     group_name="schema_setup",
-    deps=[create_olist_schema_asset],  # Depends on schema
+    deps=[create_olist_schema_asset],
     compute_kind="sql_ddl",
 )
 def create_fact_order_item_table_asset(
     context: AssetExecutionContext, sql_alchemy_resource: SQLAlchemyResource
 ) -> Output[dict]:
-    # Using the DDL from your document
     return _execute_ddl(
         context,
         sql_alchemy_resource,
@@ -342,8 +293,6 @@ def create_fact_order_item_table_asset(
     )
 
 
-# --- Foreign Key Application Asset ---
-# This asset depends on all table creation assets.
 @asset(
     name="apply_foreign_keys",
     group_name="schema_setup",
@@ -371,9 +320,8 @@ def apply_foreign_keys_asset(
     results = []
     all_successful = True
     for fk_name, ddl in fks_to_apply.items():
-        # Need to pass context and resource to _execute_ddl
         output = _execute_ddl(context, sql_alchemy_resource, ddl, f"Apply FK {fk_name}")
-        results.append(output.value)  # Assuming _execute_ddl returns Output(value=dict)
+        results.append(output.value)
         if (
             output.value.get("status") != "Success"
             and output.value.get("status") != "Already Exists or No-op"

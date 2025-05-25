@@ -59,17 +59,13 @@ def _upsert_to_db_via_staging(
             },
         )
 
-    # More unique staging table name to minimize potential clashes if runs overlap slightly
-    # and cleanup fails, though concurrency control is the primary fix for deadlocks.
-    run_id_prefix = context.run_id.split("-")[0]  # Short prefix from run_id
+    run_id_prefix = context.run_id.split("-")[0]
     staging_table_name = f"stg_{target_table_name}_{run_id_prefix}_{pd.Timestamp.now().strftime('%H%M%S%f')}".lower()
 
     rows_affected_by_merge = 0
 
     try:
         with engine.connect() as connection:
-            # Check if staging table exists and drop it explicitly first to reduce to_sql's internal reflection work
-            # This is a small optimization, the main fix is concurrency control.
             inspector = inspect(connection)
             if inspector.has_table(staging_table_name, schema=target_schema_name):
                 context.log.info(
@@ -78,7 +74,6 @@ def _upsert_to_db_via_staging(
                 connection.execute(
                     text(f"DROP TABLE {target_schema_name}.{staging_table_name}")
                 )
-                # No commit needed for DROP TABLE usually, or it's part of the transaction
 
             df_to_load.to_sql(
                 name=staging_table_name,
@@ -124,7 +119,7 @@ def _upsert_to_db_via_staging(
             connection.execute(
                 text(f"DROP TABLE {target_schema_name}.{staging_table_name}")
             )
-            connection.commit()  # Commit all operations: staging load, merge, staging drop
+            connection.commit()
             context.log.info(
                 f"Dropped staging table {target_schema_name}.{staging_table_name} and committed transaction."
             )
@@ -147,9 +142,9 @@ def _upsert_to_db_via_staging(
         context.log.error(
             f"Failed to upsert data to {target_schema_name}.{target_table_name}: {e}"
         )
-        # Attempt to drop staging table on error if it exists (outside the transaction that might have rolled back)
+
         try:
-            with engine.connect() as conn_cleanup:  # New connection for cleanup
+            with engine.connect() as conn_cleanup:
                 inspector = inspect(conn_cleanup)
                 if inspector.has_table(staging_table_name, schema=target_schema_name):
                     conn_cleanup.execute(
@@ -166,11 +161,7 @@ def _upsert_to_db_via_staging(
         raise
 
 
-# --- Dimension Loader Assets ---
-# Define a common retry policy and concurrency tag
-DIM_LOADER_RETRY_POLICY = RetryPolicy(
-    max_retries=2, delay=60
-)  # Retry 2 times, 60s delay
+DIM_LOADER_RETRY_POLICY = RetryPolicy(max_retries=2, delay=60)
 DIM_LOADER_CONCURRENCY_TAGS = {
     "dagster/concurrency_key": "mssql_dimension_upsert",
     "dagster/max_concurrent_runs": "1",

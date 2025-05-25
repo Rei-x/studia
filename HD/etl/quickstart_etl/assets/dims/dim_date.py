@@ -28,7 +28,6 @@ def dim_date_load_asset(
     raw_marketing_qualified_leads_df: pd.DataFrame,
     raw_closed_deals_df: pd.DataFrame,
 ) -> Output[dict]:
-    # ... (rest of DimDate logic remains the same, ending with call to _upsert_to_db_via_staging)
     all_dates = set()
 
     def extract_dates_from_column(df, column_name):

@@ -1,7 +1,3 @@
-"""
-Data transformation utilities for fact table processing.
-"""
-
 import pandas as pd
 from datetime import datetime
 from dagster import AssetExecutionContext, MaterializeResult
@@ -13,27 +9,12 @@ def filter_orders_by_partition(
     partition_start_dt: datetime,
     partition_end_dt: datetime,
 ) -> pd.DataFrame:
-    """
-    Filter orders DataFrame by partition time window and handle timezone conversion.
-
-    Args:
-        context: Dagster asset execution context
-        orders_df: Raw orders DataFrame
-        partition_start_dt: Start of partition window (inclusive)
-        partition_end_dt: End of partition window (exclusive)
-
-    Returns:
-        Filtered orders DataFrame for the partition
-    """
     orders_df = orders_df.copy()
 
-    # Convert order_purchase_timestamp to datetime
     orders_df["order_purchase_timestamp"] = pd.to_datetime(
         orders_df["order_purchase_timestamp"], errors="coerce"
     )
 
-    # ******** TIMEZONE FIX APPLIED HERE ********
-    # Ensure 'order_purchase_timestamp' is UTC-aware for comparison
     if orders_df["order_purchase_timestamp"].dt.tz is None:
         context.log.info("Localizing naive 'order_purchase_timestamp' to UTC.")
         orders_df["order_purchase_timestamp"] = orders_df[
@@ -44,7 +25,6 @@ def filter_orders_by_partition(
         orders_df["order_purchase_timestamp"] = orders_df[
             "order_purchase_timestamp"
         ].dt.tz_convert("UTC")
-    # *******************************************
 
     orders_partition_df = orders_df[
         (orders_df["order_purchase_timestamp"] >= partition_start_dt)
@@ -111,17 +91,6 @@ def process_review_scores(
     reviews_df: pd.DataFrame,
     fact_df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """
-    Process review scores and merge with fact DataFrame.
-
-    Args:
-        orders_partition_df: Filtered orders for the partition
-        reviews_df: Raw reviews DataFrame
-        fact_df: Fact DataFrame to enrich
-
-    Returns:
-        Fact DataFrame with review scores merged
-    """
     relevant_order_ids_for_reviews = orders_partition_df["order_id"].unique()
     reviews_partition_df = reviews_df[
         reviews_df["order_id"].isin(relevant_order_ids_for_reviews)
@@ -147,18 +116,6 @@ def prepare_final_fact_dataframe(
     fact_df: pd.DataFrame,
     target_fact_cols_metadata: list[str],
 ) -> pd.DataFrame:
-    """
-    Prepare the final fact DataFrame with proper column mapping and data types.
-
-    Args:
-        context: Dagster asset execution context
-        fact_df: Processed fact DataFrame
-        target_fact_cols_metadata: Expected columns for the fact table
-
-    Returns:
-        Final fact DataFrame ready for loading
-    """
-    # Create final DataFrame with target schema
     final_fact_df = pd.DataFrame(columns=target_fact_cols_metadata)
     for col in target_fact_cols_metadata:
         if col in fact_df.columns:
@@ -166,7 +123,6 @@ def prepare_final_fact_dataframe(
         else:
             final_fact_df[col] = pd.NA
 
-    # Handle essential foreign key validation
     essential_fk_cols = [
         "order_key",
         "product_key",
@@ -187,20 +143,14 @@ def prepare_final_fact_dataframe(
     if final_fact_df.empty:
         return final_fact_df
 
-    # Convert data types
     for col in essential_fk_cols:
         final_fact_df[col] = final_fact_df[col].astype(int)
 
-    if "marketing_key" in final_fact_df.columns:
-        final_fact_df["marketing_key"] = final_fact_df["marketing_key"].astype("Int64")
-
-    # Convert numeric columns
     final_fact_df["price"] = pd.to_numeric(final_fact_df["price"], errors="coerce")
     final_fact_df["freight_value"] = pd.to_numeric(
         final_fact_df["freight_value"], errors="coerce"
     )
 
-    # Drop rows with missing price or freight_value
     final_fact_df.dropna(subset=["price", "freight_value"], inplace=True)
 
     return final_fact_df
@@ -213,19 +163,6 @@ def create_empty_partition_result(
     partition_end_dt: datetime,
     status: str,
 ) -> MaterializeResult:
-    """
-    Create a MaterializeResult for empty partitions.
-
-    Args:
-        context: Dagster asset execution context
-        target_fact_cols_metadata: Expected columns for metadata
-        partition_start_dt: Start of partition window
-        partition_end_dt: End of partition window
-        status: Status message for the empty result
-
-    Returns:
-        MaterializeResult with metadata for empty partition
-    """
     return MaterializeResult(
         metadata={
             "table": "olist.FACT_ORDER_ITEM",
