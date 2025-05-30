@@ -1,0 +1,558 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{booktabs} % For professional looking tables
+\usepackage{xcolor}   % For colored text, if needed
+\usepackage{multicol} % For multi-column layout if needed for tables
+
+% Define colors (from user's sample)
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Define PDDL listing style
+\lstdefinestyle{pddlstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries, % Main PDDL keywords
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple}, % For object names or parameters if styled as strings
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=none, % Line numbers can be enabled if desired, e.g., left               
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    morekeywords=[1]{define, domain, problem, :requirements, :strips, :typing, 
+                  :negative-preconditions, :equality, :constants, :predicates, 
+                  :action, :parameters, :precondition, :effect, 
+                  :objects, :init, :goal, and, or, not}, % Primary keywords
+    morekeywords=[2]{package, location, vehicle, transport-mode, university, drone, student,
+                  room, robot, ball, arm}, % Common type names (styled differently)
+    keywordstyle=[2]\color{codepurple}, % Style for type names
+    sensitive=false, % PDDL keywords are typically case-insensitive
+    comment=[l]{;} % PDDL comments start with ;
+}
+\lstset{style=pddlstyle} % Apply this style globally for listings
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}} % Helper command for inline code
+
+\title{\LARGE \textbf{Sztuczna inteligencja i inżynieria wiedzy}\\
+\large Lista nr 3: Planowanie z wykorzystaniem PDDL}
+\author{Bartosz Gotowski}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\begin{center}
+    \textit{Sprawozdanie z realizacji zadań dotyczących planowania automatycznego \\ z wykorzystaniem języka PDDL.}
+\end{center}
+\vspace{1cm}
+
+\tableofcontents
+\clearpage
+
+\section{Wprowadzenie}
+Celem niniejszej listy zadań było praktyczne zapoznanie się z językiem PDDL (Planning Domain Definition Language) oraz jego zastosowaniem w rozwiązywaniu problemów planowania automatycznego. PDDL jest standardowym językiem służącym do opisu problemów planowania w dziedzinie sztucznej inteligencji, umożliwiającym definiowanie dziedzin (dostępnych akcji, predykatów, typów) oraz konkretnych problemów (obiektów, stanu początkowego, celu).
+
+W ramach listy zrealizowano trzy zadania o różnym stopniu złożoności, modelując je w PDDL i wykorzystując planer Fast Downward (w ramach systemu DELFI) do znalezienia rozwiązania:
+\begin{enumerate}
+    \item Problem logistyczny transportu kart graficznych między politechnikami przy użyciu dronów i studentów.
+    \item Problem robota sprzątającego, który ma za zadanie odkurzyć wszystkie pomieszczenia.
+    \item Problem robota z dwoma ramionami, przenoszącego piłki między pokojami.
+\end{enumerate}
+Niniejsze sprawozdanie przedstawia teoretyczne podstawy PDDL, szczegółowy opis sformułowania każdego z problemów, ich implementację w PDDL, a także analizę wyników uzyskanych z planera, w tym wygenerowane plany działania oraz metryki wydajnościowe.
+
+\section{Podstawy Teoretyczne Języka PDDL}
+Język PDDL (Planning Domain Definition Language) to formalny język opisu problemów planowania, szeroko stosowany w badaniach nad sztuczną inteligencją, zwłaszcza w dziedzinie planowania symbolicznego. PDDL korzysta z notacji prefiksowej, inspirowanej językiem LISP (tzw. S-wyrażenia).
+
+Definicja problemu w PDDL składa się z dwóch głównych części, często zapisywanych w oddzielnych plikach:
+\begin{enumerate}
+    \item \textbf{Definicja dziedziny (\code{domain.pddl}):} Opisuje ogólne zasady świata, w którym działa agent. Zawiera:
+    \begin{itemize}
+        \item \code{:requirements}: Określa, jakie rozszerzenia PDDL są używane (np. \code{:strips} dla podstawowego modelu, \code{:typing} dla typowania obiektów, \code{:negative-preconditions} dla warunków negatywnych).
+        \item \code{:types}: Definiuje typy obiektów i ich hierarchię (np. \code{samochod - pojazd}).
+        \item \code{:constants}: Definiuje obiekty, które są stałe we wszystkich problemach danej dziedziny.
+        \item \code{:predicates}: Deklaruje predykaty, czyli relacje lub właściwości, które mogą być prawdziwe lub fałszywe w danym stanie świata (np. \code{(na ?x ?y)} – obiekt ?x jest na obiekcie ?y).
+        \item \code{:action}: Definiuje możliwe akcje, które agent może wykonać. Każda akcja zawiera:
+        \begin{itemize}
+            \item \code{:parameters}: Zmienne reprezentujące obiekty biorące udział w akcji, wraz z ich typami.
+            \item \code{:precondition}: Warunki, które muszą być spełnione, aby akcja mogła zostać wykonana.
+            \item \code{:effect}: Zmiany w stanie świata wynikające z wykonania akcji (dodanie lub usunięcie predykatów).
+        \end{itemize}
+    \end{itemize}
+    \item \textbf{Definicja problemu (\code{problem.pddl}):} Opisuje konkretną instancję problemu do rozwiązania w ramach zdefiniowanej dziedziny. Zawiera:
+    \begin{itemize}
+        \item \code{(:domain <nazwa-dziedziny>)}: Wskazuje, której dziedziny dotyczy problem.
+        \item \code{:objects}: Deklaruje konkretne obiekty istniejące w problemie, wraz z ich typami.
+        \item \code{:init}: Opisuje stan początkowy świata poprzez listę predykatów, które są w nim prawdziwe.
+        \item \code{:goal}: Opisuje stan docelowy, który agent ma osiągnąć, również poprzez listę predykatów.
+    \end{itemize}
+\end{enumerate}
+Planery, takie jak Fast Downward, analizują te definicje, aby automatycznie wygenerować sekwencję akcji (plan), która transformuje stan początkowy w stan docelowy. Proces ten zwykle obejmuje parsowanie plików PDDL, normalizację zadania, a następnie przeszukiwanie przestrzeni stanów w poszukiwaniu rozwiązania.
+
+\section{Sformułowanie Problemów}
+
+\subsection{Zadanie 1: Logistyka Transportu Kart Graficznych}
+\begin{itemize}
+    \item \textbf{Opis:} Zadanie polega na przetransportowaniu dwóch kart graficznych (GPU1, GPU2) z Politechniki Wrocławskiej (PWr) do dwóch innych uczelni: Politechniki Warszawskiej (PW) i Akademii Górniczo-Hutniczej (AGH). Do dyspozycji są dwa środki transportu: dron z PWr oraz student z AGH. Każdy środek transportu ma swoje ograniczenia co do rodzaju trasy (powietrzna dla drona, drogowa dla studenta). Tematyka została wybrana z inspiracji własnymi doświadczeniami jako studenta Politechniki Wrocławskiej, łącząc elementy nowoczesnej technologii (drony) z codziennością akademicką.
+    \item \textbf{Typy obiektów:} \code{package} (karta graficzna), \code{location} (z podtypem \code{university}), \code{vehicle} (z podtypami \code{drone}, \code{student}), \code{transport-mode} (stałe: \code{road}, \code{air}).
+    \item \textbf{Obiekty:}
+    \begin{itemize}
+        \item Politechniki: \code{pwr}, \code{agh}, \code{pw}.
+        \item Paczki: \code{gpu1}, \code{gpu2}.
+        \item Pojazdy: \code{dron_pwr}, \code{student_agh}.
+    \end{itemize}
+    \item \textbf{Stan początkowy:}
+    \begin{itemize}
+        \item \code{gpu1} i \code{gpu2} znajdują się na \code{pwr}.
+        \item \code{dron_pwr} znajduje się na \code{pwr}.
+        \item \code{student_agh} znajduje się na \code{agh}.
+        \item Zdefiniowane są połączenia drogowe i powietrzne (dwukierunkowe) między wszystkimi parami uczelni.
+        \item \code{dron_pwr} może korzystać z tras powietrznych (\code{air}).
+        \item \code{student_agh} może korzystać z tras drogowych (\code{road}).
+    \end{itemize}
+    \item \textbf{Cel:}
+    \begin{itemize}
+        \item \code{gpu1} znajduje się na \code{pw}.
+        \item \code{gpu2} znajduje się na \code{agh}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Zadanie 2: Robot Sprzątający}
+\begin{itemize}
+    \item \textbf{Opis:} Prosty robot ma za zadanie odwiedzić i posprzątać trzy pokoje.
+    \item \textbf{Typy obiektów:} \code{room}, \code{robot}.
+    \item \textbf{Obiekty:}
+    \begin{itemize}
+        \item Pokoje: \code{pokoj1}, \code{pokoj2}, \code{pokoj3}.
+        \item Robot: \code{robby}.
+    \end{itemize}
+    \item \textbf{Stan początkowy:}
+    \begin{itemize}
+        \item Robot \code{robby} znajduje się w \code{pokoj1}.
+        \item Wszystkie pokoje (\code{pokoj1}, \code{pokoj2}, \code{pokoj3}) są brudne (\code{dirty}).
+    \end{itemize}
+    \item \textbf{Cel:} Wszystkie pokoje są czyste (\code{clean}).
+\end{itemize}
+
+\subsection{Zadanie 3: Robot Przenoszący Piłki}
+\begin{itemize}
+    \item \textbf{Opis:} Robot wyposażony w dwa ramiona ma za zadanie przenieść cztery piłki z jednego pokoju do drugiego. Robot może poruszać się między pokojami oraz podnosić i odkładać piłki za pomocą ramion.
+    \item \textbf{Typy obiektów:} \code{robot}, \code{room}, \code{ball}, \code{arm}.
+    \item \textbf{Obiekty:}
+    \begin{itemize}
+        \item Pokoje: \code{room1}, \code{room2}.
+        \item Robot: \code{robot} (jeden, nazwa generyczna).
+        \item Piłki: \code{ball1}, \code{ball2}, \code{ball3}, \code{ball4}.
+        \item Ramiona: \code{arm1}, \code{arm2}.
+    \end{itemize}
+    \item \textbf{Stan początkowy:}
+    \begin{itemize}
+        \item Robot \code{robot} oraz wszystkie cztery piłki znajdują się w \code{room1}.
+        \item Oba ramiona robota (\code{arm1}, \code{arm2}) są puste (\code{arm-empty}).
+    \end{itemize}
+    \item \textbf{Cel:} Wszystkie cztery piłki znajdują się w \code{room2}.
+\end{itemize}
+
+\clearpage
+\section{Opis Implementacji i Rozwiązania (Pliki PDDL)}
+
+\subsection{Zadanie 1: Logistyka Transportu}
+\subsubsection{Domena (\code{domain.pddl})}
+\begin{lstlisting}[caption={Domena PDDL dla zadania 1 - Logistyka Transportu}, label={lst:zad1_domain}]
+(define (domain transport-logistics)
+  (:requirements 
+    :strips 
+    :typing 
+    :negative-preconditions 
+    :equality
+  )
+
+  (:types
+    package
+    location
+    vehicle
+    transport-mode - object
+
+    university - location     ; University locations
+    drone      - vehicle      ; Drone vehicles
+    student    - vehicle      ; Student vehicles
+  )
+
+  (:constants
+    road - transport-mode
+    air  - transport-mode
+  )
+
+  (:predicates
+    ; Object (package or vehicle) is at location
+    (at ?obj - (either package vehicle) ?loc - location)
+    
+    ; Package is loaded in vehicle
+    (in ?pkg - package ?veh - vehicle)
+    
+    ; Locations are connected by transport mode
+    (connected ?loc1 - location ?loc2 - location ?mode - transport-mode)
+    
+    ; Vehicle can use transport mode
+    (can-use ?veh - vehicle ?mode - transport-mode)
+  )
+
+  (:action load-package
+    :parameters (?pkg - package 
+                 ?veh - vehicle 
+                 ?loc - location)
+    :precondition (and
+      (at ?pkg ?loc)
+      (at ?veh ?loc)
+    )
+    :effect (and
+      (in ?pkg ?veh)
+      (not (at ?pkg ?loc))
+    )
+  )
+
+  (:action unload-package
+    :parameters (?pkg - package 
+                 ?veh - vehicle 
+                 ?loc - location)
+    :precondition (and
+      (in ?pkg ?veh)
+      (at ?veh ?loc)
+    )
+    :effect (and
+      (at ?pkg ?loc)
+      (not (in ?pkg ?veh))
+    )
+  )
+
+  (:action move-vehicle
+    :parameters (?veh - vehicle 
+                 ?from - location 
+                 ?to - location 
+                 ?mode - transport-mode)
+    :precondition (and
+      (at ?veh ?from)
+      (connected ?from ?to ?mode)
+      (can-use ?veh ?mode)
+      (not (= ?from ?to)) ; prevent moving to the same location
+    )
+    :effect (and
+      (at ?veh ?to)
+      (not (at ?veh ?from))
+    )
+  )
+)
+\end{lstlisting}
+\textbf{Opis Domeny:}
+\begin{itemize}
+    \item \textbf{Wymagania:} Wykorzystano podstawowe \code{:strips}, \code{:typing} do definiowania typów, \code{:negative-preconditions} (choć jawnie użyte tylko \code{not (= ...)} które jest częścią \code{:equality}) oraz \code{:equality} do porównywania obiektów.
+    \item \textbf{Typy:} Zdefiniowano główne typy (\code{package}, \code{location}, \code{vehicle}, \code{transport-mode}) oraz ich podtypy (\code{university}, \code{drone}, \code{student}).
+    \item \textbf{Stałe:} Tryby transportu \code{road} i \code{air}.
+    \item \textbf{Predykaty:} \code{(at ?obj ?loc)} określa położenie obiektu, \code{(in ?pkg ?veh)} że paczka jest w pojeździe, \code{(connected ...)} połączenie między lokacjami, \code{(can-use ...)} zdolność pojazdu do użycia trybu transportu.
+    \item \textbf{Akcje:}
+    \begin{itemize}
+        \item \code{load-package}: Załadowanie paczki do pojazdu w tej samej lokalizacji.
+        \item \code{unload-package}: Wyładowanie paczki z pojazdu.
+        \item \code{move-vehicle}: Przemieszczenie pojazdu między połączonymi lokacjami, jeśli pojazd może użyć danego trybu transportu. Warunek \code{(not (= ?from ?to))} zapobiega ruchowi w miejscu.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Problem (\code{problem.pddl})}
+\begin{lstlisting}[caption={Problem PDDL dla zadania 1 - Logistyka Transportu}, label={lst:zad1_problem}]
+(define (problem transport-task-politechniki)
+  (:domain transport-logistics)
+
+  (:objects
+    pwr - university ; Politechnika Wroc{\l}awska
+    agh - university ; AGH Krakow  
+    pw  - university ; Politechnika Warszawska
+    
+    gpu1 - package   ; Graphics card 1
+    gpu2 - package   ; Graphics card 2
+
+    dron_pwr    - drone   ; Drone from Wroc{\l}aw
+    student_agh - student ; Student from AGH
+  )
+
+  (:init
+    (at gpu1 pwr) (at gpu2 pwr)
+    (at dron_pwr pwr) (at student_agh agh)
+
+    (connected pwr agh road) (connected agh pwr road)
+    (connected agh pw road)  (connected pw agh road)
+    (connected pwr pw road)  (connected pw pwr road)
+
+    (connected pwr agh air) (connected agh pwr air)
+    (connected agh pw air)  (connected pw agh air)
+    (connected pwr pw air)  (connected pw pwr air)
+
+    (can-use dron_pwr air)
+    (can-use student_agh road)
+  )
+
+  (:goal
+    (and
+      (at gpu1 pw)  ; GPU 1 to Warsaw Tech
+      (at gpu2 agh) ; GPU 2 to AGH Krakow
+    )
+  )
+)
+\end{lstlisting}
+\textbf{Opis Problemu:}
+Definiuje konkretne uniwersytety, paczki i pojazdy. Stan początkowy określa ich lokalizacje oraz połączenia (drogowe i powietrzne zdefiniowane jako dwukierunkowe) i zdolności pojazdów. Celem jest dostarczenie \code{gpu1} do \code{pw} i \code{gpu2} do \code{agh}.
+
+\clearpage
+\subsection{Zadanie 2: Robot Sprzątający}
+\subsubsection{Domena (\code{domain.pddl})}
+\begin{lstlisting}[caption={Domena PDDL dla zadania 2 - Robot Sprzątający}, label={lst:zad2_domain}]
+(define (domain robot-world)
+    (:requirements :strips :typing)
+    (:types room robot)
+    (:predicates
+        (at ?r - robot ?p - room)
+        (dirty ?p - room)
+        (clean ?p - room)
+    )
+    (:action move
+        :parameters (?r - robot ?from ?to - room)
+        :precondition (at ?r ?from)
+        :effect (and (not (at ?r ?from)) (at ?r ?to))
+    )
+    (:action clean
+        :parameters (?r - robot ?p - room)
+        :precondition (and (dirty ?p) (at ?r ?p))
+        :effect (and (not (dirty ?p)) (clean ?p))
+    )
+)
+\end{lstlisting}
+\textbf{Opis Domeny:} Prosta domena z typami \code{room} i \code{robot}. Predykaty opisują pozycję robota oraz stan pokoju (brudny/czysty). Akcja \code{move} przemieszcza robota, a \code{clean} zmienia stan brudnego pokoju na czysty, jeśli robot w nim jest.
+
+\subsubsection{Problem (\code{problem.pddl})}
+\begin{lstlisting}[caption={Problem PDDL dla zadania 2 - Robot Sprzątający}, label={lst:zad2_problem}]
+(define (problem robot-move-problem)
+    (:domain robot-world)
+    (:objects
+        pokoj1 pokoj2 pokoj3 - room
+        robby - robot
+    )
+    (:init
+        (at robby pokoj1)
+        (dirty pokoj1)
+        (dirty pokoj2)
+        (dirty pokoj3)
+    )
+    (:goal (and (clean pokoj1) (clean pokoj2) (clean pokoj3)))
+)
+\end{lstlisting}
+\textbf{Opis Problemu:} Trzy pokoje, jeden robot. Początkowo robot jest w \code{pokoj1}, a wszystkie pokoje są brudne. Celem jest, aby wszystkie trzy pokoje były czyste.
+
+\subsection{Zadanie 3: Robot Przenoszący Piłki}
+\subsubsection{Domena (\code{domain.pddl})}
+\begin{lstlisting}[caption={Domena PDDL dla zadania 3 - Robot Przenoszący Piłki}, label={lst:zad3_domain}]
+(define (domain ball-moving-robot)
+  (:requirements :strips :typing)
+  (:types robot room ball arm)
+  (:predicates
+    (at ?r - robot ?room - room)
+    (inroom ?b - ball ?room - room)
+    (holding ?a - arm ?b - ball)
+    (arm-empty ?a - arm)
+  )
+  (:action move
+    :parameters (?r - robot ?from - room ?to - room)
+    :precondition (at ?r ?from)
+    :effect (and (not (at ?r ?from)) (at ?r ?to))
+  )
+  (:action pick-up
+    :parameters (?r - robot ?a - arm ?b - ball ?room - room)
+    :precondition (and (at ?r ?room) (inroom ?b ?room) (arm-empty ?a))
+    :effect (and (holding ?a ?b) (not (arm-empty ?a)) 
+                 (not (inroom ?b ?room)))
+  )
+  (:action put-down
+    :parameters (?r - robot ?a - arm ?b - ball ?room - room)
+    :precondition (and (at ?r ?room) (holding ?a ?b))
+    :effect (and (inroom ?b ?room) (arm-empty ?a) 
+                 (not (holding ?a ?b)))
+  )
+)
+\end{lstlisting}
+\textbf{Opis Domeny:} Definiuje typy dla robota, pokoju, piłki i ramienia. Predykaty śledzą pozycję robota i piłek, oraz stan ramion (czy trzymają piłkę, czy są puste). Akcje to \code{move} (ruch robota), \code{pick-up} (podniesienie piłki pustym ramieniem) i \code{put-down} (odłożenie trzymanej piłki).
+
+\subsubsection{Problem (\code{problem.pddl})}
+\begin{lstlisting}[caption={Problem PDDL dla zadania 3 - Robot Przenoszący Piłki}, label={lst:zad3_problem}]
+(define (problem move-balls)
+  (:domain ball-moving-robot)
+  (:objects
+    room1 room2 - room
+    robot - robot
+    ball1 ball2 ball3 ball4 - ball
+    arm1 arm2 - arm
+  )
+  (:init
+    (at robot room1)
+    (inroom ball1 room1) (inroom ball2 room1)
+    (inroom ball3 room1) (inroom ball4 room1)
+    (arm-empty arm1) (arm-empty arm2)
+  )
+  (:goal
+    (and
+      (inroom ball1 room2) (inroom ball2 room2)
+      (inroom ball3 room2) (inroom ball4 room2)
+    )
+  )
+)
+\end{lstlisting}
+\textbf{Opis Problemu:} Dwa pokoje, jeden robot, cztery piłki i dwa ramiona. Początkowo robot i wszystkie piłki są w \code{room1}, a ramiona są puste. Celem jest przeniesienie wszystkich piłek do \code{room2}.
+
+\clearpage
+\section{Konfiguracja Eksperymentów i Uruchomienie Planera}
+Do rozwiązania zdefiniowanych problemów PDDL wykorzystano system DELFI, który integruje planer Fast Downward. System ten automatycznie wybiera konfigurację planera na podstawie analizy problemu (w tym przypadku z wykorzystaniem modelu uczenia głębokiego, o czym świadczą logi dotyczące TensorFlow).
+
+Dla każdego z trzech zadań, odpowiednie pliki \code{domain.pddl} i \code{problem.pddl} zostały przetworzone przez system. Kluczowe etapy działania planera, widoczne w dostarczonych logach (\code{result.txt}), obejmują:
+\begin{enumerate}
+    \item \textbf{Parsowanie PDDL:} Wczytanie i zinterpretowanie plików dziedziny i problemu.
+    \item \textbf{Normalizacja zadania:} Przekształcenie problemu do wewnętrznej, ustandaryzowanej reprezentacji.
+    \item \textbf{Instancjacja:} Wygenerowanie wszystkich możliwych konkretnych predykatów i akcji na podstawie obiektów.
+    \item \textbf{Wybór konfiguracji planera:} System DELFI wybrał specyficzne konfiguracje Fast Downward, np. z heurystyką \code{merge_and_shrink} lub \code{cpdbs} i algorytmem przeszukiwania A*. Przykładowe wywołania:
+    \begin{itemize}
+        \item Zadanie 1: \code{astar(merge_and_shrink(...symmetries=sym,pruning=stubborn_sets_simple...))}
+        \item Zadanie 2: \code{astar(merge_and_shrink(...symmetries=sym,pruning=stubborn_sets_simple...))} (inna konfiguracja M\&S)
+        \item Zadanie 3: \code{astar(cpdbs(patterns=hillclimbing...),symmetries=sym,pruning=stubborn_sets_simple...))}
+    \end{itemize}
+    \item \textbf{Przeszukiwanie przestrzeni stanów:} Wybrany algorytm przeszukuje przestrzeń stanów w celu znalezienia sekwencji akcji prowadzącej od stanu początkowego do celu.
+    \item \textbf{Generowanie planu:} Jeśli rozwiązanie zostanie znalezione, planer zwraca sekwencję akcji.
+\end{enumerate}
+Analiza wyników skupi się na wygenerowanym planie oraz metrykach wydajnościowych planera.
+
+\section{Analiza Wyników Eksperymentów}
+
+\subsection{Zadanie 1: Logistyka Transportu Kart Graficznych}
+\begin{itemize}
+    \item \textbf{Status rozwiązania:} Plan został znaleziony (\code{Solution found!}).
+    \item \textbf{Wygenerowany plan:}
+    \begin{enumerate}
+        \item \code{(load-package gpu1 dron_pwr pwr)}
+        \item \code{(load-package gpu2 dron_pwr pwr)}
+        \item \code{(move-vehicle dron_pwr pwr agh air)}
+        \item \code{(unload-package gpu2 dron_pwr agh)}
+        \item \code{(move-vehicle dron_pwr agh pw air)}
+        \item \code{(unload-package gpu1 dron_pwr pw)}
+    \end{enumerate}
+    \item \textbf{Długość/Koszt planu:} 6 kroków / Koszt 6.
+    \item \textbf{Komentarz do planu:} Planer optymalnie wykorzystał drona, który zabrał obie karty graficzne z PWr, poleciał do AGH, zostawił tam GPU2, a następnie poleciał do PW, aby zostawić GPU1. Student nie został wykorzystany, co jest logiczne, gdyż dron mógł obsłużyć oba transporty i miał dostęp do wszystkich lokacji drogą powietrzną.
+    \item \textbf{Metryki planera:}
+    \begin{itemize}
+        \item Całkowity czas: 0.127s (wall-clock).
+        \item Szczytowe użycie pamięci: 5528 KB.
+        \item Stany rozwinięte/ocenione/wygenerowane: 23 / 47 / 127.
+        \item Atomy PDDL: 99 relewantnych, Operatory: 36.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Zadanie 2: Robot Sprzątający}
+\begin{itemize}
+    \item \textbf{Status rozwiązania:} Plan został znaleziony (\code{Solution found!}).
+    \item \textbf{Wygenerowany plan:}
+    \begin{enumerate}
+        \item \code{(clean robby pokoj1)}
+        \item \code{(move robby pokoj1 pokoj2)}
+        \item \code{(clean robby pokoj2)}
+        \item \code{(move robby pokoj2 pokoj3)}
+        \item \code{(clean robby pokoj3)}
+    \end{enumerate}
+    \item \textbf{Długość/Koszt planu:} 5 kroków / Koszt 5.
+    \item \textbf{Komentarz do planu:} Robot kolejno sprząta pokój, w którym się znajduje, a następnie przemieszcza się do następnego brudnego pokoju, aż wszystkie zostaną posprzątane. Jest to najbardziej intuicyjne rozwiązanie.
+    \item \textbf{Metryki planera:}
+    \begin{itemize}
+        \item Całkowity czas: 0.104s (wall-clock).
+        \item Szczytowe użycie pamięci: 5528 KB.
+        \item Stany rozwinięte/ocenione/wygenerowane: 6 / 6 / 13.
+        \item Atomy PDDL: 34 relewantne, Operatory: 9.
+    \end{itemize}
+    Zauważalnie mniejsza liczba stanów i operatorów w porównaniu do zadania 1, co przekłada się na bardzo szybkie znalezienie prostego planu.
+\end{itemize}
+
+\subsection{Zadanie 3: Robot Przenoszący Piłki}
+\begin{itemize}
+    \item \textbf{Status rozwiązania:} Plan został znaleziony (\code{Solution found!}).
+    \item \textbf{Wygenerowany plan:}
+    \begin{enumerate}
+        \item \code{(pick-up robot arm1 ball1 room1)}
+        \item \code{(pick-up robot arm2 ball2 room1)}
+        \item \code{(move robot room1 room2)}
+        \item \code{(put-down robot arm1 ball1 room2)}
+        \item \code{(put-down robot arm2 ball2 room2)}
+        \item \code{(move robot room2 room1)}
+        \item \code{(pick-up robot arm1 ball3 room1)}
+        \item \code{(pick-up robot arm2 ball4 room1)}
+        \item \code{(move robot room1 room2)}
+        \item \code{(put-down robot arm1 ball3 room2)}
+        \item \code{(put-down robot arm2 ball4 room2)}
+    \end{enumerate}
+    \item \textbf{Długość/Koszt planu:} 11 kroków / Koszt 11.
+    \item \textbf{Komentarz do planu:} Robot efektywnie wykorzystuje oba ramiona, przenosząc po dwie piłki na kurs. Wykonuje dwa cykle: podnieś dwie piłki, przenieś do drugiego pokoju, odłóż, wróć po kolejne.
+    \item \textbf{Metryki planera:}
+    \begin{itemize}
+        \item Całkowity czas: 0.139s (wall-clock).
+        \item Szczytowe użycie pamięci: 5524 KB.
+        \item Stany rozwinięte/ocenione/wygenerowane: 21 / 23 / 81.
+        \item Atomy PDDL: 84 relewantne, Operatory: 34.
+    \end{itemize}
+    Złożoność tego problemu jest pośrednia między zadaniem 1 a 2, co odzwierciedlają metryki.
+\end{itemize}
+
+\section{Napotkane Problemy Implementacyjne i Uwagi}
+Podczas tworzenia modeli PDDL dla powyższych zadań napotkano kilka typowych wyzwań oraz poczyniono pewne obserwacje:
+\begin{itemize}
+    \item \textbf{Definiowanie typów i hierarchii:} Kluczowe było precyzyjne zdefiniowanie typów obiektów, szczególnie w Zadaniu 1, gdzie występowały podtypy (np. \code{university - location}, \code{drone - vehicle}). Poprawne typowanie jest niezbędne dla działania planera i unikania błędów.
+    \item \textbf{Logika predykatów i akcji:} Staranne formułowanie predykatów oraz warunków wstępnych i efektów akcji było fundamentalne. Błędy na tym etapie mogą prowadzić do niepoprawnych planów lub niemożności znalezienia rozwiązania. Na przykład, w Zadaniu 1, predykat \code{(can-use ?veh ?mode)} oraz warunek \code{(not (= ?from ?to))} w akcji \code{move-vehicle} były istotne dla realizmu modelu.
+    \item \textbf{Dwukierunkowość połączeń (Zadanie 1):} W Zadaniu 1, połączenia między lokacjami (np. \code{(connected pwr agh road)}) musiały być zdefiniowane w obie strony (np. również \code{(connected agh pwr road)}), aby umożliwić swobodny ruch pojazdów.
+    \item \textbf{Nieokreślona pojemność pojazdów (Zadanie 1):} Model w Zadaniu 1 nie definiował jawnie pojemności pojazdów. Dron mógł "zabrać" obie paczki jednocześnie, co planer wykorzystał. W bardziej realistycznym scenariuszu należałoby dodać predykaty i logikę zarządzania pojemnością.
+    \item \textbf{Debugowanie PDDL:} Język PDDL, mimo swojej mocy, może generować trudne do zdiagnozowania błędy, jeśli model jest niepoprawny. Komunikaty z planera (widoczne w \code{result.txt} podczas fazy parsowania i normalizacji) są pomocne, ale czasami wymagają wnikliwej analizy. Użycie edytorów PDDL z walidacją (np. \href{https://editor.planning.domains}{editor.planning.domains}) jest zalecane.
+    \item \textbf{Interpretacja wyników planera:} Logi z Fast Downward są szczegółowe i dostarczają wielu informacji o procesie planowania (np. użyte heurystyki, liczba stanów). Zrozumienie tych metryk pozwala ocenić złożoność problemu i efektywność planera.
+    \item \textbf{Kreatywność w modelowaniu (Zadanie 1):} Tematyka transportu kart graficznych między politechnikami była próbą stworzenia ciekawszego kontekstu dla standardowego problemu logistycznego, co pokazuje elastyczność PDDL w modelowaniu różnorodnych scenariuszy.
+\end{itemize}
+Wszystkie problemy zostały ostatecznie rozwiązane, a planery wygenerowały poprawne i logiczne plany.
+
+\section{Podsumowanie i Wnioski}
+Realizacja zadań z wykorzystaniem języka PDDL pozwoliła na praktyczne zastosowanie wiedzy z zakresu planowania automatycznego. Udało się pomyślnie zamodelować trzy różne problemy oraz uzyskać dla nich rozwiązania za pomocą planera Fast Downward.
+\begin{itemize}
+    \item Język PDDL okazał się skutecznym narzędziem do deklaratywnego opisu problemów planowania, umożliwiając abstrakcję od szczegółów implementacyjnych algorytmów przeszukiwania.
+    \item Planer Fast Downward, wraz z systemem DELFI, efektywnie znajdował rozwiązania dla przedstawionych problemów, generując logiczne i (w kontekście modeli) optymalne plany działania.
+    \item Analiza metryk wydajnościowych (czas, pamięć, liczba stanów) dostarczyła wglądu w relatywną złożoność poszczególnych zadań. Zadanie 1 (logistyka) było najbardziej złożone pod względem liczby atomów i operatorów, podczas gdy Zadanie 2 (robot sprzątający) było najprostsze.
+    \item Proces modelowania w PDDL wymaga precyzji i uwagi na detale, szczególnie przy definiowaniu typów, predykatów oraz warunków i efektów akcji.
+    \item Wykorzystanie podtypów oraz stałych w PDDL (jak w Zadaniu 1) pozwala na tworzenie bardziej czytelnych i modularnych modeli.
+\end{itemize}
+Projekt z powodzeniem zrealizował postawione cele edukacyjne, demonstrując praktyczne aspekty tworzenia i rozwiązywania problemów planowania w sztucznej inteligencji. Dalsze kroki mogłyby obejmować eksplorację bardziej zaawansowanych funkcji PDDL, takich jak akcje duratywne, koszty czy planowanie numeryczne, a także testowanie na bardziej złożonych instancjach problemów.
+
+\section*{Materiały Źródłowe}
+\begin{itemize}
+    \item Materiały wykładowe oraz treść listy zadań nr 3 z kursu "Sztuczna Inteligencja i Inżynieria Wiedzy".
+    \item Dokumentacja i przykłady użycia języka PDDL, m.in. z \href{https://planning.wiki/ref/pddl/domain}{planning.wiki}.
+    \item Strona edytora online PDDL: \href{https://editor.planning.domains}{https://editor.planning.domains}.
+    \item Strona projektu Fast Downward: \href{https://www.fast-downward.org/}{https://www.fast-downward.org/}.
+    \item Fares, F. Learn PDDL: \href{https://fareskalaboud.github.io/LearnPDDL/}{https://fareskalaboud.github.io/LearnPDDL/}.
+    \item University of Toronto, CS2542. Introduction to PDDL: \href{https://www.cs.toronto.edu/~sheila/2542/s14/A1/introtopddl2.pdf}{https://www.cs.toronto.edu/~sheila/2542/s14/A1/introtopddl2.pdf}.
+    \item PDDL4J Tutorial: \href{http://pddl4j.imag.fr/pddl_tutorial.html}{http://pddl4j.imag.fr/pddl\_tutorial.html}.
+\end{itemize}
+
+\end{document}
