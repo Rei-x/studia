@@ -1,0 +1,14 @@
+# Przykładowe wartości zmiennych Terraform
+# Skopiuj ten plik jako terraform.tfvars i dostosuj wartości
+
+aws_region = "us-east-1"
+
+# UWAGA: Nazwa bucket musi być globalnie unikalna!
+# Zmień suffix na swój unikalny identyfikator
+bucket_name = "qr-generator-bucket-your-unique-suffix-12345"
+
+lambda_function_name = "qr-generator"
+
+# ARN roli LabRole dla konta edukacyjnego AWS
+# Zostaw tę wartość bez zmian dla konta edukacyjnego
+lab_role_arn = "arn:aws:iam::091492946242:role/LabRole"
