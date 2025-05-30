@@ -1,8 +1,8 @@
+version: "3.8"
 
 services:
-
-
   meeting-service:
+    image: meeting-service:latest
     build:
       context: ./meeting-service
       dockerfile: Dockerfile
@@ -12,28 +12,35 @@ services:
       - ./meeting-service/.env
     networks:
       - app-network
+    deploy:
+      replicas: 1
 
   notification-service:
+    image: notification-service:latest
     build:
       context: ./notification-service
       dockerfile: Dockerfile
-    scale: 2
     env_file:
       - ./notification-service/.env
     networks:
       - app-network
+    deploy:
+      replicas: 2
 
   recording-service:
+    image: recording-service:latest
     build:
       context: ./recording-service
       dockerfile: Dockerfile
-    scale: 3
     env_file:
       - ./recording-service/.env
     networks:
       - app-network
+    deploy:
+      replicas: 3
 
   summary-service:
+    image: summary-service:latest
     build:
       context: ./summary-service
       dockerfile: Dockerfile
@@ -43,17 +50,22 @@ services:
       - "3003:3003"
     networks:
       - app-network
+    deploy:
+      replicas: 1
 
   transcription-service:
+    image: transcription-service:latest
     build:
       context: ./transcription-service
       dockerfile: Dockerfile
-    scale: 4
     env_file:
       - ./transcription-service/.env
     networks:
       - app-network
+    deploy:
+      replicas: 4
 
 networks:
   app-network:
-    driver: bridge
+    driver: overlay
+    attachable: true
