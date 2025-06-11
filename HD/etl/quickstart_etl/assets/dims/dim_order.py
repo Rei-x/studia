@@ -44,6 +44,14 @@ def dim_order_load_asset(
         "payment_installments",
         "payment_value",
     ]
+
+    dim_df_merged = dim_df_merged[
+        (dim_df_merged["order_status"].notna())
+        & (dim_df_merged["payment_type"].notna())
+        & (dim_df_merged["payment_installments"].notna())
+        & (dim_df_merged["payment_value"].notna())
+    ]
+
     final_df = _prepare_df_for_load(
         context, dim_df_merged, target_cols_for_df, "order_id"
     )

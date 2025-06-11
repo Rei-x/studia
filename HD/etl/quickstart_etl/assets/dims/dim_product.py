@@ -33,6 +33,12 @@ def dim_product_load_asset(
         on="product_category_name",
         how="left",
     )
+
+    dim_df_merged = dim_df_merged[
+        (dim_df_merged["product_category_name"].notna())
+        & (dim_df_merged["product_weight_g"].notna())
+    ]
+
     target_cols_for_df = [
         "product_id",
         "product_category_name",
