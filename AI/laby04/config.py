@@ -1,0 +1,9 @@
+DATA_FILEPATH = "cardiotocography-dane_zad_2025.csv"
+OUTPUT_DIR = "output/"
+
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+
+CV_FOLDS = 5
+
+PCA_VARIANCE_THRESHOLD = 0.95
